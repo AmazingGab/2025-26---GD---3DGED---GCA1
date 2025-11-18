@@ -40,6 +40,25 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Fonts/uiReticleText.spritefont
 
+#begin Assets/Models/Character.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Assets/Models/Character.fbx
+
 #begin Assets/Models/cube.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -97,6 +116,25 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/plane.fbx
 
+#begin Assets/Models/Roaches.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Assets/Models/Roaches.fbx
+
 #begin Assets/Models/skydome.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -115,6 +153,25 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/skydome.fbx
+
+#begin Assets/Models/spatula.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Assets/Models/spatula.fbx
 
 #begin Assets/Models/sphere.FBX
 /importer:FbxImporter
@@ -192,11 +249,29 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/teapot.FBX
 
+#begin Assets/Sounds/15419__pagancow__dorm-door-opening.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Sounds/15419__pagancow__dorm-door-opening.wav
+
+#begin Assets/Sounds/box sound.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Assets/Sounds/box sound.mp3
+
 #begin Assets/Sounds/Explosion 1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Assets/Sounds/Explosion 1.wav
+
+#begin Assets/Sounds/Final spatula hit sound.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Sounds/Final spatula hit sound.wav
 
 #begin Assets/Sounds/Hand Gun 1.wav
 /importer:WavImporter
@@ -209,6 +284,18 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Assets/Sounds/Laser Gun Salve.wav
+
+#begin Assets/Sounds/Roach Crunch Sound.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Sounds/Roach Crunch Sound.wav
+
+#begin Assets/Sounds/roach_death.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Assets/Sounds/roach_death.mp3
 
 #begin Assets/Sounds/Secret door.wav
 /importer:WavImporter
@@ -239,6 +326,18 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Assets/Sounds/UI/SFX_UI_Click_Designed_Pop_Negative_Close_1.wav
+
+#begin Assets/Sounds/whip sound.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Assets/Sounds/whip sound.mp3
+
+#begin Assets/Sounds/Wiping Sound.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Sounds/Wiping Sound.wav
 
 #begin Assets/Textures/Architecture/Walls/backwall.jpg
 /importer:TextureImporter
@@ -1211,4 +1310,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/UI/Mouse/reticleOpen.png
+
+#begin Assets/Textures/UI/STA.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/STA.png
 
