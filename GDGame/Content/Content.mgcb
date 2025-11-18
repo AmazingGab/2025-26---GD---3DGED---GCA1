@@ -40,8 +40,8 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Fonts/uiReticleText.spritefont
 
-#begin Assets/Models/Character.fbx
-/importer:FbxImporter
+#begin Assets/Models/Character.obj
+/importer:OpenAssetImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
@@ -57,7 +57,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Assets/Models/Character.fbx
+/build:Assets/Models/Character.obj
 
 #begin Assets/Models/cube.fbx
 /importer:FbxImporter
@@ -154,8 +154,8 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/skydome.fbx
 
-#begin Assets/Models/spatula.fbx
-/importer:FbxImporter
+#begin Assets/Models/spatula.obj
+/importer:OpenAssetImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
@@ -171,7 +171,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Assets/Models/spatula.fbx
+/build:Assets/Models/spatula.obj
 
 #begin Assets/Models/sphere.FBX
 /importer:FbxImporter
