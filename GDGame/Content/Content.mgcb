@@ -40,8 +40,8 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Fonts/uiReticleText.spritefont
 
-#begin Assets/Models/Character.obj
-/importer:OpenAssetImporter
+#begin Assets/Models/Character.fbx
+/importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
@@ -57,7 +57,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Assets/Models/Character.obj
+/build:Assets/Models/Character.fbx
 
 #begin Assets/Models/cube.fbx
 /importer:FbxImporter
@@ -154,8 +154,8 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/skydome.fbx
 
-#begin Assets/Models/spatula.obj
-/importer:OpenAssetImporter
+#begin Assets/Models/spatula.fbx
+/importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
@@ -171,7 +171,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Assets/Models/spatula.obj
+/build:Assets/Models/spatula.fbx
 
 #begin Assets/Models/sphere.FBX
 /importer:FbxImporter
@@ -248,6 +248,18 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/teapot.FBX
+
+#begin Assets/Models/The_Scuff_Texture.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Models/The_Scuff_Texture.png
 
 #begin Assets/Sounds/15419__pagancow__dorm-door-opening.wav
 /importer:WavImporter
