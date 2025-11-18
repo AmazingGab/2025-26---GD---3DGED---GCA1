@@ -463,7 +463,7 @@ namespace GDGame
             thirdPersonController.TargetName = AppData.PLAYER_NAME;
             thirdPersonController.ShoulderOffset = 0;
             thirdPersonController.FollowDistance = 50;
-            thirdPersonController.RotationDamping = 20;
+            thirdPersonController.RotationDamping = 10;
             _cameraGO.AddComponent(thirdPersonController);
             _scene.Add(_cameraGO);
             #endregion
