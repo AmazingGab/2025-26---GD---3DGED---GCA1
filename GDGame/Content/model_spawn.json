@@ -1,0 +1,18 @@
+[
+    {
+        "position": [ 0, 5, 0 ],
+        "rotationDegrees": [ 0, 0, 0 ],
+        "scale": [ 3, 3, 3 ],
+        "textureName": "checkerboard",
+        "modelName": "monkey1",
+        "objectName": "spawn-1"
+    },
+    {
+        "position": [ 10, 10, -5 ],
+        "rotationDegrees": [ 0, 45, 0 ],
+        "scale": [ 2, 2, 2 ],
+        "textureName": "crate1",
+        "modelName": "monkey1",
+        "objectName": "spawn-2"
+    }
+]
