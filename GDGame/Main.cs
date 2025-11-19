@@ -22,6 +22,7 @@ using GDEngine.Core.Utilities;
 using GDGame.Demos.Controllers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -903,9 +904,15 @@ namespace GDGame
 
         private void DemoToggleFullscreen()
         {
-            bool togglePressed = _newKBState.IsKeyDown(Keys.F5) && !_oldKBState.IsKeyDown(Keys.F5);
+            bool togglePressed = _newKBState.IsKeyDown(Keys.T) && !_oldKBState.IsKeyDown(Keys.T);
             if (togglePressed)
-                _graphics.ToggleFullScreen();
+            {
+                GameObject crate = _scene.Find((GameObject go) => go.Name.Equals("test crate textured cube"));
+                if (crate != null)
+                {
+                    _scene.Remove(crate);
+                }
+            }   
         }
 
         private void DemoCameraSwitch()
