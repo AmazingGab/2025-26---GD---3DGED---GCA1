@@ -904,6 +904,8 @@ namespace GDGame
 
         private void DemoToggleFullscreen()
         {
+
+            var events = EngineContext.Instance.Events;
             List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
             var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
             bool togglePressed = _newKBState.IsKeyDown(Keys.T) && !_oldKBState.IsKeyDown(Keys.T);
@@ -917,6 +919,8 @@ namespace GDGame
                     if (roach != null && distToWaypoint < 10)
                     {
                         _scene.Remove(roach);
+                        events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+                    1, false, null));
                         break;
                     }
                 }
