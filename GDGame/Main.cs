@@ -57,6 +57,7 @@ namespace GDGame
         private int _damageAmount;
         private SoundEffectInstance _soundEffectInstance;
         private SoundEffect _soundEffect;
+        private int score;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -646,7 +647,8 @@ namespace GDGame
                     $"Camera Stats:",
                     $" - Camera [Name]: {camera.GameObject.Name}",
                     $" - Camera [Position]: {camera.Transform.Position.ToFixed()}",
-                    $" - Camera [Forward]: {camera.Transform.Forward.ToFixed()}"
+                    $" - Camera [Forward]: {camera.Transform.Forward.ToFixed()}",
+                    $" - Score: {score}",
                 };
             };
 
@@ -904,7 +906,7 @@ namespace GDGame
 
         private void DemoToggleFullscreen()
         {
-
+            
             var events = EngineContext.Instance.Events;
             List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
             var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
@@ -921,6 +923,7 @@ namespace GDGame
                         _scene.Remove(roach);
                         events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
                     1, false, null));
+                        score += 100;
                         break;
                     }
                 }
