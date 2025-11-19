@@ -908,7 +908,9 @@ namespace GDGame
             if (togglePressed)
             {
                 GameObject crate = _scene.Find((GameObject go) => go.Name.Equals("test crate textured cube"));
-                if (crate != null)
+                var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
+                var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, crate.Transform.Position);
+                if (crate != null && distToWaypoint<10)
                 {
                     _scene.Remove(crate);
                 }
