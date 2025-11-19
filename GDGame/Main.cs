@@ -455,7 +455,7 @@ namespace GDGame
             _camera.FarPlane = 1000;
             ////feed off whatever screen dimensions you set InitializeGraphics
             _camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
-            _cameraGO.AddComponent<KeyboardWASDController>();
+            _cameraGO.AddComponent<SimpleDriveController>();
             _cameraGO.AddComponent<MouseYawPitchController>();
 
             // Add it to the scene
