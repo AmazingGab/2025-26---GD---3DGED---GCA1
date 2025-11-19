@@ -904,16 +904,23 @@ namespace GDGame
 
         private void DemoToggleFullscreen()
         {
+            List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
+            var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
             bool togglePressed = _newKBState.IsKeyDown(Keys.T) && !_oldKBState.IsKeyDown(Keys.T);
             if (togglePressed)
             {
-                GameObject crate = _scene.Find((GameObject go) => go.Name.Equals("test crate textured cube"));
-                var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
-                var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, crate.Transform.Position);
-                if (crate != null && distToWaypoint<10)
+
+                foreach (var roach in roaches)
                 {
-                    _scene.Remove(crate);
+
+                    var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
+                    if (roach != null && distToWaypoint < 10)
+                    {
+                        _scene.Remove(roach);
+                        break;
+                    }
                 }
+                
             }   
         }
 
