@@ -26,8 +26,8 @@ namespace GDEngine.Core.Components
 
             // --- Rotation (H left, K right) around WORLD UP to avoid roll coupling ---
             float yawInput = 0f;
-            if (k.IsKeyDown(Keys.H)) yawInput += 1f;
-            if (k.IsKeyDown(Keys.K)) yawInput -= 1f;
+            if (k.IsKeyDown(Keys.A)) yawInput += 1f;
+            if (k.IsKeyDown(Keys.D)) yawInput -= 1f;
 
             if (yawInput != 0f)
             {
@@ -46,8 +46,8 @@ namespace GDEngine.Core.Components
 
             // --- Translation (U forward, J back) along actual current facing ---
             float moveInput = 0f;
-            if (k.IsKeyDown(Keys.U)) moveInput -= 1f;
-            if (k.IsKeyDown(Keys.J)) moveInput += 1f;
+            if (k.IsKeyDown(Keys.W)) moveInput -= 1f;
+            if (k.IsKeyDown(Keys.S)) moveInput += 1f;
 
             if (moveInput != 0f)
             {

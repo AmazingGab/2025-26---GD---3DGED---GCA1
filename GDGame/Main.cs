@@ -54,6 +54,7 @@ namespace GDGame
         private UIStatsRenderer _uiStatsRenderer;
         private int _dummyHealth;
         private KeyboardState _newKBState, _oldKBState;
+        private MouseState _newMouseState, _oldMouseState;
         private int _damageAmount;
         private SoundEffectInstance _soundEffectInstance;
         private SoundEffect _soundEffect;
@@ -853,12 +854,14 @@ namespace GDGame
         private void DemoStuff()
         {
             _newKBState = Keyboard.GetState();
+            _newMouseState = Mouse.GetState();
             DemoStatsToggle();
             DemoEventPublish();
             DemoCameraSwitch();
             DemoToggleFullscreen();
             DemoAudioSystem();
             _oldKBState = _newKBState;
+            _oldMouseState = _newMouseState;
         }
 
         private void DemoAudioSystem()
@@ -910,7 +913,7 @@ namespace GDGame
             var events = EngineContext.Instance.Events;
             List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
             var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
-            bool togglePressed = _newKBState.IsKeyDown(Keys.T) && !_oldKBState.IsKeyDown(Keys.T);
+            bool togglePressed = _newMouseState.LeftButton==ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
             if (togglePressed)
             {
 
