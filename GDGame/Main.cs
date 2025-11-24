@@ -22,6 +22,7 @@ using GDEngine.Core.Utilities;
 using GDGame.Demos.Controllers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -53,9 +54,11 @@ namespace GDGame
         private UIStatsRenderer _uiStatsRenderer;
         private int _dummyHealth;
         private KeyboardState _newKBState, _oldKBState;
+        private MouseState _newMouseState, _oldMouseState;
         private int _damageAmount;
         private SoundEffectInstance _soundEffectInstance;
         private SoundEffect _soundEffect;
+        private int score;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -455,7 +458,7 @@ namespace GDGame
             _camera.FarPlane = 1000;
             ////feed off whatever screen dimensions you set InitializeGraphics
             _camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
-            _cameraGO.AddComponent<KeyboardWASDController>();
+            _cameraGO.AddComponent<SimpleDriveController>();
             _cameraGO.AddComponent<MouseYawPitchController>();
 
             // Add it to the scene
@@ -645,7 +648,8 @@ namespace GDGame
                     $"Camera Stats:",
                     $" - Camera [Name]: {camera.GameObject.Name}",
                     $" - Camera [Position]: {camera.Transform.Position.ToFixed()}",
-                    $" - Camera [Forward]: {camera.Transform.Forward.ToFixed()}"
+                    $" - Camera [Forward]: {camera.Transform.Forward.ToFixed()}",
+                    $" - Score: {score}",
                 };
             };
 
@@ -850,12 +854,14 @@ namespace GDGame
         private void DemoStuff()
         {
             _newKBState = Keyboard.GetState();
+            _newMouseState = Mouse.GetState();
             DemoStatsToggle();
             DemoEventPublish();
             DemoCameraSwitch();
             DemoToggleFullscreen();
             DemoAudioSystem();
             _oldKBState = _newKBState;
+            _oldMouseState = _newMouseState;
         }
 
         private void DemoAudioSystem()
@@ -903,9 +909,29 @@ namespace GDGame
 
         private void DemoToggleFullscreen()
         {
-            bool togglePressed = _newKBState.IsKeyDown(Keys.F5) && !_oldKBState.IsKeyDown(Keys.F5);
+            
+            var events = EngineContext.Instance.Events;
+            List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
+            var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
+            bool togglePressed = _newMouseState.LeftButton==ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
             if (togglePressed)
-                _graphics.ToggleFullScreen();
+            {
+
+                foreach (var roach in roaches)
+                {
+
+                    var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
+                    if (roach != null && distToWaypoint < 10)
+                    {
+                        _scene.Remove(roach);
+                        events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+                    1, false, null));
+                        score += 100;
+                        break;
+                    }
+                }
+                
+            }   
         }
 
         private void DemoCameraSwitch()
