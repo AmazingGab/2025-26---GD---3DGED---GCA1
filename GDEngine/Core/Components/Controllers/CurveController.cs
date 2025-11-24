@@ -139,6 +139,8 @@ namespace GDEngine.Core.Components
         #region Lifecycle Methods
         protected override void Awake()
         {
+            if (GameObject == null)
+                throw new NullReferenceException(nameof(GameObject));
             _transform = GameObject.Transform;
 
             base.Awake();

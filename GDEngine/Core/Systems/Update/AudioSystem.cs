@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using GDEngine.Core.Audio;
-using GDEngine.Core.Audio.Events;
 using GDEngine.Core.Collections;
 using GDEngine.Core.Components;
 using GDEngine.Core.Entities;
@@ -10,7 +9,6 @@ using GDEngine.Core.Services;
 using GDEngine.Core.Systems.Base;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 
 namespace GDEngine.Core.Audio
 {
@@ -154,7 +152,7 @@ namespace GDEngine.Core.Audio
     }
 }
 
-namespace GDEngine.Core.Audio.Events
+namespace GDEngine.Core.Audio
 {
     /// <summary>
     /// Event to request a one-shot sound effect.
@@ -235,7 +233,7 @@ namespace GDEngine.Core.Audio.Events
     public sealed class FadeChannelEvent
     {
         #region Properties
-        public GDEngine.Core.Audio.AudioMixer.AudioChannel Channel { get; }
+        public AudioMixer.AudioChannel Channel { get; }
         public float TargetVolume { get; }
         public float DurationSeconds { get; }
         #endregion
@@ -520,12 +518,15 @@ namespace GDEngine.Core.Systems
             // Update listener from active camera
             if (_scene != null && _scene.ActiveCamera != null)
             {
-                Transform camTransform = _scene.ActiveCamera.Transform;
+                Transform? camTransform = _scene.ActiveCamera.Transform;
 
-                _listener.Position = camTransform.Position;
-                _listener.Forward = camTransform.Forward;
-                _listener.Up = camTransform.Up;
-                _listener.Velocity = Vector3.Zero;
+                if (camTransform != null)
+                {
+                    _listener.Position = camTransform.Position;
+                    _listener.Forward = camTransform.Forward;
+                    _listener.Up = camTransform.Up;
+                    _listener.Velocity = Vector3.Zero;
+                }
             }
 
             _mixer.Update(deltaTime);

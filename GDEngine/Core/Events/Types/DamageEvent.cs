@@ -56,10 +56,17 @@ namespace GDEngine.Core.Events
         }
 
         public DamageEvent(
+           int amount,
+           DamageType damageType)
+            : this(amount, damageType, null, null,Vector3.Zero)
+        {
+
+        }
+        public DamageEvent(
             int amount,
             DamageType damageType,
-            string sourceName,
-            string targetName,
+            string? sourceName,
+            string? targetName,
             Vector3 hitPosition,
             bool isCritical = false)
         {

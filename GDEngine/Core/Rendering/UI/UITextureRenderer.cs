@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GDEngine.Core.Rendering.UI
+namespace GDEngine.Core.Rendering
 {
     /// <summary>
     /// Draws a Texture2D in screen space via centralized batching in <see cref="UIRenderer"/>.

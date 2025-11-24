@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+ï»¿using System.Collections.Concurrent;
 
 namespace GDEngine.Core.Events
 {
@@ -54,7 +54,7 @@ namespace GDEngine.Core.Events
             {
                 if (!_map.TryGetValue(typeof(T), out List<EventSubscription>? list))
                 {
-                    // First subscriber for this event type — make a list.
+                    // First subscriber for this event type ï¿½ make a list.
                     list = new List<EventSubscription>(4);
                     _map[typeof(T)] = list;
                 }
@@ -130,7 +130,7 @@ namespace GDEngine.Core.Events
             {
             }
 
-            // Mark as disposed — future Dispose() calls do nothing (idempotent).
+            // Mark as disposed ï¿½ future Dispose() calls do nothing (idempotent).
             _disposed = true;
         }
         #endregion
@@ -256,7 +256,7 @@ namespace GDEngine.Core.Events
 
     /// <summary>
     /// Readable priority presets for EventBus subscriptions (lower numbers run earlier).
-    /// These are guidelines, not a closed set—use WithPriority(...) for custom values.
+    /// These are guidelines, not a closed setï¿½use WithPriority(...) for custom values.
     /// </summary>
     public static class EventPriority
     {

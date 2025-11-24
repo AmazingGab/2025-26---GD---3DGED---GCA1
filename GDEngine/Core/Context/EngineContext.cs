@@ -1,10 +1,8 @@
-﻿using GDEngine.Core.Collections;
-using GDEngine.Core.Entities;
+﻿using GDEngine.Core.Entities;
 using GDEngine.Core.Events;
-using Microsoft.Xna.Framework.Audio;
+using GDEngine.Core.Impulses;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
 
 namespace GDEngine.Core.Services
 {
@@ -32,6 +30,7 @@ namespace GDEngine.Core.Services
         public ContentManager Content { get; }
         public SpriteBatch SpriteBatch { get; }
         public EventBus Events { get; }
+        public ImpulseBus Impulses { get; }
 
         public static EngineContext? Instance
         {
@@ -60,6 +59,7 @@ namespace GDEngine.Core.Services
             Content = content ?? throw new ArgumentNullException(nameof(content));
             SpriteBatch = new SpriteBatch(graphicsDevice);
             Events = new EventBus();
+            Impulses = new ImpulseBus();
         }
         #endregion
 
@@ -81,6 +81,7 @@ namespace GDEngine.Core.Services
                 SpriteBatch?.Dispose();
                 Content?.Dispose();
                 Events?.Dispose();
+                Impulses?.Dispose();
                 // Note: GraphicsDevice is typically owned by the Game class, so we don't dispose it here
             }
 

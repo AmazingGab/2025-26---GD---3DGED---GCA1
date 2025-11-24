@@ -5,9 +5,8 @@ using GDEngine.Core.Timing;
 using GDEngine.Core.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
-namespace GDEngine.Core.Rendering.UI
+namespace GDEngine.Core.Rendering
 {
     /// <summary>
     /// Draws a rotating reticle sprite at the mouse cursor (with optional offset/scale).

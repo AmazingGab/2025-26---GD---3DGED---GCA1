@@ -1,12 +1,14 @@
-﻿using GDEngine.Core.Entities;
+﻿#nullable enable
+using GDEngine.Core.Entities;
+using System;
 
-namespace GDEngine.Core.Events
+namespace GDGame.Demos
 {
     /// <summary>
     /// Carries an inventory change (add/remove) for a specific player object.
     /// </summary>
     /// <see cref="GameObject"/>
-    public sealed class PlayerInventoryEvent
+    public sealed class InventoryEvent
     {
         #region Properties
         public GameObject Player { get; }
@@ -17,7 +19,7 @@ namespace GDEngine.Core.Events
         #endregion
 
         #region Constructors
-        public PlayerInventoryEvent(GameObject player, string itemId, bool isAdd, int quantity = 1, GameObject? source = null)
+        public InventoryEvent(GameObject player, string itemId, bool isAdd, int quantity = 1, GameObject? source = null)
         {
             Player = player ?? throw new ArgumentNullException(nameof(player));
             ItemId = itemId ?? throw new ArgumentNullException(nameof(itemId));

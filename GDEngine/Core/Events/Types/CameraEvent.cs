@@ -1,10 +1,10 @@
-﻿namespace GDEngine.Core.Events.Types.Camera
+﻿namespace GDEngine.Core.Events
 {
-    public class CameraChangeEvent
+    public class CameraEvent
     {
         private string targetCameraName;
 
-        public CameraChangeEvent(string targetCameraName)
+        public CameraEvent(string targetCameraName)
         {
             this.targetCameraName = targetCameraName;
         }

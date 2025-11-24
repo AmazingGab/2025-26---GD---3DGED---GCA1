@@ -4,6 +4,7 @@ namespace GDEngine.Core.Extensions
 {
     public static class Vector3Extensions
     {
+   
         /// <summary>
         /// Converts the <see cref="Vector3"/> to a formatted string with fixed decimal precision.
         /// </summary>
@@ -22,6 +23,7 @@ namespace GDEngine.Core.Extensions
             return $"({vec.X.ToString(format)}, {vec.Y.ToString(format)}, {vec.Z.ToString(format)})";
         }
 
+     
         public static Vector3 setTo(this Vector3 vec, float height)
         {
             return new Vector3(vec.X, height, vec.Z);

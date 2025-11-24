@@ -1,5 +1,4 @@
-﻿
-using GDEngine.Core.Components;
+﻿using GDEngine.Core.Components;
 using GDEngine.Core.Entities;
 using GDEngine.Core.Services;
 using GDEngine.Core.Systems;
@@ -141,7 +140,72 @@ namespace GDEngine.Core.Orchestration
         }
 
         /// <summary>
+        /// Pause a running sequence by name, preserving its current state.
+        /// </summary>
+        /// <param name="name">Name of the sequence to pause</param>
+        /// <returns>True if the sequence was paused, false if not found or not running</returns>
+        public bool Pause(string name)
+        {
+            if (!_sequences.TryGetValue(name, out Sequence? seq))
+                return false;
+
+            if (!seq.IsRunning)
+                return false;
+
+            seq.IsPaused = true;
+            return true;
+        }
+
+        /// <summary>
+        /// Resume a paused sequence by name.
+        /// </summary>
+        /// <param name="name">Name of the sequence to resume</param>
+        /// <returns>True if the sequence was resumed, false if not found or not paused</returns>
+        public bool Resume(string name)
+        {
+            if (!_sequences.TryGetValue(name, out Sequence? seq))
+                return false;
+
+            if (!seq.IsRunning || !seq.IsPaused)
+                return false;
+
+            seq.IsPaused = false;
+            return true;
+        }
+
+        /// <summary>
+        /// Toggle pause state of a sequence.
+        /// </summary>
+        /// <param name="name">Name of the sequence to toggle</param>
+        /// <returns>True if the sequence is now paused, false if now running, null if not found</returns>
+        public bool? TogglePause(string name)
+        {
+            if (!_sequences.TryGetValue(name, out Sequence? seq))
+                return null;
+
+            if (!seq.IsRunning)
+                return null;
+
+            seq.IsPaused = !seq.IsPaused;
+            return seq.IsPaused;
+        }
+
+        /// <summary>
+        /// Check if a sequence is currently paused.
+        /// </summary>
+        /// <param name="name">Name of the sequence to check</param>
+        /// <returns>True if paused, false if running or not found</returns>
+        public bool IsPaused(string name)
+        {
+            if (!_sequences.TryGetValue(name, out Sequence? seq))
+                return false;
+
+            return seq.IsRunning && seq.IsPaused;
+        }
+
+        /// <summary>
         /// Tick all active sequences using the given frame data.
+        /// Skips paused sequences without removing them from the active list.
         /// </summary>
         public void Tick(in OrchestrationTick tick)
         {
@@ -153,6 +217,10 @@ namespace GDEngine.Core.Orchestration
             {
                 Sequence seq = snapshot[i];
                 if (!seq.IsRunning)
+                    continue;
+
+                // Skip paused sequences (NEW)
+                if (seq.IsPaused)
                     continue;
 
                 OrchestrationContext ctx = new OrchestrationContext(tick.Context, tick.Scene, _publish);
@@ -237,8 +305,15 @@ namespace GDEngine.Core.Orchestration
                 sb.Append(seq.Name);
                 sb.Append(" (Running=");
                 sb.Append(seq.IsRunning ? "true" : "false");
+
+                // Add paused indicator (NEW)
+                if (seq.IsRunning && seq.IsPaused)
+                    sb.Append(", PAUSED");
+
                 sb.Append(", Steps=");
                 sb.Append(seq.StepCount);
+                sb.Append(", CurrentStep=");
+                sb.Append(seq.CurrentStepIndex);
                 sb.AppendLine(")");
             }
 
@@ -429,6 +504,7 @@ namespace GDEngine.Core.Orchestration
             #endregion
 
             #region Properties
+            public bool IsPaused { get; internal set; }
             public string Name { get; private set; }
             public bool Once { get; private set; }
             public bool IsRunning { get; internal set; }

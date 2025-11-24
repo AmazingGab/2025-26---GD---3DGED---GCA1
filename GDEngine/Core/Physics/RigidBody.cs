@@ -83,6 +83,7 @@ namespace GDEngine.Core.Components
         private bool _suppressTransformSync = false;
 
         private bool _disposed = false;
+        private float maximumSpeculativeMargin = 0.005f;
         #endregion
 
         #region Properties
@@ -293,6 +294,56 @@ namespace GDEngine.Core.Components
         /// Synchronizes Physics to Transform (used for Dynamic bodies).
         /// Called by PhysicsSystem after simulation step.
         /// </summary>
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //internal void SyncFromPhysics()
+        //{
+        //    if (_suppressTransformSync || Transform == null || _collider == null)
+        //        return;
+
+        //    if (_bodyType == BodyType.Dynamic && _bodyHandle.HasValue && _physicsSystem != null)
+        //    {
+        //        var bodyRef = _physicsSystem.Simulation.Bodies.GetBodyReference(_bodyHandle.Value);
+
+        //        float dt = Time.DeltaTimeSecs;
+        //        if (dt > 0f)
+        //        {
+        //            // Per-body gravity toggle: cancel out global gravity when disabled.
+        //            if (!_useGravity)
+        //            {
+        //                var g = _physicsSystem.Gravity.ToBepu();
+        //                bodyRef.Velocity.Linear -= g * dt;
+        //            }
+
+        //            // Simple velocity damping
+        //            if (_linearDamping > 0f || _angularDamping > 0f)
+        //            {
+        //                float linFactor = MathF.Max(0f, 1f - _linearDamping * dt);
+        //                float angFactor = MathF.Max(0f, 1f - _angularDamping * dt);
+
+        //                bodyRef.Velocity.Linear *= linFactor;
+        //                bodyRef.Velocity.Angular *= angFactor;
+        //            }
+        //        }
+
+        //        // Cache velocities for external access
+        //        _linearVelocity = bodyRef.Velocity.Linear.ToXNA();
+        //        _angularVelocity = bodyRef.Velocity.Angular.ToXNA();
+
+        //        // Update Transform using collider center offset so visuals stay aligned
+        //        var pose = bodyRef.Pose;
+        //        var targetRotation = pose.Orientation.ToXNA();
+        //        var targetPosition = pose.Position.ToXNA();
+
+        //        var localCenter = _collider.Center;
+        //        var rotatedCenter = Vector3.Transform(localCenter, targetRotation);
+        //        var visualPosition = targetPosition - rotatedCenter;
+
+        //        _suppressTransformSync = true;
+        //        Transform.RotateToWorld(targetRotation);
+        //        Transform.TranslateTo(visualPosition);
+        //        _suppressTransformSync = false;
+        //    }
+        //}
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SyncFromPhysics()
         {
@@ -303,7 +354,9 @@ namespace GDEngine.Core.Components
             {
                 var bodyRef = _physicsSystem.Simulation.Bodies.GetBodyReference(_bodyHandle.Value);
 
-                float dt = Time.DeltaTimeSecs;
+                // Use the physics step dt, not the render dt, so behaviour is independent of frame rate.
+                float dt = _physicsSystem.LastStepDt;
+
                 if (dt > 0f)
                 {
                     // Per-body gravity toggle: cancel out global gravity when disabled.
@@ -331,15 +384,28 @@ namespace GDEngine.Core.Components
                 // Update Transform using collider center offset so visuals stay aligned
                 var pose = bodyRef.Pose;
                 var targetRotation = pose.Orientation.ToXNA();
-                var targetPosition = pose.Position.ToXNA();
+                var physicsPositionWorld = pose.Position.ToXNA();
 
+                // Remove collider offset to get visual origin in world space
                 var localCenter = _collider.Center;
                 var rotatedCenter = Vector3.Transform(localCenter, targetRotation);
-                var visualPosition = targetPosition - rotatedCenter;
+                var visualWorldPosition = physicsPositionWorld - rotatedCenter;
+
+                // Convert world position to local position if we have a parent
+                Vector3 visualLocalPosition;
+                if (Transform.Parent == null)
+                {
+                    visualLocalPosition = visualWorldPosition;
+                }
+                else
+                {
+                    var invParent = Matrix.Invert(Transform.Parent.WorldMatrix);
+                    visualLocalPosition = Vector3.Transform(visualWorldPosition, invParent);
+                }
 
                 _suppressTransformSync = true;
-                Transform.RotateToWorld(targetRotation);
-                Transform.TranslateTo(visualPosition);
+                Transform.RotateToWorld(targetRotation);  // This handles world-to-local conversion
+                Transform.TranslateTo(visualLocalPosition);  // Now correctly in local space
                 _suppressTransformSync = false;
             }
         }
@@ -425,7 +491,7 @@ namespace GDEngine.Core.Components
                 var bodyDescription = BodyDescription.CreateDynamic(
                     pose,
                     inertia,
-                    new CollidableDescription(shapeIndex, 0.1f),
+                    new CollidableDescription(shapeIndex, maximumSpeculativeMargin),
                     new BodyActivityDescription(0.01f)
                 );
 
@@ -440,7 +506,7 @@ namespace GDEngine.Core.Components
                 var bodyDescription = BodyDescription.CreateKinematic(
                     pose,
                     PhysicsConversions.ToBodyVelocity(_linearVelocity, _angularVelocity),
-                    new CollidableDescription(shapeIndex, 0.1f),
+                    new CollidableDescription(shapeIndex, maximumSpeculativeMargin),
                     new BodyActivityDescription(0.01f)
                 );
 

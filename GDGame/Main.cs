@@ -1,19 +1,17 @@
 ﻿using GDEngine.Core;
 using GDEngine.Core.Audio;
-using GDEngine.Core.Audio.Events;
 using GDEngine.Core.Collections;
 using GDEngine.Core.Components;
 using GDEngine.Core.Debug;
 using GDEngine.Core.Entities;
 using GDEngine.Core.Events;
-using GDEngine.Core.Events.Types.Camera;
-using GDEngine.Core.Extensions;
 using GDEngine.Core.Factories;
+using GDEngine.Core.Impulses;
 using GDEngine.Core.Input.Data;
 using GDEngine.Core.Input.Devices;
 using GDEngine.Core.Orchestration;
 using GDEngine.Core.Rendering;
-using GDEngine.Core.Rendering.UI;
+using GDEngine.Core.Rendering.Base;
 using GDEngine.Core.Serialization;
 using GDEngine.Core.Services;
 using GDEngine.Core.Systems;
@@ -22,7 +20,6 @@ using GDEngine.Core.Utilities;
 using GDGame.Demos.Controllers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -41,24 +38,21 @@ namespace GDGame
         private ContentDictionary<SoundEffect> _soundDictionary;
         private ContentDictionary<Effect> _effectsDictionary;
         private Scene _scene;
-        private Camera _camera;
         private bool _disposed = false;
-        private OrchestrationSystem _orchestrationSystem;
         private Material _matBasicUnlit, _matBasicLit, _matAlphaCutout, _matBasicUnlitGround;
         #endregion
 
         #region Demo Fields (remove in the game)
         private AnimationCurve3D _animationPositionCurve, _animationRotationCurve;
         private AnimationCurve _animationCurve;
-        private GameObject _cameraGO;
-        private UIStatsRenderer _uiStatsRenderer;
-        private int _dummyHealth;
         private KeyboardState _newKBState, _oldKBState;
-        private MouseState _newMouseState, _oldMouseState;
         private int _damageAmount;
-        private SoundEffectInstance _soundEffectInstance;
-        private SoundEffect _soundEffect;
-        private int score;
+
+        // Simple debug subscription for collision events
+        private System.IDisposable _collisionSubscription;
+
+        // LayerMask used to filter which collisions we care about in debug
+        private LayerMask _collisionDebugMask = LayerMask.All;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -108,36 +102,40 @@ namespace GDGame
             int scale = 500;
             InitializeSkyParent();
             InitializeSkyBox(scale);
-            InitializeCollidableGround(scale);
+            DemoCollidableGround(scale);
 
             // Setup player
             InitializePlayer();
 
+            // Setup menu
+            //InitializeMenu();
+
+            #endregion
+
             #region Demos
-            DemoPlaySoundEffect();
 
             // Camera-demos
             InitializeAnimationCurves();
 
+            // Demo event listeners on collision
+            InitializeCollisionEventListener();
+
             // Collidable game object demos
-            DemoCollidablePrimitiveObject(new Vector3(0, 50, 15), Vector3.One * 1);
-            DemoCollidablePrimitiveObject(new Vector3(0, 40, 15), Vector3.One * 1);
-            DemoCollidablePrimitiveObject(new Vector3(0, 30, 15), Vector3.One * 1);
-            DemoCollidableFBXModel(new Vector3(0, 50, 10), Vector3.Zero, new Vector3(2,1.25f,2));
-            DemoCollidableFBXModel(new Vector3(0, 40, 11), Vector3.Zero, new Vector3(2, 1.25f, 2));
-            DemoCollidableFBXModel(new Vector3(0, 25, 12), Vector3.Zero, new Vector3(2, 1.25f, 2));
+            DemoCollidablePrimitive(new Vector3(0, 20, 5.1f), Vector3.One * 6, new Vector3(15, 45, 45));
+            DemoCollidablePrimitive(new Vector3(0, 10, 5.2f), Vector3.One * 1, new Vector3(45, 0, 0));
+            DemoCollidablePrimitive(new Vector3(0, 5, 5.3f), Vector3.One * 1, new Vector3(0, 0, 45));
+            DemoCollidableModel(new Vector3(0, 50, 10), Vector3.Zero, new Vector3(2, 1.25f, 2));
+            DemoCollidableModel(new Vector3(0, 40, 11), Vector3.Zero, new Vector3(2, 1.25f, 2));
+            DemoCollidableModel(new Vector3(0, 25, 12), Vector3.Zero, new Vector3(2, 1.25f, 2));
 
             DemoAlphaCutoutFoliage(new Vector3(0, 10 /*note Y=heightscale/2*/, 0), 12, 20);
             DemoLoadFromJSON();
-            DemoOrchestration();
+            DemoOrchestrationSystem();
             #endregion
 
-            // Setup renderers after all game objects added since ui text may use a gameobject as target
+            #region Core
+            // Setup UI renderers after all game objects added since ui text may use a gameobject as target
             InitializeUI();
-
-            // Setup menu
-            //InitializeMenu();
-
             #endregion
 
             base.Initialize();
@@ -146,44 +144,8 @@ namespace GDGame
         private void InitializeManagers()
         {
             var go = new GameObject("Camera Manager");
-            go.AddComponent<CameraChangeEventListener>();
+            go.AddComponent<CameraEventListener>();
             _scene.Add(go);
-        }
-
-        private void DemoPlaySoundEffect()
-        {
-            _soundEffect = _soundDictionary.Get("secret_door");      
-        }
-
-        private void DemoCollidableFBXModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
-        {
-            var go = new GameObject("test");
-            go.Transform.TranslateTo(position);
-            go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
-            go.Transform.ScaleTo(scale);
-
-            var model = _modelDictionary.Get("monkey1");
-            var texture = _textureDictionary.Get("mona lisa");
-            var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
-            go.AddComponent(meshFilter);
-
-            var meshRenderer = go.AddComponent<MeshRenderer>();
-
-            meshRenderer.Material = _matBasicLit;
-            meshRenderer.Overrides.MainTexture = texture;
-
-            _scene.Add(go);
-
-
-            // Add box collider (1x1x1 cube)
-            var collider = go.AddComponent<SphereCollider>();
-            collider.Diameter = scale.Length();
-
-            // Add rigidbody (Dynamic so it falls)
-            var rigidBody = go.AddComponent<RigidBody>();
-            rigidBody.BodyType = BodyType.Dynamic;
-            rigidBody.Mass = 1.0f;
-            rigidBody.UseGravity = true;
         }
 
         private void InitializePlayer()
@@ -201,7 +163,6 @@ namespace GDGame
             // Adds an inventory to the player
             player.AddComponent<InventoryComponent>();
         }
-
         private void InitializePIPCamera(Vector3 position,
       Viewport viewport, int depth, int index = 0)
         {
@@ -373,6 +334,52 @@ namespace GDGame
             InitializeInputSystem();  //input
             InitializeCameraAndRenderSystems(); //update cameras, draw renderable game objects, draw ui and menu
             InitializeAudioSystem();
+            InitializeOrchestrationSystem(true); //show debugger
+            InitializeImpulseSystem();
+        }
+
+        private void InitializeImpulseSystem()
+        {
+            _scene.Add(new ImpulseSystem(EngineContext.Instance.Impulses));
+        }
+
+        private void InitializeOrchestrationSystem(bool debugEnabled)
+        {
+            var orchestrationSystem = new OrchestrationSystem();
+            orchestrationSystem.Configure(options =>
+            {
+                options.Time = Orchestrator.OrchestrationTime.Unscaled;
+                options.LocalScale = 1;
+                options.Paused = false;
+            });
+            _scene.Add(orchestrationSystem);
+
+            // Debugger
+            if (debugEnabled)
+            {
+                GameObject debugGO = new GameObject("Perf Stats");
+                var debugRenderer = debugGO.AddComponent<UIDebugRenderer>();
+
+                debugRenderer.Font = _fontDictionary.Get("perf_stats_font");
+                debugRenderer.ScreenCorner = ScreenCorner.TopLeft;
+                debugRenderer.Margin = new Vector2(10f, 10f);
+
+                // Register orchestration as a debug provider
+                if (orchestrationSystem != null)
+                    debugRenderer.Providers.Add(orchestrationSystem);
+
+                var perfProvider = new PerformanceDebugInfoProvider
+                {
+                    Profile = DisplayProfile.Profiling,
+                    ShowMemoryStats = true
+                };
+
+                debugRenderer.Providers.Add(perfProvider);
+
+
+                _scene.Add(debugGO);
+            }
+
         }
 
         private void InitializeAudioSystem()
@@ -442,31 +449,67 @@ namespace GDGame
 
         private void InitializeCameras()
         {
-          
+            GameObject cameraGO = null;
+            Camera camera = null;
+            #region Static birds-eye camera
+            cameraGO = new GameObject(AppData.CAMERA_NAME_STATIC_BIRDS_EYE);
+            camera = cameraGO.AddComponent<Camera>();
+            camera.FieldOfView = MathHelper.ToRadians(80);
+            //ISRoT
+            cameraGO.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0));
+            cameraGO.Transform.TranslateTo(Vector3.UnitY * 50);
 
-           
+            // _cameraGO.AddComponent<MouseYawPitchController>();
+
+            _scene.Add(cameraGO);
+
+            // _camera.FieldOfView
+            //TODO - add camera
+            #endregion
+
+            #region Third-person camera
+            cameraGO = new GameObject(AppData.CAMERA_NAME_THIRD_PERSON);
+            camera = cameraGO.AddComponent<Camera>();
+
+            var thirdPersonController = new ThirdPersonController();
+            thirdPersonController.TargetName = AppData.PLAYER_NAME;
+            thirdPersonController.ShoulderOffset = 0;
+            thirdPersonController.FollowDistance = 50;
+            thirdPersonController.RotationDamping = 20;
+            cameraGO.AddComponent(thirdPersonController);
+            _scene.Add(cameraGO);
+            #endregion
 
             #region First-person camera
             var position = new Vector3(0, 5, 25);
 
             //camera GO
-            _cameraGO = new GameObject(AppData.CAMERA_NAME_FIRST_PERSON);
+            cameraGO = new GameObject(AppData.CAMERA_NAME_FIRST_PERSON);
+
             //set position 
-            _cameraGO.Transform.TranslateTo(position);
+            cameraGO.Transform.TranslateTo(position);
+
             //add camera component to the GO
-            _camera = _cameraGO.AddComponent<Camera>();
-            _camera.FarPlane = 1000;
-            ////feed off whatever screen dimensions you set InitializeGraphics
-            _camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
-            _cameraGO.AddComponent<SimpleDriveController>();
-            _cameraGO.AddComponent<MouseYawPitchController>();
+            camera = cameraGO.AddComponent<Camera>();
+            camera.FarPlane = 1000;
+
+            //feed off whatever screen dimensions you set InitializeGraphics
+            camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
+            cameraGO.AddComponent<KeyboardWASDController>();
+            cameraGO.AddComponent<MouseYawPitchController>();
+            cameraGO.AddComponent<CameraImpulseListener>();
 
             // Add it to the scene
-            _scene.Add(_cameraGO);
+            _scene.Add(cameraGO);
             #endregion
 
-           
-            _scene.SetActiveCamera(_cameraGO.GetComponent<Camera>());
+            // Set the active camera by finding and getting its camera component
+            // var theCamera = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_STATIC_BIRDS_EYE)).GetComponent<Camera>();
+            ////Obviously, since we have _camera we could also just use the line below
+            //_scene.SetActiveCamera(theCamera);
+
+            //replace with new SetActiveCamera that searches by string
+            _scene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
         }
 
         /// <summary>
@@ -571,95 +614,14 @@ namespace GDGame
 
         }
 
-        private void InitializeCollidableGround(int scale = 500)
-        {
-            GameObject gameObject = null;
-            MeshFilter meshFilter = null;
-            MeshRenderer meshRenderer = null;
-
-            gameObject = new GameObject("ground");
-            meshFilter = MeshFilterFactory.CreateQuadTexturedLit(_graphics.GraphicsDevice);
-
-            meshFilter = MeshFilterFactory.CreateQuadGridTexturedUnlit(_graphics.GraphicsDevice,
-                 1,
-                 1,
-                 1,
-                 1,
-                 20,
-                 20);
-
-
-            gameObject.Transform.ScaleBy(new Vector3(scale, scale, 1));
-            gameObject.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0), true);
-            gameObject.Transform.TranslateTo(new Vector3(0, -0.5f, 0));
-
-            gameObject.AddComponent(meshFilter);
-            meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            meshRenderer.Material = _matBasicUnlitGround;
-            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("ground_grass");
-
-            // Add a box collider matching the ground size
-            var collider = gameObject.AddComponent<BoxCollider>();
-            collider.Size = new Vector3(scale, scale, 0.025f);
-            collider.Center = new Vector3(0, 0, -0.0125f);
-
-            // Add rigidbody as Static (immovable)
-            var rigidBody = gameObject.AddComponent<RigidBody>();
-            rigidBody.BodyType = BodyType.Static;
-            gameObject.IsStatic = true; 
-
-            _scene.Add(gameObject);
-        }
-
         private void InitializeUI()
         {
-            InitializeUIStatsRenderer();
             InitializeUIReticleRenderer();
-        }
-
-        private void InitializeUIStatsRenderer()
-        {
-            // Create a GO to host the UI
-            var uiGO = new GameObject("Stats Overlay");
-
-            // Attach stats overlay (auto-registers with UIRenderSystem in Awake)
-            _uiStatsRenderer = uiGO.AddComponent<UIStatsRenderer>();
-
-            // Layering: HUD should sit behind a cursor but in front of menu backgrounds
-            _uiStatsRenderer.LayerDepth = UILayer.HUD;
-
-            // Set font 
-            _uiStatsRenderer.Font = _fontDictionary.Get("perf_stats_font");
-
-            _uiStatsRenderer.ScreenCorner = ScreenCorner.TopRight;
-            _uiStatsRenderer.Margin = new Vector2(20f, 20f);
-
-            // Optional: add the own debug lines (same pattern you used before)
-            _uiStatsRenderer.LinesProvider = () =>
-            {
-                var camera = _scene.ActiveCamera;
-
-                return new[]
-                {
-                    "",
-                    $"Draw Stats:",
-                    $" - Renderer Count: {_scene.Renderers.Count}",
-                    "",
-                    $"Camera Stats:",
-                    $" - Camera [Name]: {camera.GameObject.Name}",
-                    $" - Camera [Position]: {camera.Transform.Position.ToFixed()}",
-                    $" - Camera [Forward]: {camera.Transform.Forward.ToFixed()}",
-                    $" - Score: {score}",
-                };
-            };
-
-            // Add to scene so Awake runs and it registers itself
-            _scene.Add(uiGO);
         }
 
         private void InitializeUIReticleRenderer()
         {
-            var uiGO = new GameObject("HUD");
+            var uiReticleGO = new GameObject("HUD");
 
             var reticleAtlas = _textureDictionary.Get("Crosshair_21");
             var uiFont = _fontDictionary.Get("mouse_reticle_font");
@@ -671,55 +633,35 @@ namespace GDGame
             reticle.Scale = new Vector2(0.1f, 0.1f);
             reticle.RotationSpeedDegPerSec = 55;
             reticle.LayerDepth = UILayer.Cursor;
-            uiGO.AddComponent(reticle);
+            uiReticleGO.AddComponent(reticle);
 
-            // Distance/health lines under the cursor
-            //var waypointObject = _scene.Find((go) => go.Name.Equals("test crate textured cube"));
-            //var cameraObject = _scene.Find(go => go.Name.Equals("First person camera"));
+            var textRenderer = uiReticleGO.AddComponent<UITextRenderer>();
+            textRenderer.Font = uiFont;
+            textRenderer.Offset = new Vector2(0, 30);  // Position text below reticle
+            textRenderer.Color = Color.White;
+            textRenderer.PositionProvider = () => _graphics.GraphicsDevice.Viewport.GetCenter();
+            textRenderer.Anchor = TextAnchor.Center;
 
-            ////no first person camera
-            //if (cameraObject != null)
-            //{
+            var picker = uiReticleGO.AddComponent<UIPickerInfoRenderer>();
+            picker.HitMask = LayerMask.All;
+            picker.MaxDistance = 500f;
+            picker.HitTriggers = false;
 
-            //    Func<IEnumerable<string>> linesProvider = () =>
-            //    {
-            //        var distToWaypoint = Vector3.Distance(
-            //            cameraObject.Transform.Position,
-            //            waypointObject.Transform.Position);
-            //        var hp = _dummyHealth;
-            //        return new[]
-            //        {
-            //        $"Dist: {distToWaypoint:F2} m",
-            //        $"Health:   {hp}"
-            //        };
-            //    };
+            // Optional custom formatting:
+            picker.Formatter = hit =>
+            {
+                var go = hit.Body?.GameObject;
+                if (go == null)
+                    return string.Empty;
 
-            //    // Text anchored at mouse, slightly below the reticle
-            //    var text = new UITextRenderer(uiFont);
-            //    //  text.PositionProvider = () => Mouse.GetState().Position.ToVector2();
+                return $"{go.Name}  d={hit.Distance:F1}";
+            };
 
-            //    text.PositionProvider = () => new Vector2(_graphics.PreferredBackBufferWidth / 2,
-            //                                              _graphics.PreferredBackBufferHeight / 2);
-
-            //    text.Anchor = TextAnchor.Center;
-            //    text.Offset = new Vector2(0, 50);
-            //    text.FallbackColor = Color.White;
-            //    text.DropShadow = true;
-            //    text.ShadowColor = Color.Black;
-
-            //    // Place HUD text below the cursor in the same pass
-            //    text.LayerDepth = UILayer.HUD;
-
-            //    text.TextProvider = () => string.Join("\n", linesProvider());
-
-            //    uiGO.AddComponent(text);
-            //}
-            _scene.Add(uiGO);
+            _scene.Add(uiReticleGO);
 
             // Hide mouse since reticle will take its place
             IsMouseVisible = false;
         }
-
 
         /// <summary>
         /// Adds a single-part FBX model into the scene.
@@ -755,15 +697,11 @@ namespace GDGame
             #region Core
             Time.Update(gameTime);
 
-            //Time.TimeScale = 0;
-
             //update Scene
             _scene.Update(Time.DeltaTimeSecs);
-          
             #endregion
 
             #region Demo
-            _dummyHealth++;
             DemoStuff();
             #endregion
 
@@ -838,6 +776,13 @@ namespace GDGame
                 _animationPositionCurve = null;
                 _animationRotationCurve = null;
 
+                // 7. Dispose of collision handlers
+                if (_collisionSubscription != null)
+                {
+                    _collisionSubscription.Dispose();
+                    _collisionSubscription = null;
+                }
+
                 System.Diagnostics.Debug.WriteLine("Main disposal complete");
             }
 
@@ -850,18 +795,179 @@ namespace GDGame
         #endregion    }
 
         #region Demo Methods (remove in the game)
+        private void DemoCollidableGround(int scale = 500)
+        {
+            GameObject gameObject = null;
+            MeshFilter meshFilter = null;
+            MeshRenderer meshRenderer = null;
+
+            gameObject = new GameObject("ground");
+            meshFilter = MeshFilterFactory.CreateQuadTexturedLit(_graphics.GraphicsDevice);
+            meshFilter = MeshFilterFactory.CreateQuadGridTexturedUnlit(_graphics.GraphicsDevice,
+                 1,
+                 1,
+                 1,
+                 1,
+                 20,
+                 20);
+
+            gameObject.Transform.ScaleBy(new Vector3(scale, scale, 1));
+            gameObject.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0), true);
+            gameObject.Transform.TranslateTo(new Vector3(0, -0.5f, 0));
+
+            gameObject.AddComponent(meshFilter);
+            meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.Material = _matBasicUnlitGround;
+            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("ground_grass");
+
+            // Add a box collider matching the ground size
+            var collider = gameObject.AddComponent<BoxCollider>();
+            collider.Size = new Vector3(scale, scale, 0.025f);
+            collider.Center = new Vector3(0, 0, -0.0125f);
+
+            // Add rigidbody as Static (immovable)
+            var rigidBody = gameObject.AddComponent<RigidBody>();
+            rigidBody.BodyType = BodyType.Static;
+            gameObject.IsStatic = true;
+
+            _scene.Add(gameObject);
+        }
+
+        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
+        {
+            var go = new GameObject("test");
+            go.Transform.TranslateTo(position);
+            go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
+            go.Transform.ScaleTo(scale);
+
+            var model = _modelDictionary.Get("monkey1");
+            var texture = _textureDictionary.Get("mona lisa");
+            var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
+            go.AddComponent(meshFilter);
+
+            var meshRenderer = go.AddComponent<MeshRenderer>();
+            meshRenderer.Material = _matBasicLit;
+            meshRenderer.Overrides.MainTexture = texture;
+            _scene.Add(go);
+
+
+            // Add box collider (1x1x1 cube)
+            var collider = go.AddComponent<SphereCollider>();
+            collider.Diameter = scale.Length();
+
+            // Add rigidbody (Dynamic so it falls)
+            var rigidBody = go.AddComponent<RigidBody>();
+            rigidBody.BodyType = BodyType.Dynamic;
+            rigidBody.Mass = 1.0f;
+        }
 
         private void DemoStuff()
         {
             _newKBState = Keyboard.GetState();
-            _newMouseState = Mouse.GetState();
-            DemoStatsToggle();
             DemoEventPublish();
             DemoCameraSwitch();
             DemoToggleFullscreen();
             DemoAudioSystem();
+            DemoOrchestrationSystem();
+            DemoImpulsePublish();
             _oldKBState = _newKBState;
-            _oldMouseState = _newMouseState;
+        }
+
+        private void DemoImpulsePublish()
+        {
+            var impulses = EngineContext.Instance.Impulses;
+
+            // a simple explosion reaction
+            bool isZPressed = _newKBState.IsKeyDown(Keys.Z) && !_oldKBState.IsKeyDown(Keys.Z);
+            if (isZPressed)
+            {
+                float duration = 0.35f;
+                float amplitude = 0.6f;
+
+                impulses.CreateContinuousSource(
+                    (elapsed, totalDuration) =>
+                    {
+                        // Random 2D screen-space-ish direction
+                        Vector3 dir = MathUtility.RandomShakeXY();
+
+                        // Let Eased3DImpulse use its default easing (e.g. Ease.Linear)
+                        return new Eased3DImpulse(
+                            channel: "camera/impulse",
+                            direction: dir,
+                            amplitude: amplitude,
+                            time: elapsed,
+                            duration: totalDuration);
+                    },
+                    duration,
+                    true);
+            }
+
+            // like a locked door try and fail
+            bool isCPressed = _newKBState.IsKeyDown(Keys.X) && !_oldKBState.IsKeyDown(Keys.X);
+            if (isCPressed)
+            {
+                float duration = 0.2f;
+                float amplitude = 0.1f;
+
+                impulses.CreateContinuousSource(
+                    (elapsed, totalDuration) =>
+                    {
+                        float jitter = 0.05f;  
+
+                        // Small random left/right component
+                        float z = (float)(Random.Shared.NextDouble() * 2.0 - 1.0) * jitter;
+
+                        // Backward in world-space 
+                        Vector3 dir = new Vector3(0, 0, z);
+
+                        return new Eased3DImpulse(
+                            channel: "camera/impulse",
+                            direction: dir,
+                            amplitude: amplitude,
+                            time: elapsed,
+                            duration: totalDuration,
+                            ease: Ease.EaseOutQuad); // snappier than cubic, but still smooth
+                    },
+                    duration,
+                    true);
+            }
+        }
+
+        private static Vector3 RandomShakeDirection()
+        {
+            float x = (float)(Random.Shared.NextDouble() * 2.0 - 1.0);
+            float y = (float)(Random.Shared.NextDouble() * 2.0 - 1.0);
+
+            // Flat screen-space style shake in X/Y
+            return new Vector3(x, y, 0f);
+        }
+
+
+
+        private void DemoOrchestrationSystem()
+        {
+            var orchestrator = _scene.GetSystem<OrchestrationSystem>().Orchestrator;
+
+            bool isPressed = _newKBState.IsKeyDown(Keys.O) && !_oldKBState.IsKeyDown(Keys.O);
+            if (isPressed)
+            {
+                orchestrator.Build("my first sequence")
+                    .WaitSeconds(2)
+                    .Publish(new CameraEvent(AppData.CAMERA_NAME_FIRST_PERSON))
+                    .WaitSeconds(2)
+                    .Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1", 1, false, null))
+                    .Register();
+
+                orchestrator.Start("my first sequence", _scene, EngineContext.Instance);
+            }
+
+            bool isIPressed = _newKBState.IsKeyDown(Keys.I) && !_oldKBState.IsKeyDown(Keys.I);
+            if (isIPressed)
+                orchestrator.Pause("my first sequence");
+
+            bool isPPressed = _newKBState.IsKeyDown(Keys.P) && !_oldKBState.IsKeyDown(Keys.P);
+            if (isPPressed)
+                orchestrator.Resume("my first sequence");
         }
 
         private void DemoAudioSystem()
@@ -870,7 +976,7 @@ namespace GDGame
 
             //TODO - Exercise
             bool isD3Pressed = _newKBState.IsKeyDown(Keys.D3) && !_oldKBState.IsKeyDown(Keys.D3);
-            if(isD3Pressed)
+            if (isD3Pressed)
             {
                 events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
                     1, false, null));
@@ -909,29 +1015,9 @@ namespace GDGame
 
         private void DemoToggleFullscreen()
         {
-            
-            var events = EngineContext.Instance.Events;
-            List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
-            var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
-            bool togglePressed = _newMouseState.LeftButton==ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
+            bool togglePressed = _newKBState.IsKeyDown(Keys.F5) && !_oldKBState.IsKeyDown(Keys.F5);
             if (togglePressed)
-            {
-
-                foreach (var roach in roaches)
-                {
-
-                    var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
-                    if (roach != null && distToWaypoint < 10)
-                    {
-                        _scene.Remove(roach);
-                        events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
-                    1, false, null));
-                        score += 100;
-                        break;
-                    }
-                }
-                
-            }   
+                _graphics.ToggleFullScreen();
         }
 
         private void DemoCameraSwitch()
@@ -941,7 +1027,7 @@ namespace GDGame
             bool isFirst = _newKBState.IsKeyDown(Keys.D1) && !_oldKBState.IsKeyDown(Keys.D1);
             if (isFirst)
             {
-                events.Post(new CameraChangeEvent(AppData.CAMERA_NAME_FIRST_PERSON));
+                events.Post(new CameraEvent(AppData.CAMERA_NAME_FIRST_PERSON));
                 events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
                   1, false, null));
             }
@@ -949,7 +1035,7 @@ namespace GDGame
             bool isThird = _newKBState.IsKeyDown(Keys.D2) && !_oldKBState.IsKeyDown(Keys.D2);
             if (isThird)
             {
-                events.Post(new CameraChangeEvent(AppData.CAMERA_NAME_THIRD_PERSON));
+                events.Post(new CameraEvent(AppData.CAMERA_NAME_THIRD_PERSON));
                 events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Mallet_Open_1",
                 1, false, null));
             }
@@ -960,25 +1046,20 @@ namespace GDGame
             // F2: publish a test DamageEvent
             if (_newKBState.IsKeyDown(Keys.F6) && !_oldKBState.IsKeyDown(Keys.F6))
             {
-                _soundEffectInstance = _soundEffect.CreateInstance();
-                _soundEffectInstance.Pitch = 0.5f;
-                _soundEffectInstance.Play();
-
                 // Simple “debug” damage example
-                var cameraPos = _cameraGO.Transform.Position;
-                var hitPos = cameraPos + _cameraGO.Transform.Forward * 5f;
+                var hitPos = new Vector3(0, 5, 0); //some fake position
                 _damageAmount++;
 
                 var damageEvent = new DamageEvent(_damageAmount, DamageEvent.DamageType.Strength,
-                    "DebugGun", AppData.PLAYER_NAME, hitPos, false);
+                    "Plasma rifle", AppData.PLAYER_NAME, hitPos, false);
 
                 EngineContext.Instance.Events.Post(damageEvent);
             }
 
             // Raise inventory event
-            if(_newKBState.IsKeyDown(Keys.E) && !_oldKBState.IsKeyDown(Keys.E))
+            if (_newKBState.IsKeyDown(Keys.E) && !_oldKBState.IsKeyDown(Keys.E))
             {
-                var inventoryEvent = new InventoryEvent();
+                var inventoryEvent = new GDEngine.Core.Components.InventoryEvent();
                 inventoryEvent.ItemType = ItemType.Weapon;
                 inventoryEvent.Value = 10;
                 EngineContext.Instance.Events.Publish(inventoryEvent);
@@ -986,45 +1067,17 @@ namespace GDGame
 
             if (_newKBState.IsKeyDown(Keys.L) && !_oldKBState.IsKeyDown(Keys.L))
             {
-                var inventoryEvent = new InventoryEvent();
+                var inventoryEvent = new GDEngine.Core.Components.InventoryEvent();
                 inventoryEvent.ItemType = ItemType.Lore;
                 inventoryEvent.Value = 0;
                 EngineContext.Instance.Events.Publish(inventoryEvent);
             }
-        }
 
-        private void DemoStatsToggle()
-        {
-            // F1: toggle stats overlay
-            if (_uiStatsRenderer != null)
+            if (_newKBState.IsKeyDown(Keys.M) && !_oldKBState.IsKeyDown(Keys.M))
             {
-                if (_newKBState.IsKeyDown(Keys.F1) && !_oldKBState.IsKeyDown(Keys.F1))
-                    _uiStatsRenderer.Enabled = !_uiStatsRenderer.Enabled;
+                // EngineContext.Instance.Messages.Post(new PlayerDamageEvent(45, DamageType.Strength));
+                //EngineContext.Instance.Messages.PublishImmediate(new PlayerDamageEvent(45, DamageType.Strength));
             }
-        }
-
-        private void DemoOrchestration()
-        {
-            if (_orchestrationSystem == null)
-                return;
-
-            GameObject crate = _scene.Find((GameObject go) => go.Name.Equals("test crate textured cube"));
-            if (crate == null)
-                return;
-
-            Transform transform = crate.Transform;
-
-            Vector3 startPosition = transform.Position;
-            Vector3 peakPosition = startPosition + new Vector3(0, 5, 0);
-
-            Orchestrator orchestrator = _orchestrationSystem.Orchestrator;
-
-            orchestrator.Build("Demo_CrateBounce")
-                .WaitSeconds(1.0f)
-                .MoveTo(transform, peakPosition, 1.5f, Ease.EaseInOutSine)
-                .WaitSeconds(0.5f)
-                .MoveTo(transform, startPosition, 1.5f, Ease.EaseInOutSine)
-                .Register();
         }
 
         private void DemoLoadFromJSON()
@@ -1042,7 +1095,7 @@ namespace GDGame
                 InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
         }
 
-        private void DemoCollidablePrimitiveObject(Vector3 position, Vector3 scale)
+        private void DemoCollidablePrimitive(Vector3 position, Vector3 scale, Vector3 rotateDegrees)
         {
             GameObject gameObject = null;
             MeshFilter meshFilter = null;
@@ -1050,7 +1103,9 @@ namespace GDGame
 
             gameObject = new GameObject("test crate textured cube");
             gameObject.Transform.TranslateTo(position);
-            gameObject.Transform.ScaleTo(scale);
+            gameObject.Transform.ScaleTo(scale * 0.5f);
+            gameObject.Transform.RotateEulerBy(rotateDegrees * MathHelper.Pi / 180f);
+
 
             meshFilter = MeshFilterFactory.CreateCubeTexturedLit(_graphics.GraphicsDevice);
             gameObject.AddComponent(meshFilter);
@@ -1059,33 +1114,15 @@ namespace GDGame
             meshRenderer.Material = _matBasicLit; //enable lighting for the crate
             meshRenderer.Overrides.MainTexture = _textureDictionary.Get("crate1");
 
-            _scene.Add(gameObject);
-
-            // Add box collider (1x1x1 cube)
             var collider = gameObject.AddComponent<BoxCollider>();
-            collider.Size = scale;
-            collider.Center = new Vector3(0, 0, 0);
+            collider.Size = scale;  // Collider is FULL size
+            collider.Center = Vector3.Zero;
 
-            // Add rigidbody (Dynamic so it falls)
-            var rigidBody = gameObject.AddComponent<RigidBody>();
-            rigidBody.BodyType = BodyType.Dynamic;
-            rigidBody.Mass = 1.0f;
-            rigidBody.UseGravity = true;
+            var rb = gameObject.AddComponent<RigidBody>();
+            rb.Mass = 1.0f;
+            rb.BodyType = BodyType.Dynamic;
 
-            //#region Demo - Curve and Input
-            //var posRotController = new PositionRotationController
-            //{
-            //    RotationCurve = _animationRotationCurve,
-            //    PositionCurve = _animationPositionCurve
-            //};
-            //gameObject.AddComponent(posRotController);
-
-            ////demo the new input system support for keyboard, mouse and gamepad
-            //gameObject.AddComponent(new InputReceiverComponent());
-
-            //#endregion
-
-            //  testCrateGO.Layer = LayerMask.World;
+            _scene.Add(gameObject);
         }
 
         private void DemoAlphaCutoutFoliage(Vector3 position, float width, float height)
@@ -1114,7 +1151,42 @@ namespace GDGame
 
             _scene.Add(go);
         }
-        #endregion
 
+        /// <summary>
+        /// Subscribes a simple debug listener for physics collision events.
+        /// </summary>
+        private void InitializeCollisionEventListener()
+        {
+            var events = EngineContext.Instance.Events;
+
+            // Lowest friction: just subscribe with default priority & no filter
+            _collisionSubscription = events.Subscribe<CollisionEvent>(OnCollisionEvent);
+        }
+
+        /// <summary>
+        /// Very simple collision debug handler.
+        /// Adjust field names to match your CollisionEvent struct.
+        /// </summary>
+        private void OnCollisionEvent(CollisionEvent evt)
+        {
+            // Early-out if this collision does not involve any layer we care about.
+            if (!evt.Matches(_collisionDebugMask))
+                return;
+
+            var bodyA = evt.BodyA;
+            var bodyB = evt.BodyB;
+
+            var nameA = bodyA?.GameObject?.Name ?? "<null>";
+            var nameB = bodyB?.GameObject?.Name ?? "<null>";
+
+            var layerA = evt.LayerA;
+            var layerB = evt.LayerB;
+
+            //System.Diagnostics.Debug.WriteLine(
+            //    $"[Collision] {nameA} (Layer {layerA}) <-> {nameB} (Layer {layerB})");
+        }
+
+
+        #endregion
     }
 }

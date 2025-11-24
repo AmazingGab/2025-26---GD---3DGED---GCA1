@@ -423,18 +423,25 @@ namespace GDEngine.Core.Components
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Creates the underlying Bepu capsule shape.
+        /// Bepu's Capsule length parameter is the length of the inner line segment (excluding the end caps),
+        /// so we use (Height - 2 * Radius) as the cylinder segment length.
+        /// </summary>
         internal override TypedIndex CreateShape(Simulation simulation)
         {
-            // BepuPhysics Capsule uses half-length (excluding caps)
-            float halfLength = CylinderLength * 0.5f;
-
-            var capsule = new Capsule(_radius, halfLength);
+            float cylinderLength = Math.Max(0f, _height - 2f * _radius);
+            var capsule = new Capsule(_radius, cylinderLength);
             return simulation.Shapes.Add(capsule);
         }
 
+        /// <summary>
+        /// Calculates the inertia tensor for this capsule, given a mass.
+        /// </summary>
         internal override BodyInertia CalculateInertia(float mass)
         {
-            return new Capsule(_radius, CylinderLength * 0.5f).ComputeInertia(mass);
+            float cylinderLength = Math.Max(0f, _height - 2f * _radius);
+            return new Capsule(_radius, cylinderLength).ComputeInertia(mass);
         }
 
         public override string ToString()

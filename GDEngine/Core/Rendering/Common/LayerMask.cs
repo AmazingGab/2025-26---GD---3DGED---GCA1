@@ -33,6 +33,7 @@
         #endregion
 
         #region Methods
+
         /// <summary>
         /// True if this mask fully contains all bits in <paramref name="other"/>.
         /// </summary>

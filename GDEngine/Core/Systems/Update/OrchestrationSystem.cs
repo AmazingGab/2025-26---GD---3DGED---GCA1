@@ -1,19 +1,19 @@
-﻿
-using GDEngine.Core.Entities;
+﻿using GDEngine.Core.Entities;
 using GDEngine.Core.Enums;
 using GDEngine.Core.Orchestration;
+using GDEngine.Core.Rendering;
 using GDEngine.Core.Services;
 using GDEngine.Core.Systems.Base;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace GDEngine.Core.Systems
 {
     /// <summary>
     /// Frame-driven system that hosts the <see cref="Orchestrator"/> and updates it in the Update lifecycle.
+    /// Also exposes orchestration state via <see cref="IShowDebugInfo"/> for UI debug overlays.
     /// </summary>
     /// <see cref="SystemBase"/>
-    public sealed class OrchestrationSystem : SystemBase
+    /// <see cref="IShowDebugInfo"/>
+    public sealed class OrchestrationSystem : SystemBase, IShowDebugInfo
     {
         #region Static Fields
         #endregion
@@ -23,12 +23,24 @@ namespace GDEngine.Core.Systems
         private readonly Orchestrator.OrchestratorOptions _options;
         private EngineContext? _context;
         private Scene? _scene;
+
+        private bool _showPerSequenceDebug = true;
         #endregion
 
         #region Properties
         public Orchestrator Orchestrator
         {
             get { return _orchestrator; }
+        }
+
+        /// <summary>
+        /// If true, <see cref="GetDebugLines"/> will include per-sequence lines from
+        /// <see cref="Orchestrator.DebugSummary"/> under the summary header.
+        /// </summary>
+        public bool ShowPerSequenceDebug
+        {
+            get { return _showPerSequenceDebug; }
+            set { _showPerSequenceDebug = value; }
         }
         #endregion
 
@@ -52,6 +64,47 @@ namespace GDEngine.Core.Systems
         {
             _orchestrator.SetEventPublisher(publish);
         }
+
+        /// <summary>
+        /// Provide orchestration debug lines for on-screen display via <see cref="UIDebugRenderer"/>.
+        /// </summary>
+        public IEnumerable<string> GetDebugLines()
+        {
+            Orchestrator orch = _orchestrator;
+
+            // Header line: time mode, scale, paused flag
+            System.Text.StringBuilder header = new System.Text.StringBuilder(64);
+            header.Append("Orchestrator  Time=");
+            header.Append(orch.CurrentOptions.Time.ToString());
+            header.Append("  x");
+            header.Append(orch.CurrentOptions.LocalScale.ToString("0.##"));
+            if (orch.CurrentOptions.Paused)
+                header.Append(" [PAUSED]");
+            yield return header.ToString();
+
+            // Summary line: counts
+            System.Text.StringBuilder counts = new System.Text.StringBuilder(48);
+            counts.Append("Sequences=");
+            counts.Append(orch.SequenceCount);
+            counts.Append("  Active=");
+            counts.Append(orch.ActiveCount);
+            yield return counts.ToString();
+
+            if (!_showPerSequenceDebug)
+                yield break;
+
+            string summary = orch.DebugSummary();
+            if (string.IsNullOrEmpty(summary))
+                yield break;
+
+            string[] lines = summary.Split('\n');
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i].TrimEnd('\r');
+                if (line.Length > 0)
+                    yield return line;
+            }
+        }
         #endregion
 
         #region Lifecycle Methods
@@ -59,6 +112,12 @@ namespace GDEngine.Core.Systems
         {
             _scene = Scene;
             _context = _scene != null ? _scene.Context : null;
+
+            // Automatically wire up the event publisher if context is available
+            if (_context != null && _context.Events != null)
+            {
+                _orchestrator.SetEventPublisher(_context.Events.Publish);
+            }
         }
 
         public override void Update(float deltaTime)
@@ -90,163 +149,6 @@ namespace GDEngine.Core.Systems
         public override string ToString()
         {
             return "OrchestrationSystem(" + _orchestrator.ToString() + ")";
-        }
-        #endregion
-    }
-
-    /// <summary>
-    /// PostRender overlay that draws a simple text summary of orchestration state.
-    /// </summary>
-    /// <see cref="Orchestrator"/>
-    /// <see cref="FrameLifecycle.PostRender"/>
-    public sealed class OrchestrationInspectorSystem : SystemBase, IDisposable
-    {
-        #region Static Fields
-        private static readonly SpriteSortMode _sort = SpriteSortMode.BackToFront;
-        private static readonly RasterizerState _raster = RasterizerState.CullNone;
-        private static readonly DepthStencilState _depth = DepthStencilState.None;
-        private static readonly BlendState _blend = BlendState.AlphaBlend;
-        private static readonly SamplerState _sampler = SamplerState.PointClamp;
-        #endregion
-
-        #region Fields
-        private readonly Func<SpriteFont?> _getFont;
-
-        private EngineContext? _context;
-        private Scene? _scene;
-        private OrchestrationSystem? _orchSystem;
-
-        private SpriteFont? _font;
-        private Texture2D? _pixel;
-
-        private Vector2 _origin = new Vector2(8f, 8f);
-        private float _scale = 1f;
-        private bool _visible = true;
-        private bool _showPerSequence = true;
-
-        private Color _textColor = Color.Yellow;
-        private Color _bgColor = new Color(40, 40, 40, 125); // grey with alpha
-        #endregion
-
-        #region Properties
-        #endregion
-
-        #region Constructors
-        public OrchestrationInspectorSystem(Func<SpriteFont?> getFont)
-            : base(FrameLifecycle.PostRender, 100)
-        {
-            _getFont = getFont;
-        }
-        #endregion
-
-        #region Methods
-        public void SetVisible(bool visible)
-        {
-            _visible = visible;
-        }
-
-        public void SetOrigin(Vector2 origin)
-        {
-            _origin = origin;
-        }
-
-        public void SetScale(float scale)
-        {
-            if (scale < 0.5f)
-                scale = 0.5f;
-            if (scale > 2f)
-                scale = 2f;
-
-            _scale = scale;
-        }
-
-        public void ShowPerSequence(bool show)
-        {
-            _showPerSequence = show;
-        }
-        #endregion
-
-        #region Lifecycle Methods
-        protected override void OnAdded()
-        {
-            _scene = Scene;
-            _context = _scene != null ? _scene.Context : null;
-            if (_scene != null)
-                _orchSystem = _scene.GetSystem<OrchestrationSystem>();
-        }
-
-        public override void Draw(float deltaTime)
-        {
-            if (!_visible)
-                return;
-
-            if (_orchSystem == null)
-                return;
-
-            if (_context == null || _context.SpriteBatch == null)
-                return;
-
-            if (_font == null)
-            {
-                _font = _getFont();
-                if (_font == null)
-                    return;
-            }
-
-            if (_pixel == null)
-            {
-                if (_context.GraphicsDevice == null)
-                    return;
-
-                _pixel = new Texture2D(_context.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
-                _pixel.SetData(new[] { Color.White });
-            }
-
-            Orchestrator orch = _orchSystem.Orchestrator;
-
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            sb.Append("Orchestrator  Time=");
-            sb.Append(orch.CurrentOptions.Time.ToString());
-            sb.Append("  x");
-            sb.Append(orch.CurrentOptions.LocalScale.ToString("0.##"));
-            if (orch.CurrentOptions.Paused)
-                sb.Append(" [PAUSED]");
-            sb.AppendLine();
-            sb.Append("Sequences=");
-            sb.Append(orch.SequenceCount);
-            sb.Append("  Active=");
-            sb.Append(orch.ActiveCount);
-            sb.AppendLine();
-
-            if (_showPerSequence)
-            {
-                sb.AppendLine();
-                sb.Append(orch.DebugSummary());
-            }
-
-            string text = sb.ToString();
-            SpriteBatch spriteBatch = _context.SpriteBatch;
-            Vector2 size = _font.MeasureString(text) * _scale;
-            Rectangle rect = new Rectangle(
-                (int)_origin.X - 6,
-                (int)_origin.Y - 6,
-                (int)size.X + 12,
-                (int)size.Y + 12);
-
-            spriteBatch.Begin(_sort, _blend, _sampler, _depth, _raster);
-            spriteBatch.Draw(_pixel, rect, _bgColor);
-            spriteBatch.DrawString(_font, text, _origin, _textColor, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
-            spriteBatch.End();
-        }
-        #endregion
-
-        #region Housekeeping Methods
-        public void Dispose()
-        {
-            if (_pixel != null && !_pixel.IsDisposed)
-                _pixel.Dispose();
-
-            _pixel = null;
         }
         #endregion
     }

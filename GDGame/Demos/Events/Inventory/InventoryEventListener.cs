@@ -1,13 +1,16 @@
-﻿using GDEngine.Core.Components;
+﻿#nullable enable
+using GDEngine.Core.Components;
 using GDEngine.Core.Services;
+using System;
+using System.Collections.Generic;
 
-namespace GDEngine.Core.Events
+namespace GDGame.Demos
 {
     /// <summary>
-    /// Subscribes to <see cref="PlayerInventoryEvent"/> and mutates a simple local inventory model.
+    /// Subscribes to <see cref="InventoryEvent"/> and mutates a simple local inventory model.
     /// </summary>
-    /// <see cref="PlayerInventoryEvent"/>
-    public sealed class PlayerInventoryListener : Component
+    /// <see cref="InventoryEvent"/>
+    public sealed class InventoryEventListener : Component
     {
         #region Fields
         private IDisposable? _sub;
@@ -23,7 +26,7 @@ namespace GDEngine.Core.Events
             if (EngineContext.Instance == null)
                 throw new NullReferenceException(nameof(EngineContext));
 
-            _sub = EngineContext.Instance.Events.Subscribe<PlayerInventoryEvent>(OnInventoryEvent);
+            _sub = EngineContext.Instance.Events.Subscribe<InventoryEvent>(OnInventoryEvent);
         }
 
         /// <summary>
@@ -37,7 +40,7 @@ namespace GDEngine.Core.Events
         #endregion
 
         #region Methods
-        private void OnInventoryEvent(PlayerInventoryEvent e)
+        private void OnInventoryEvent(InventoryEvent e)
         {
             if (e.Player != GameObject)
                 return;

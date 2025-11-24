@@ -341,6 +341,13 @@ namespace GDEngine.Core.Entities
                 cameraSystem.ActiveCamera = camera;
         }
 
+        public void SetActiveCamera(string? targetName)
+        {
+            var go = Find(go => go.Name.Equals(targetName));
+            var camera = go?.GetComponent<Camera>();
+            SetActiveCamera(camera);
+        }
+
         /// <summary>
         /// Advances non-render lifecycles and drives component lifecycle. Call once per frame.
         /// </summary>
