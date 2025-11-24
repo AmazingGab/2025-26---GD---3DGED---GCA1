@@ -24,6 +24,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using static System.Net.Mime.MediaTypeNames;
 using Color = Microsoft.Xna.Framework.Color;
 
 namespace GDGame
@@ -46,6 +47,8 @@ namespace GDGame
         private AnimationCurve3D _animationPositionCurve, _animationRotationCurve;
         private AnimationCurve _animationCurve;
         private KeyboardState _newKBState, _oldKBState;
+        private MouseState _oldMouseState;
+        private MouseState _newMouseState;
         private int _damageAmount;
 
         // Simple debug subscription for collision events
@@ -53,6 +56,11 @@ namespace GDGame
 
         // LayerMask used to filter which collisions we care about in debug
         private LayerMask _collisionDebugMask = LayerMask.All;
+        public int score;
+        private GameObject _cameraGO;
+        private Camera _camera;
+        private UITextRenderer _uiStatsRenderer;
+        private bool isRoach;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -449,67 +457,27 @@ namespace GDGame
 
         private void InitializeCameras()
         {
-            GameObject cameraGO = null;
-            Camera camera = null;
-            #region Static birds-eye camera
-            cameraGO = new GameObject(AppData.CAMERA_NAME_STATIC_BIRDS_EYE);
-            camera = cameraGO.AddComponent<Camera>();
-            camera.FieldOfView = MathHelper.ToRadians(80);
-            //ISRoT
-            cameraGO.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0));
-            cameraGO.Transform.TranslateTo(Vector3.UnitY * 50);
-
-            // _cameraGO.AddComponent<MouseYawPitchController>();
-
-            _scene.Add(cameraGO);
-
-            // _camera.FieldOfView
-            //TODO - add camera
-            #endregion
-
-            #region Third-person camera
-            cameraGO = new GameObject(AppData.CAMERA_NAME_THIRD_PERSON);
-            camera = cameraGO.AddComponent<Camera>();
-
-            var thirdPersonController = new ThirdPersonController();
-            thirdPersonController.TargetName = AppData.PLAYER_NAME;
-            thirdPersonController.ShoulderOffset = 0;
-            thirdPersonController.FollowDistance = 50;
-            thirdPersonController.RotationDamping = 20;
-            cameraGO.AddComponent(thirdPersonController);
-            _scene.Add(cameraGO);
-            #endregion
-
             #region First-person camera
             var position = new Vector3(0, 5, 25);
 
             //camera GO
-            cameraGO = new GameObject(AppData.CAMERA_NAME_FIRST_PERSON);
-
+            _cameraGO = new GameObject(AppData.CAMERA_NAME_FIRST_PERSON);
             //set position 
-            cameraGO.Transform.TranslateTo(position);
-
+            _cameraGO.Transform.TranslateTo(position);
             //add camera component to the GO
-            camera = cameraGO.AddComponent<Camera>();
-            camera.FarPlane = 1000;
-
-            //feed off whatever screen dimensions you set InitializeGraphics
-            camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
-            cameraGO.AddComponent<KeyboardWASDController>();
-            cameraGO.AddComponent<MouseYawPitchController>();
-            cameraGO.AddComponent<CameraImpulseListener>();
+            _camera = _cameraGO.AddComponent<Camera>();
+            _camera.FarPlane = 1000;
+            ////feed off whatever screen dimensions you set InitializeGraphics
+            _camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
+            _cameraGO.AddComponent<SimpleDriveController>();
+            _cameraGO.AddComponent<MouseYawPitchController>();
 
             // Add it to the scene
-            _scene.Add(cameraGO);
+            _scene.Add(_cameraGO);
             #endregion
 
-            // Set the active camera by finding and getting its camera component
-            // var theCamera = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_STATIC_BIRDS_EYE)).GetComponent<Camera>();
-            ////Obviously, since we have _camera we could also just use the line below
-            //_scene.SetActiveCamera(theCamera);
 
-            //replace with new SetActiveCamera that searches by string
-            _scene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
+            _scene.SetActiveCamera(_cameraGO.GetComponent<Camera>());
         }
 
         /// <summary>
@@ -617,8 +585,39 @@ namespace GDGame
         private void InitializeUI()
         {
             InitializeUIReticleRenderer();
+            InitializeScoreBoard();
         }
+        private void InitializeScoreBoard()
+        {
+            var scoreBoard = new GameObject("ScoreBoard");
 
+            //var reticleAtlas = _textureDictionary.Get("Crosshair_21");
+            var uiFont = _fontDictionary.Get("mouse_reticle_font");
+
+            // Reticle (cursor): always on top
+           // var reticle = new UIReticleRenderer(reticleAtlas);
+            //reticle.Origin = reticleAtlas.GetCenter();
+            //reticle.SourceRectangle = null;
+            ////reticle.Scale = new Vector2(0.1f, 0.1f);
+            //reticle.RotationSpeedDegPerSec = 55;
+            //reticle.LayerDepth = UILayer.Cursor;
+            //uiReticleGO.AddComponent(reticle);
+
+            var textRenderer = scoreBoard.AddComponent<UITextRenderer>();
+            textRenderer.Font = uiFont;
+            //textRenderer.Offset = new Vector2(0, 0);  // Position text below reticle
+            textRenderer.Color = Color.White;
+            textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width-100, 0);
+            //textRenderer.Anchor = TextAnchor.Center;
+            textRenderer.TextProvider = () => "Score: " + score;
+
+
+
+            _scene.Add(scoreBoard);
+
+            // Hide mouse since reticle will take its place
+            IsMouseVisible = false;
+        }
         private void InitializeUIReticleRenderer()
         {
             var uiReticleGO = new GameObject("HUD");
@@ -644,7 +643,7 @@ namespace GDGame
 
             var picker = uiReticleGO.AddComponent<UIPickerInfoRenderer>();
             picker.HitMask = LayerMask.All;
-            picker.MaxDistance = 500f;
+            picker.MaxDistance = 10f;
             picker.HitTriggers = false;
 
             // Optional custom formatting:
@@ -653,8 +652,16 @@ namespace GDGame
                 var go = hit.Body?.GameObject;
                 if (go == null)
                     return string.Empty;
+                if (go.Name.Equals("test crate textured cube"))
+                {
+                    isRoach = true;
+                    _scene.Remove(go);
+                }
+                   
+                else
+                    isRoach = false;
 
-                return $"{go.Name}  d={hit.Distance:F1}";
+                    return $"{go.Name}  d={hit.Distance:F1}";
             };
 
             _scene.Add(uiReticleGO);
@@ -864,13 +871,14 @@ namespace GDGame
         private void DemoStuff()
         {
             _newKBState = Keyboard.GetState();
+            _newMouseState = Mouse.GetState();
+            
             DemoEventPublish();
             DemoCameraSwitch();
             DemoToggleFullscreen();
             DemoAudioSystem();
-            DemoOrchestrationSystem();
-            DemoImpulsePublish();
             _oldKBState = _newKBState;
+            _oldMouseState = _newMouseState;
         }
 
         private void DemoImpulsePublish()
@@ -1015,9 +1023,28 @@ namespace GDGame
 
         private void DemoToggleFullscreen()
         {
-            bool togglePressed = _newKBState.IsKeyDown(Keys.F5) && !_oldKBState.IsKeyDown(Keys.F5);
+            var events = EngineContext.Instance.Events;
+            List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
+            var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
+            bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
             if (togglePressed)
-                _graphics.ToggleFullScreen();
+            {
+
+                foreach (var roach in roaches)
+                {
+
+                    var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
+                    if (roach != null && distToWaypoint < 10 && isRoach)
+                    {
+                        //_scene.Remove(roach);
+                        events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+                    1, false, null));
+                        score += 100;
+                        break;
+                    }
+                }
+
+            }
         }
 
         private void DemoCameraSwitch()
