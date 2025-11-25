@@ -1,4 +1,4 @@
-﻿using GDEngine.Core;
+using GDEngine.Core;
 using GDEngine.Core.Audio;
 using GDEngine.Core.Collections;
 using GDEngine.Core.Components;
@@ -658,7 +658,7 @@ namespace GDGame
                     isRoach = true;
                     //_scene.Remove(go);
                     _newMouseState = Mouse.GetState();
-                    DemoToggleFullscreen(go);
+                    KillRoach(go);
                     _oldMouseState = _newMouseState;
                 }
                    
@@ -872,160 +872,15 @@ namespace GDGame
             rigidBody.Mass = 1.0f;
         }
 
-        private void DemoStuff()
-        {
-            _newKBState = Keyboard.GetState();
-            _newMouseState = Mouse.GetState();
-            
-            DemoEventPublish();
-            DemoCameraSwitch();
-            //DemoToggleFullscreen();
-            DemoAudioSystem();
-            _oldKBState = _newKBState;
-            _oldMouseState = _newMouseState;
-        }
+        
 
-        private void DemoImpulsePublish()
-        {
-            var impulses = EngineContext.Instance.Impulses;
+        
 
-            // a simple explosion reaction
-            bool isZPressed = _newKBState.IsKeyDown(Keys.Z) && !_oldKBState.IsKeyDown(Keys.Z);
-            if (isZPressed)
-            {
-                float duration = 0.35f;
-                float amplitude = 0.6f;
-
-                impulses.CreateContinuousSource(
-                    (elapsed, totalDuration) =>
-                    {
-                        // Random 2D screen-space-ish direction
-                        Vector3 dir = MathUtility.RandomShakeXY();
-
-                        // Let Eased3DImpulse use its default easing (e.g. Ease.Linear)
-                        return new Eased3DImpulse(
-                            channel: "camera/impulse",
-                            direction: dir,
-                            amplitude: amplitude,
-                            time: elapsed,
-                            duration: totalDuration);
-                    },
-                    duration,
-                    true);
-            }
-
-            // like a locked door try and fail
-            bool isCPressed = _newKBState.IsKeyDown(Keys.X) && !_oldKBState.IsKeyDown(Keys.X);
-            if (isCPressed)
-            {
-                float duration = 0.2f;
-                float amplitude = 0.1f;
-
-                impulses.CreateContinuousSource(
-                    (elapsed, totalDuration) =>
-                    {
-                        float jitter = 0.05f;  
-
-                        // Small random left/right component
-                        float z = (float)(Random.Shared.NextDouble() * 2.0 - 1.0) * jitter;
-
-                        // Backward in world-space 
-                        Vector3 dir = new Vector3(0, 0, z);
-
-                        return new Eased3DImpulse(
-                            channel: "camera/impulse",
-                            direction: dir,
-                            amplitude: amplitude,
-                            time: elapsed,
-                            duration: totalDuration,
-                            ease: Ease.EaseOutQuad); // snappier than cubic, but still smooth
-                    },
-                    duration,
-                    true);
-            }
-        }
-
-        private static Vector3 RandomShakeDirection()
-        {
-            float x = (float)(Random.Shared.NextDouble() * 2.0 - 1.0);
-            float y = (float)(Random.Shared.NextDouble() * 2.0 - 1.0);
-
-            // Flat screen-space style shake in X/Y
-            return new Vector3(x, y, 0f);
-        }
+        
 
 
-
-        private void DemoOrchestrationSystem()
-        {
-            var orchestrator = _scene.GetSystem<OrchestrationSystem>().Orchestrator;
-
-            bool isPressed = _newKBState.IsKeyDown(Keys.O) && !_oldKBState.IsKeyDown(Keys.O);
-            if (isPressed)
-            {
-                orchestrator.Build("my first sequence")
-                    .WaitSeconds(2)
-                    .Publish(new CameraEvent(AppData.CAMERA_NAME_FIRST_PERSON))
-                    .WaitSeconds(2)
-                    .Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1", 1, false, null))
-                    .Register();
-
-                orchestrator.Start("my first sequence", _scene, EngineContext.Instance);
-            }
-
-            bool isIPressed = _newKBState.IsKeyDown(Keys.I) && !_oldKBState.IsKeyDown(Keys.I);
-            if (isIPressed)
-                orchestrator.Pause("my first sequence");
-
-            bool isPPressed = _newKBState.IsKeyDown(Keys.P) && !_oldKBState.IsKeyDown(Keys.P);
-            if (isPPressed)
-                orchestrator.Resume("my first sequence");
-        }
-
-        private void DemoAudioSystem()
-        {
-            var events = EngineContext.Instance.Events;
-
-            //TODO - Exercise
-            bool isD3Pressed = _newKBState.IsKeyDown(Keys.D3) && !_oldKBState.IsKeyDown(Keys.D3);
-            if (isD3Pressed)
-            {
-                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
-                    1, false, null));
-            }
-
-            bool isD4Pressed = _newKBState.IsKeyDown(Keys.D4) && !_oldKBState.IsKeyDown(Keys.D4);
-            if (isD4Pressed)
-            {
-                events.Publish(new PlayMusicEvent("secret_door", 1, 8));
-            }
-
-            bool isD5Pressed = _newKBState.IsKeyDown(Keys.D5) && !_oldKBState.IsKeyDown(Keys.D5);
-            if (isD5Pressed)
-            {
-                events.Publish(new StopMusicEvent(4));
-            }
-
-            bool isD6Pressed = _newKBState.IsKeyDown(Keys.D6) && !_oldKBState.IsKeyDown(Keys.D6);
-            if (isD6Pressed)
-            {
-                events.Publish(new FadeChannelEvent(AudioMixer.AudioChannel.Master,
-                    0.1f, 4));
-            }
-
-            bool isD7Pressed = _newKBState.IsKeyDown(Keys.D7) && !_oldKBState.IsKeyDown(Keys.D7);
-            if (isD7Pressed)
-            {
-                //expensive and crude => move to Component::Start()
-                var go = _scene.Find(go => go.Name.Equals(AppData.PLAYER_NAME));
-                Transform emitterTransform = go.Transform;
-
-                events.Publish(new PlaySfxEvent("hand_gun1",
-                    1, true, emitterTransform));
-            }
-        }
-
-        private void DemoToggleFullscreen(GameObject roach)
+       
+        private void KillRoach(GameObject roach)
         {
             var events = EngineContext.Instance.Events;
            // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
@@ -1051,65 +906,8 @@ namespace GDGame
             }
         }
 
-        private void DemoCameraSwitch()
-        {
-            var events = EngineContext.Instance.Events;
-
-            bool isFirst = _newKBState.IsKeyDown(Keys.D1) && !_oldKBState.IsKeyDown(Keys.D1);
-            if (isFirst)
-            {
-                events.Post(new CameraEvent(AppData.CAMERA_NAME_FIRST_PERSON));
-                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
-                  1, false, null));
-            }
-
-            bool isThird = _newKBState.IsKeyDown(Keys.D2) && !_oldKBState.IsKeyDown(Keys.D2);
-            if (isThird)
-            {
-                events.Post(new CameraEvent(AppData.CAMERA_NAME_THIRD_PERSON));
-                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Mallet_Open_1",
-                1, false, null));
-            }
-        }
-
-        private void DemoEventPublish()
-        {
-            // F2: publish a test DamageEvent
-            if (_newKBState.IsKeyDown(Keys.F6) && !_oldKBState.IsKeyDown(Keys.F6))
-            {
-                // Simple “debug” damage example
-                var hitPos = new Vector3(0, 5, 0); //some fake position
-                _damageAmount++;
-
-                var damageEvent = new DamageEvent(_damageAmount, DamageEvent.DamageType.Strength,
-                    "Plasma rifle", AppData.PLAYER_NAME, hitPos, false);
-
-                EngineContext.Instance.Events.Post(damageEvent);
-            }
-
-            // Raise inventory event
-            if (_newKBState.IsKeyDown(Keys.E) && !_oldKBState.IsKeyDown(Keys.E))
-            {
-                var inventoryEvent = new GDEngine.Core.Components.InventoryEvent();
-                inventoryEvent.ItemType = ItemType.Weapon;
-                inventoryEvent.Value = 10;
-                EngineContext.Instance.Events.Publish(inventoryEvent);
-            }
-
-            if (_newKBState.IsKeyDown(Keys.L) && !_oldKBState.IsKeyDown(Keys.L))
-            {
-                var inventoryEvent = new GDEngine.Core.Components.InventoryEvent();
-                inventoryEvent.ItemType = ItemType.Lore;
-                inventoryEvent.Value = 0;
-                EngineContext.Instance.Events.Publish(inventoryEvent);
-            }
-
-            if (_newKBState.IsKeyDown(Keys.M) && !_oldKBState.IsKeyDown(Keys.M))
-            {
-                // EngineContext.Instance.Messages.Post(new PlayerDamageEvent(45, DamageType.Strength));
-                //EngineContext.Instance.Messages.PublishImmediate(new PlayerDamageEvent(45, DamageType.Strength));
-            }
-        }
+        
+        
 
         private void DemoLoadFromJSON()
         {
@@ -1156,32 +954,7 @@ namespace GDGame
             _scene.Add(gameObject);
         }
 
-        private void DemoAlphaCutoutFoliage(Vector3 position, float width, float height)
-        {
-            var go = new GameObject("tree");
-
-            // A unit quad facing +Z (the factory already supplies lit quad with UVs)
-            var mf = MeshFilterFactory.CreateQuadTexturedLit(GraphicsDevice);
-            go.AddComponent(mf);
-
-            var treeRenderer = go.AddComponent<MeshRenderer>();
-            treeRenderer.Material = _matAlphaCutout;
-
-            // Per-object properties via the overrides block
-            treeRenderer.Overrides.MainTexture = _textureDictionary.Get("tree4");
-
-            // AlphaTest: pixels with alpha below ReferenceAlpha are discarded (0–255).
-            // 128–160 is a good starting range for foliage; tweak to taste.
-            treeRenderer.Overrides.SetInt("ReferenceAlpha", 128);
-            treeRenderer.Overrides.Alpha = 1f; // overall alpha multiplier (kept at 1 for cutout)
-
-            // Scale the quad so it looks like a tree (aspect from the PNG)
-            go.Transform.ScaleTo(new Vector3(width, height, 1f));
-
-            go.Transform.TranslateTo(position);
-
-            _scene.Add(go);
-        }
+        
 
         /// <summary>
         /// Subscribes a simple debug listener for physics collision events.
