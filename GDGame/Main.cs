@@ -662,7 +662,7 @@ namespace GDGame
                     {
 
                         
-                                _scene.Remove(roach);
+                                _scene.Remove(go);
                                 events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
                             1, false, null));
                                 score += 100;
