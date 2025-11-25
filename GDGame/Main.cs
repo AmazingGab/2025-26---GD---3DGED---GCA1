@@ -24,6 +24,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using static System.Net.Mime.MediaTypeNames;
 using Color = Microsoft.Xna.Framework.Color;
 
@@ -656,7 +657,9 @@ namespace GDGame
                 {
                     isRoach = true;
                     //_scene.Remove(go);
-                    DemoToggleFullscreen();
+                    _newMouseState = Mouse.GetState();
+                    DemoToggleFullscreen(go);
+                    _oldMouseState = _newMouseState;
                 }
                    
                 else
@@ -1022,28 +1025,28 @@ namespace GDGame
             }
         }
 
-        private void DemoToggleFullscreen()
+        private void DemoToggleFullscreen(GameObject roach)
         {
             var events = EngineContext.Instance.Events;
-            List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
-            var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
+           // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
+            //var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
             bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
             if (togglePressed)
             {
+                
+                //foreach (var roach in roaches)
+                //{
 
-                foreach (var roach in roaches)
-                {
-
-                    var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
-                    if (roach != null && distToWaypoint < 10 && isRoach)
-                    {
+                    //var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
+                    //if (roach != null && distToWaypoint < 10 && isRoach)
+                    //{
                         _scene.Remove(roach);
                         events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
                     1, false, null));
                         score += 100;
-                        break;
-                    }
-                }
+                        //break;
+                    //}
+                //}
 
             }
         }
