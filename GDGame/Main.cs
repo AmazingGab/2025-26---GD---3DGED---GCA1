@@ -137,9 +137,9 @@ namespace GDGame
             DemoCollidableModel(new Vector3(0, 40, 11), Vector3.Zero, new Vector3(2, 1.25f, 2));
             DemoCollidableModel(new Vector3(0, 25, 12), Vector3.Zero, new Vector3(2, 1.25f, 2));
 
-            DemoAlphaCutoutFoliage(new Vector3(0, 10 /*note Y=heightscale/2*/, 0), 12, 20);
+            
             DemoLoadFromJSON();
-            DemoOrchestrationSystem();
+           
             #endregion
 
             #region Core
@@ -713,7 +713,7 @@ namespace GDGame
             #endregion
 
             #region Demo
-            DemoStuff();
+            
             #endregion
 
             base.Update(gameTime);
