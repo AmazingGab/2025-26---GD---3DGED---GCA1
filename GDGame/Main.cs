@@ -654,23 +654,9 @@ namespace GDGame
                     return string.Empty;
                 if (go.Name.Equals("test crate textured cube"))
                 {
-                    //isRoach = true;
+                    isRoach = true;
                     //_scene.Remove(go);
-                    //DemoToggleFullscreen();
-                    bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
-                    if (togglePressed)
-                    {
-
-                        
-                                _scene.Remove(go);
-                                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
-                            1, false, null));
-                                score += 100;
-                                //break;
-                            
-                        
-
-                    }
+                    DemoToggleFullscreen();
                 }
                    
                 else
@@ -1051,7 +1037,7 @@ namespace GDGame
                     var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
                     if (roach != null && distToWaypoint < 10 && isRoach)
                     {
-                        //_scene.Remove(roach);
+                        _scene.Remove(roach);
                         events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
                     1, false, null));
                         score += 100;
