@@ -103,8 +103,16 @@
       "contentPath": "assets/models/teapot_lowpoly"
     },
     {
-      "name": "plane",
-      "contentPath": "assets/models/plane"
+        "name": "plane",
+        "contentPath": "assets/models/plane"
+    },
+    {
+        "name": "roach",
+        "contentPath": "assets/models/Roaches"
+    },
+    {
+        "name": "house",
+        "contentPath": "assets/models/House Final"
     }
   ],
   "sounds": [

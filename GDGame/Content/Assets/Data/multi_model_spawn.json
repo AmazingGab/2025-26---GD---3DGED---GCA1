@@ -29,24 +29,44 @@
       "objectName": "spawn-4"
     },
     {
-      "position": [
-        50,
-        10,
-        -5
-      ],
-      "rotationDegrees": [
-        -90,
-        45,
-        -45
-      ],
-      "scale": [
-        0.5,
-        0.4,
-        0.3
-      ],
-      "textureName": "mona lisa",
-      "modelName": "teapot",
-      "objectName": "spawn-5"
+        "position": [
+            50,
+            10,
+            -5
+        ],
+        "rotationDegrees": [
+            -90,
+            45,
+            -45
+        ],
+        "scale": [
+            0.5,
+            0.4,
+            0.3
+        ],
+        "textureName": "mona lisa",
+        "modelName": "teapot",
+        "objectName": "spawn-5"
+    },
+    {
+        "position": [
+            50,
+            5,
+            -5
+        ],
+        "rotationDegrees": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            4,
+            1,
+            1
+        ],
+        "textureName": "mona lisa",
+        "modelName": "roach",
+        "objectName": "spawn-7"
     }
   ]
 }
