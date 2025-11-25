@@ -128,14 +128,12 @@ namespace GDGame
 
             // Demo event listeners on collision
             InitializeCollisionEventListener();
-
+            
             // Collidable game object demos
-            DemoCollidablePrimitive(new Vector3(0, 20, 5.1f), Vector3.One * 6, new Vector3(15, 45, 45));
-            DemoCollidablePrimitive(new Vector3(0, 10, 5.2f), Vector3.One * 1, new Vector3(45, 0, 0));
-            DemoCollidablePrimitive(new Vector3(0, 5, 5.3f), Vector3.One * 1, new Vector3(0, 0, 45));
-            DemoCollidableModel(new Vector3(0, 50, 10), Vector3.Zero, new Vector3(2, 1.25f, 2));
-            DemoCollidableModel(new Vector3(0, 40, 11), Vector3.Zero, new Vector3(2, 1.25f, 2));
-            DemoCollidableModel(new Vector3(0, 25, 12), Vector3.Zero, new Vector3(2, 1.25f, 2));
+            
+            DemoCollidableModel(new Vector3(0, 50, 10), new Vector3(-90,0,0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(5, 40, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(10, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
             
             DemoLoadFromJSON();
@@ -172,28 +170,7 @@ namespace GDGame
             // Adds an inventory to the player
             player.AddComponent<InventoryComponent>();
         }
-        private void InitializePIPCamera(Vector3 position,
-      Viewport viewport, int depth, int index = 0)
-        {
-            var pipCameraGO = new GameObject("PIP camera");
-            pipCameraGO.Transform.TranslateTo(position);
-            pipCameraGO.Transform.RotateEulerBy(new Vector3(0, MathHelper.ToRadians(-90), 0));
-
-            //if (index == 0)
-            //{
-            //    pipCameraGO.AddComponent<KeyboardWASDController>();
-            //    pipCameraGO.AddComponent<MouseYawPitchController>();
-            //}
-
-            var camera = pipCameraGO.AddComponent<Camera>();
-            camera.StackRole = Camera.StackType.Overlay;
-            camera.ClearFlags = Camera.ClearFlagsType.DepthOnly;
-            camera.Depth = depth; //-100
-
-            camera.Viewport = viewport; // new Viewport(0, 0, 400, 300);
-
-            _scene.Add(pipCameraGO);
-        }
+       
 
         private void InitializeAnimationCurves()
         {
@@ -653,7 +630,7 @@ namespace GDGame
                 var go = hit.Body?.GameObject;
                 if (go == null)
                     return string.Empty;
-                if (go.Name.Equals("test crate textured cube"))
+                if (go.Name.Equals("roach"))
                 {
                     isRoach = true;
                     //_scene.Remove(go);
@@ -846,12 +823,12 @@ namespace GDGame
 
         private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
         {
-            var go = new GameObject("test");
+            var go = new GameObject("roach");
             go.Transform.TranslateTo(position);
             go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
             go.Transform.ScaleTo(scale);
 
-            var model = _modelDictionary.Get("monkey1");
+            var model = _modelDictionary.Get("roach");
             var texture = _textureDictionary.Get("mona lisa");
             var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
             go.AddComponent(meshFilter);
@@ -863,8 +840,9 @@ namespace GDGame
 
 
             // Add box collider (1x1x1 cube)
-            var collider = go.AddComponent<SphereCollider>();
-            collider.Diameter = scale.Length();
+            var collider = go.AddComponent<BoxCollider>();
+            collider.Size = new Vector3(3f, 2f, 2f);  // Collider is FULL size
+            collider.Center = new Vector3(0,0,-0.3f);
 
             // Add rigidbody (Dynamic so it falls)
             var rigidBody = go.AddComponent<RigidBody>();
@@ -924,35 +902,7 @@ namespace GDGame
                 InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
         }
 
-        private void DemoCollidablePrimitive(Vector3 position, Vector3 scale, Vector3 rotateDegrees)
-        {
-            GameObject gameObject = null;
-            MeshFilter meshFilter = null;
-            MeshRenderer meshRenderer = null;
-
-            gameObject = new GameObject("test crate textured cube");
-            gameObject.Transform.TranslateTo(position);
-            gameObject.Transform.ScaleTo(scale * 0.5f);
-            gameObject.Transform.RotateEulerBy(rotateDegrees * MathHelper.Pi / 180f);
-
-
-            meshFilter = MeshFilterFactory.CreateCubeTexturedLit(_graphics.GraphicsDevice);
-            gameObject.AddComponent(meshFilter);
-
-            meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            meshRenderer.Material = _matBasicLit; //enable lighting for the crate
-            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("crate1");
-
-            var collider = gameObject.AddComponent<BoxCollider>();
-            collider.Size = scale;  // Collider is FULL size
-            collider.Center = Vector3.Zero;
-
-            var rb = gameObject.AddComponent<RigidBody>();
-            rb.Mass = 1.0f;
-            rb.BodyType = BodyType.Dynamic;
-
-            _scene.Add(gameObject);
-        }
+        
 
         
 
