@@ -655,7 +655,8 @@ namespace GDGame
                 if (go.Name.Equals("test crate textured cube"))
                 {
                     isRoach = true;
-                    _scene.Remove(go);
+                    //_scene.Remove(go);
+                    DemoToggleFullscreen();
                 }
                    
                 else
@@ -875,7 +876,7 @@ namespace GDGame
             
             DemoEventPublish();
             DemoCameraSwitch();
-            DemoToggleFullscreen();
+            //DemoToggleFullscreen();
             DemoAudioSystem();
             _oldKBState = _newKBState;
             _oldMouseState = _newMouseState;
