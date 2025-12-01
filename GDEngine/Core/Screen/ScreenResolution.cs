@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using Microsoft.Xna.Framework;
 
-namespace GDEngine.Core
+namespace GDEngine.Core.Screen
 {
     /// <summary>
     /// Screen resolution presets plus aspect/letterbox helpers using <see cref="Integer2"/>.
@@ -53,7 +53,6 @@ namespace GDEngine.Core
         public static readonly Integer2 R_3_2_2160x1440 = new Integer2(2160, 1440);    // 3:2 QHD-class
         public static readonly Integer2 R_3_2_3000x2000 = new Integer2(3000, 2000);    // 3:2 3K-class
         #endregion
-
 
         #region Fields
         #endregion

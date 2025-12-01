@@ -1,5 +1,4 @@
-﻿using GDEngine.Core.Systems;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace GDEngine.Core.Components
@@ -152,10 +151,10 @@ namespace GDEngine.Core.Components
         protected override void Start()
         {
             if (GameObject == null)
-                throw new System.NullReferenceException(nameof(GameObject));
+                throw new NullReferenceException(nameof(GameObject));
 
             _rigidBody = GameObject.GetComponent<RigidBody>()
-                         ?? throw new System.InvalidOperationException(
+                         ?? throw new InvalidOperationException(
                              "PhysicsWASDController requires a RigidBody on the same GameObject.");
 
             if (_rigidBody.BodyType != BodyType.Dynamic)

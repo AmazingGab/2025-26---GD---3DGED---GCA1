@@ -3,7 +3,7 @@ using GDEngine.Core.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GDEngine.Core.Rendering
+namespace GDEngine.Core.Rendering.UI
 {
     /// <summary>
     /// Named UI layers for SpriteBatch BackToFront sorting (0 = front, 1 = back).

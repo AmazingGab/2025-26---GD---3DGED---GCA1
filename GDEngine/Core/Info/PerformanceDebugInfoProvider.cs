@@ -1,5 +1,5 @@
 ﻿#nullable enable
-using GDEngine.Core.Rendering;
+using GDEngine.Core.Rendering.UI;
 using GDEngine.Core.Timing;
 using System.Text;
 
@@ -8,7 +8,7 @@ namespace GDEngine.Core.Debug
     /// <summary>
     /// Provides performance and timing debug information (FPS, frame times,
     /// uptime, memory, GC stats, timescale) as text lines for on-screen display.
-    /// Designed to be consumed by <see cref="UIDebugRenderer"/>.
+    /// Designed to be consumed by <see cref="UIDebugInfo"/>.
     /// </summary>
     /// <see cref="IShowDebugInfo"/>
     public sealed class PerformanceDebugInfoProvider : IShowDebugInfo
@@ -68,7 +68,7 @@ namespace GDEngine.Core.Debug
         /// <summary>
         /// Hint that FPS graph information should be generated. The current provider
         /// does not create a graph, but you can use this flag if you later extend
-        /// <see cref="UIDebugRenderer"/> to render one.
+        /// <see cref="UIDebugInfo"/> to render one.
         /// </summary>
         public bool ShowFPSGraph
         {

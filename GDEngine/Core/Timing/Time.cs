@@ -6,7 +6,7 @@ namespace GDEngine.Core.Timing
     /// Static time properties updated each frame that allow timescaling, fixed-interval events,
     /// physics timestep support, frame rate tracking, and pause functionality
     /// </summary>
-    public static class Time
+    public static class Time 
     {
         #region Properties
 

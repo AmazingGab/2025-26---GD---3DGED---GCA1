@@ -23,7 +23,7 @@ namespace GDEngine.Core.Components
             Local = 1 << 4,
             World = 1 << 5,
             FromParent = 1 << 6
-        } 
+        }
         #endregion
 
         #region Fields
@@ -209,6 +209,14 @@ namespace GDEngine.Core.Components
             }
         }
 
+        public int ChildCount
+        {
+            get
+            {
+                return Children.Count;
+            }
+        }
+
         #endregion
 
         #region Constructors
@@ -312,7 +320,7 @@ namespace GDEngine.Core.Components
         /// <param name="worldSpace">If true, apply in world space; otherwise local space.</param>
         public void RotateEulerBy(in Vector3 eulerRadians, bool worldSpace = false)
         {
-            RotateBy(Quaternion.CreateFromYawPitchRoll(eulerRadians.Y, eulerRadians.X, eulerRadians.Z), 
+            RotateBy(Quaternion.CreateFromYawPitchRoll(eulerRadians.Y, eulerRadians.X, eulerRadians.Z),
                 worldSpace);
         }
 

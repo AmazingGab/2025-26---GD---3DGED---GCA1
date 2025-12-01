@@ -3,14 +3,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace GDEngine.Core.Rendering
+namespace GDEngine.Core.Rendering.UI
 {
     /// <summary>
     /// Generic UI text renderer that draws a string at a position supplied by a delegate.
     /// Uses centralized batching via <see cref="UIRenderer"/>.
     /// Optimized to cache non-null delegates and avoid hot-path null checks.
     /// </summary>
-    public class UITextRenderer : UIRenderer
+    public class UIText : UIRenderer
     {
         #region Fields
         private SpriteFont _font = null!;
@@ -83,16 +83,16 @@ namespace GDEngine.Core.Rendering
         #endregion
 
         #region Constructors
-        public UITextRenderer()
+        public UIText()
         {
 
         }
-        public UITextRenderer(SpriteFont font)
+        public UIText(SpriteFont font)
         {
             _font = font;
         }
 
-        public UITextRenderer(SpriteFont font, string text, Vector2 position)
+        public UIText(SpriteFont font, string text, Vector2 position)
         {
             _font = font;
             _textProvider = () => text ?? string.Empty;
@@ -101,9 +101,9 @@ namespace GDEngine.Core.Rendering
             _positionProviderNonNull = _positionProvider;
         }
 
-        public static UITextRenderer FromMouse(SpriteFont font, string text)
+        public static UIText FromMouse(SpriteFont font, string text)
         {
-            var renderer = new UITextRenderer(font);
+            var renderer = new UIText(font);
             renderer._textProvider = () => text ?? string.Empty;
             renderer._textProviderNonNull = renderer._textProvider;
             renderer._positionProvider = () => Mouse.GetState().Position.ToVector2();
@@ -117,17 +117,18 @@ namespace GDEngine.Core.Rendering
         {
             // Use non-null cached delegates (no null-coalescing in hot path)
             _text = _textProviderNonNull();
-            if (_text.Length == 0) return;
+            if (_text.Length == 0)
+                return;
 
             var basePos = _positionProviderNonNull();
             _size = _font.MeasureString(_text) * _uniformScale;
 
-            // Use base helper
-            _originFromAnchor = ComputeAnchorOffset(_size, Anchor);
+            // Let the base class handle anchor logic
+            ApplyAnchor(basePos + _offset, _size, out _drawPos, out _originFromAnchor);
 
-            _drawPos = basePos + _offset;
-
-            _resolvedColor = _colorProvider != null ? _colorProvider() : _fallbackColor;
+            _resolvedColor = _colorProvider != null
+                ? _colorProvider()
+                : _fallbackColor;
         }
 
         public override void Draw(GraphicsDevice device, Camera? camera)

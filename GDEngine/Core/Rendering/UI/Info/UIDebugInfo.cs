@@ -1,14 +1,14 @@
 ﻿#nullable enable
 using GDEngine.Core.Components;
-using GDEngine.Core.Debug;
+using GDEngine.Core.Screen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GDEngine.Core.Rendering
+namespace GDEngine.Core.Rendering.UI
 {
     /// <summary>
     /// Simple contract for systems/components that can expose debug text lines
-    /// for on-screen visualization via <see cref="UIDebugRenderer"/>.
+    /// for on-screen visualization via <see cref="UIDebugInfo"/>.
     /// </summary>
     public interface IShowDebugInfo
     {
@@ -25,7 +25,7 @@ namespace GDEngine.Core.Rendering
     /// </summary>
     /// <see cref="UIRenderer"/>
     /// <see cref="IShowDebugInfo"/>
-    public sealed class UIDebugRenderer : UIRenderer
+    public sealed class UIDebugInfo : UIRenderer
     {
         #region Fields
         private SpriteFont _font = null!;

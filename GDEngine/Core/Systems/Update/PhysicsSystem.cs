@@ -742,6 +742,11 @@ namespace GDEngine.Core.Systems
             return RaycastFromScreen(camera, mouseState.X, mouseState.Y, maxDistance, layerMask, out hit, hitTriggers);
         }
 
+        internal bool RaycastFromScreen(Camera camera, float x, float y, object maxDistance, object hitMask, out RaycastHit hitInfo, object hitTriggers)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 
