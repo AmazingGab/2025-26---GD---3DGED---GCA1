@@ -139,7 +139,10 @@ namespace GDGame
             DemoCollidableModel(new Vector3(5, 40, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
             DemoCollidableModel(new Vector3(10, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
-            
+            DemoCollidableModel(new Vector3(15, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(20, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+
+
             DemoLoadFromJSON();
            
             #endregion
