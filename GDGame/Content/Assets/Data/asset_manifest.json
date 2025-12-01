@@ -113,6 +113,18 @@
     {
         "name": "house",
         "contentPath": "assets/models/House Final"
+    },
+    {
+        "name": "roach2",
+        "contentPath": "assets/models/Roaches (1)"
+    },
+    {
+        "name": "map",
+        "contentPath": "assets/models/PrototypeMap"
+    },
+    {
+        "name": "map2",
+        "contentPath": "assets/models/PrototypeMap2"
     }
   ],
   "sounds": [
