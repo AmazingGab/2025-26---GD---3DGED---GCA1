@@ -114,7 +114,7 @@ namespace GDGame
             DemoCollidableGround(scale);
 
             // Setup player
-            InitializePlayer();
+            //InitializePlayer();
 
             // Setup menu
             //InitializeMenu();
@@ -872,6 +872,8 @@ namespace GDGame
             var rigidBody = go.AddComponent<RigidBody>();
             rigidBody.BodyType = BodyType.Dynamic;
             rigidBody.Mass = 1.0f;
+
+            go.AddComponent<RoachController>();
         }
 
         
