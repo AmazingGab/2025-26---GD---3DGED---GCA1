@@ -15,7 +15,7 @@ namespace GDEngine.Core.Orchestration
     /// </summary>
     /// <see cref="OrchestrationSystem"/>
     /// <example>
-    public sealed partial class Orchestrator
+    public sealed class Orchestrator
     {
         #region Static Fields
         #endregion
@@ -645,7 +645,7 @@ namespace GDEngine.Core.Orchestration
         /// <summary>
         /// Fluent builder for constructing and registering sequences.
         /// </summary>
-        public sealed partial class Builder
+        public sealed class Builder
         {
             #region Static Fields
             #endregion
@@ -675,7 +675,6 @@ namespace GDEngine.Core.Orchestration
             #endregion
 
             #region Methods
-
             public Builder Once()
             {
                 _once = true;
@@ -1130,7 +1129,7 @@ namespace GDEngine.Core.Orchestration
         /// <summary>
         /// Common step implementations used by the orchestrator.
         /// </summary>
-        public static partial class Steps
+        public static class Steps
         {
             #region Static Fields
             #endregion

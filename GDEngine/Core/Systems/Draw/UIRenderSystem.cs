@@ -1,10 +1,9 @@
 ﻿using GDEngine.Core.Components;
 using GDEngine.Core.Entities;
 using GDEngine.Core.Enums;
-using GDEngine.Core.Rendering.UI;
+using GDEngine.Core.Rendering;
 using GDEngine.Core.Services;
 using GDEngine.Core.Systems.Base;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GDEngine.Core.Systems
@@ -35,18 +34,16 @@ namespace GDEngine.Core.Systems
         private GraphicsDevice _device = null!;
         private SpriteBatch _spriteBatch;
 
-        // Maintain separate lists for active and all renderers
+        // OPTIMIZATION: Maintain separate lists for active and all renderers
         private readonly List<UIRenderer> _allRenderers = new List<UIRenderer>(16);
         private readonly List<UIRenderer> _activeRenderers = new List<UIRenderer>(16);
         private bool _needsRebuildActiveList = false;
-
         #endregion
 
         #region Constructors
         public UIRenderSystem(int order = 10)
             : base(FrameLifecycle.PostRender, order)
         {
-
         }
         #endregion
 

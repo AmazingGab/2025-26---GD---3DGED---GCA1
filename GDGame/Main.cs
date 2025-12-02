@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using GDEngine.Core;
 using GDEngine.Core.Audio;
 using GDEngine.Core.Collections;
@@ -7,19 +5,13 @@ using GDEngine.Core.Components;
 using GDEngine.Core.Debug;
 using GDEngine.Core.Entities;
 using GDEngine.Core.Events;
-using GDEngine.Core.Events.Types;
 using GDEngine.Core.Factories;
-using GDEngine.Core.Gameplay;
 using GDEngine.Core.Impulses;
 using GDEngine.Core.Input.Data;
 using GDEngine.Core.Input.Devices;
-using GDEngine.Core.Managers;
 using GDEngine.Core.Orchestration;
 using GDEngine.Core.Rendering;
 using GDEngine.Core.Rendering.Base;
-using GDEngine.Core.Rendering.UI;
-using GDEngine.Core.Rendering.UI.Info;
-using GDEngine.Core.Screen;
 using GDEngine.Core.Serialization;
 using GDEngine.Core.Services;
 using GDEngine.Core.Systems;
@@ -30,6 +22,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using static System.Net.Mime.MediaTypeNames;
 using Color = Microsoft.Xna.Framework.Color;
 
 namespace GDGame
@@ -64,7 +60,7 @@ namespace GDGame
         public int score;
         private GameObject _cameraGO;
         private Camera _camera;
-        //private UITextRenderer _uiStatsRenderer;
+        private UITextRenderer _uiStatsRenderer;
         private bool isRoach;
         #endregion
 
@@ -161,18 +157,18 @@ namespace GDGame
 
         private void InitializePlayer()
         {
-            //GameObject player = InitializeModel(new Vector3(0, 5, 10),
-            //    new Vector3(0, 0, 0),
-            //    2 * Vector3.One, "crate1", "monkey1", AppData.PLAYER_NAME);
+            GameObject player = InitializeModel(new Vector3(0, 5, 10),
+                new Vector3(0, 0, 0),
+                2 * Vector3.One, "crate1", "monkey1", AppData.PLAYER_NAME);
 
-            //var simpleDriveController = new SimpleDriveController();
-            //player.AddComponent(simpleDriveController);
+            var simpleDriveController = new SimpleDriveController();
+            player.AddComponent(simpleDriveController);
 
-            //// Listen for damage events on the player
-            //player.AddComponent<DamageEventListener>();
+            // Listen for damage events on the player
+            player.AddComponent<DamageEventListener>();
 
-            //// Adds an inventory to the player
-            //player.AddComponent<InventoryComponent>();
+            // Adds an inventory to the player
+            player.AddComponent<InventoryComponent>();
         }
        
 
@@ -348,7 +344,7 @@ namespace GDGame
             if (debugEnabled)
             {
                 GameObject debugGO = new GameObject("Perf Stats");
-                var debugRenderer = debugGO.AddComponent<UIDebugInfo>();
+                var debugRenderer = debugGO.AddComponent<UIDebugRenderer>();
 
                 debugRenderer.Font = _fontDictionary.Get("perf_stats_font");
                 debugRenderer.ScreenCorner = ScreenCorner.TopLeft;
@@ -365,6 +361,7 @@ namespace GDGame
                 };
 
                 debugRenderer.Providers.Add(perfProvider);
+
 
                 _scene.Add(debugGO);
             }
@@ -584,17 +581,17 @@ namespace GDGame
             //reticle.LayerDepth = UILayer.Cursor;
             //uiReticleGO.AddComponent(reticle);
 
-            //var textRenderer = scoreBoard.AddComponent<UITextRenderer>();
-            //textRenderer.Font = uiFont;
-            ////textRenderer.Offset = new Vector2(0, 0);  // Position text below reticle
-            //textRenderer.Color = Color.White;
-            //textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width-100, 0);
-            ////textRenderer.Anchor = TextAnchor.Center;
-            //textRenderer.TextProvider = () => "Score: " + score;
+            var textRenderer = scoreBoard.AddComponent<UITextRenderer>();
+            textRenderer.Font = uiFont;
+            //textRenderer.Offset = new Vector2(0, 0);  // Position text below reticle
+            textRenderer.Color = Color.White;
+            textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width-100, 0);
+            //textRenderer.Anchor = TextAnchor.Center;
+            textRenderer.TextProvider = () => "Score: " + score;
 
 
 
-            //_scene.Add(scoreBoard);
+            _scene.Add(scoreBoard);
 
             // Hide mouse since reticle will take its place
             IsMouseVisible = false;
@@ -607,7 +604,7 @@ namespace GDGame
             var uiFont = _fontDictionary.Get("mouse_reticle_font");
 
             // Reticle (cursor): always on top
-            var reticle = new UIReticle(reticleAtlas);
+            var reticle = new UIReticleRenderer(reticleAtlas);
             reticle.Origin = reticleAtlas.GetCenter();
             reticle.SourceRectangle = null;
             reticle.Scale = new Vector2(0.1f, 0.1f);
@@ -615,14 +612,14 @@ namespace GDGame
             reticle.LayerDepth = UILayer.Cursor;
             uiReticleGO.AddComponent(reticle);
 
-            var textRenderer = uiReticleGO.AddComponent<UIText>();
+            var textRenderer = uiReticleGO.AddComponent<UITextRenderer>();
             textRenderer.Font = uiFont;
             textRenderer.Offset = new Vector2(0, 30);  // Position text below reticle
             textRenderer.Color = Color.White;
             textRenderer.PositionProvider = () => _graphics.GraphicsDevice.Viewport.GetCenter();
             textRenderer.Anchor = TextAnchor.Center;
 
-            var picker = uiReticleGO.AddComponent<UIPickerInfo>();
+            var picker = uiReticleGO.AddComponent<UIPickerInfoRenderer>();
             picker.HitMask = LayerMask.All;
             picker.MaxDistance = 10f;
             picker.HitTriggers = false;

@@ -4,20 +4,20 @@ using GDEngine.Core.Rendering.Base;
 using GDEngine.Core.Systems;
 using GDEngine.Core.Utilities;
 
-namespace GDEngine.Core.Rendering.UI.Info
+namespace GDEngine.Core.Rendering
 {
     /// <summary>
     /// UI helper component that performs a physics raycast through the reticle
     /// (screen center) and pushes info about the hit collider into a
-    /// <see cref="UIText"/> attached to the same GameObject.
+    /// <see cref="UITextRenderer"/> attached to the same GameObject.
     /// </summary>
-    /// <see cref="UIReticle"/>
-    /// <see cref="UIText"/>
-    public class UIPickerInfo : Component
+    /// <see cref="UIReticleRenderer"/>
+    /// <see cref="UITextRenderer"/>
+    public class UIPickerInfoRenderer : Component
     {
         #region Fields
         private PhysicsSystem _physicsSystem = null!;
-        private UIText _textRenderer = null!;
+        private UITextRenderer _textRenderer = null!;
         private Camera _fallbackCamera = null!;
 
         private LayerMask _hitMask = LayerMask.All;
@@ -90,7 +90,7 @@ namespace GDEngine.Core.Rendering.UI.Info
                                ?? throw new InvalidOperationException(
                                    "UIPickerInfoRenderer requires an active Camera in the Scene.");
 
-            _textRenderer = GameObject.GetComponent<UIText>()
+            _textRenderer = GameObject.GetComponent<UITextRenderer>()
                            ?? throw new InvalidOperationException(
                                "UIPickerInfoRenderer requires a UITextRenderer on the same GameObject.");
 

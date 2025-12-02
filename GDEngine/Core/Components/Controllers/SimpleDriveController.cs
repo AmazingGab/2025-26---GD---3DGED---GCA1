@@ -32,7 +32,16 @@ namespace GDEngine.Core.Components
             if (yawInput != 0f)
             {
                 // worldSpace:true guarantees pure yaw about +Y, even if the object has tilt
-                Transform.RotateEulerBy(new Vector3(0f, yawInput * _turnSpeed * deltaTime, 0f), worldSpace: true);
+
+                // Derive forward from the world matrix (works regardless of row/column basis)
+                Vector3 dir = Vector3.Normalize(Vector3.TransformNormal(Vector3.Right, Transform.WorldMatrix));
+
+                // Keep motion planar (comment out next line if you want vertical movement)
+                dir.Y = 0f;
+                if (dir.LengthSquared() > 1e-8f) dir.Normalize();
+
+                Vector3 worldDelta = -dir * (yawInput * _moveSpeed * deltaTime);
+                Transform.TranslateBy(worldDelta, worldSpace: true);
             }
 
             // --- Translation (U forward, J back) along actual current facing ---
