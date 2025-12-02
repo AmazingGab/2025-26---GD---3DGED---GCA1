@@ -68,7 +68,7 @@ namespace GDEngine.Core.Impulses
             _subscription = bus
                 .On<Eased3DImpulse>()
                 .When(MatchesChannel)
-                .WithPriority(ImpulsePriority.Systems)
+                .WithPriorityPreset(ImpulsePriority.Systems)
                 .Do(OnImpulse);
         }
 

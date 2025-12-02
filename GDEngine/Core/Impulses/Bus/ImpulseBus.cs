@@ -472,6 +472,12 @@ namespace GDEngine.Core.Impulses
                 return new SubscriptionBuilder<T>(_bus, priority, _filter, _once, _until);
             }
 
+            /// <summary>Use a named preset from <see cref="ImpulsePriority"/>.</summary>
+            public SubscriptionBuilder<T> WithPriorityPreset(int preset)
+            {
+                return WithPriority(preset);
+            }
+
             /// <summary>Filter impulses; only those for which predicate returns true are delivered.</summary>
             public SubscriptionBuilder<T> When(Predicate<T> predicate)
             {

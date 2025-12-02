@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace GDEngine.Core.Screen
+namespace GDEngine.Core.Rendering
 {
     public enum ScreenCorner
     {

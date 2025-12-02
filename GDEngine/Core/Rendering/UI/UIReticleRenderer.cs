@@ -6,14 +6,14 @@ using GDEngine.Core.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GDEngine.Core.Rendering.UI
+namespace GDEngine.Core.Rendering
 {
     /// <summary>
     /// Draws a rotating reticle sprite at the mouse cursor (with optional offset/scale).
     /// Uses centralized batching in <see cref="UIRenderer"/>.
     /// Optimized to cache mouse state in Update rather than polling in Draw.
     /// </summary>
-    public class UIReticle : UIRenderer
+    public class UIReticleRenderer : UIRenderer
     {
         #region Fields
         private Texture2D _texture = null!;
@@ -25,7 +25,7 @@ namespace GDEngine.Core.Rendering.UI
         #endregion
 
         #region Constructors
-        public UIReticle(Texture2D texture)
+        public UIReticleRenderer(Texture2D texture)
         {
             _texture = texture;
         }

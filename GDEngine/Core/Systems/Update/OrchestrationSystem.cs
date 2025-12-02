@@ -1,7 +1,7 @@
 ﻿using GDEngine.Core.Entities;
 using GDEngine.Core.Enums;
 using GDEngine.Core.Orchestration;
-using GDEngine.Core.Rendering.UI;
+using GDEngine.Core.Rendering;
 using GDEngine.Core.Services;
 using GDEngine.Core.Systems.Base;
 
@@ -66,7 +66,7 @@ namespace GDEngine.Core.Systems
         }
 
         /// <summary>
-        /// Provide orchestration debug lines for on-screen display via <see cref="UIDebugInfo"/>.
+        /// Provide orchestration debug lines for on-screen display via <see cref="UIDebugRenderer"/>.
         /// </summary>
         public IEnumerable<string> GetDebugLines()
         {
