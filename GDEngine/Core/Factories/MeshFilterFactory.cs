@@ -724,6 +724,23 @@ namespace GDEngine.Core.Factories
         /// <param name="assetName">Content pipeline asset name (without extension).</param>
         /// <param name="meshIndex">Which ModelMesh to use (default 0).</param>
         /// <param name="partIndex">Which ModelMeshPart to use within the mesh (default 0).</param>
+
+        public static List<MeshFilter> CreateAllFromModel(Model model, GraphicsDevice device)
+        {
+            var result = new List<MeshFilter>();
+
+            for (int mi = 0; mi < model.Meshes.Count; mi++)
+            {
+                var mesh = model.Meshes[mi];
+                for (int pi = 0; pi < mesh.MeshParts.Count; pi++)
+                {
+                    result.Add(CreateFromModel(model, device, mi, pi));
+                }
+            }
+
+            return result;
+        }
+
         public static MeshFilter CreateFromModel(ContentManager content,
                                               GraphicsDevice device,
                                               string assetName,
