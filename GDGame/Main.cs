@@ -135,7 +135,10 @@ namespace GDGame
             DemoCollidableModel(new Vector3(5, 40, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
             DemoCollidableModel(new Vector3(10, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
-            
+            DemoCollidableModel(new Vector3(15, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(20, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+
+
             DemoLoadFromJSON();
            
             #endregion
@@ -144,6 +147,27 @@ namespace GDGame
             // Setup UI renderers after all game objects added since ui text may use a gameobject as target
             InitializeUI();
             #endregion
+
+
+            GameObject _roachParent = new GameObject("RoachParent");
+            GameObject gameObject = null;
+            var roachParts = MeshFilterFactory.CreateAllFromModel(_modelDictionary.Get("roach2"), GraphicsDevice);
+            _scene.Add(_roachParent);
+
+            for (int i = 0; i < roachParts.Count; i++)
+            {
+                gameObject = new GameObject("roach+part"+1);
+                //gameObject.Transform.ScaleTo(new Vector3(scale / 10, scale / 10, scale / 10));
+                var meshFilter = roachParts[i];
+                gameObject.AddComponent(meshFilter);
+                var meshRenderer = gameObject.AddComponent<MeshRenderer>();
+                meshRenderer.Material = _matBasicLit;
+                meshRenderer.Overrides.MainTexture = _textureDictionary.Get("roach_texture");
+                _scene.Add(gameObject);
+                gameObject.Transform.SetParent(_roachParent.Transform);
+            }
+
+            _roachParent.Transform.ScaleTo(new Vector3(10f, 10f, 10f));
 
             base.Initialize();
         }
