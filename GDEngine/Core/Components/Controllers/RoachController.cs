@@ -191,8 +191,17 @@ namespace GDEngine.Core.Components
                 moveDir += right;
             if (r2 == 0)
                 moveDir -= right;
-            System.Diagnostics.Debug.WriteLine(moveDir);
-           Transform.RotateEulerBy(new Vector3(0,0, moveDir.Z));
+            //System.Diagnostics.Debug.WriteLine(moveDir);
+            //Vector3 targetLookAt = moveDir;
+            //Vector3 eye = Transform.Position;
+            //Matrix view = Matrix.CreateLookAt(eye, targetLookAt, Vector3.Up);
+            //Matrix invView = Matrix.Invert(view);
+            //Quaternion desiredWorld = Quaternion.CreateFromRotationMatrix(invView);
+            //desiredWorld = Quaternion.Normalize(desiredWorld);
+            ////Quaternion currentWorld = Transform.Rotation;
+            ////Quaternion targetWorld;
+            ////targetWorld = desiredWorld;
+            //Transform.RotateToWorld(desiredWorld);
             
             float speed = _moveSpeed;
             if (_keyboardState.IsKeyDown(_boostKey))

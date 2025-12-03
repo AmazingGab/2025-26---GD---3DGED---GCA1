@@ -123,8 +123,12 @@
         "contentPath": "assets/models/PrototypeMap"
     },
     {
-        "name": "map2",
-        "contentPath": "assets/models/PrototypeMap2"
+      "name": "map2",
+      "contentPath": "assets/models/PrototypeMap2"
+    },
+    {
+      "name": "spatula",
+      "contentPath": "assets/models/spatula"
     }
   ],
   "sounds": [

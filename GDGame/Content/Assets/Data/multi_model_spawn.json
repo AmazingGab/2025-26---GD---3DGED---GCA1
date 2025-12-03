@@ -128,25 +128,25 @@
         "modelName": "roach2",
         "objectName": "spawn-5"
     },
-    {
-        "position": [
-            80,
-            0,
-            0
-        ],
-        "rotationDegrees": [
-            -90,
-            0,
-            0
-        ],
-        "scale": [
-            100,
-            55,
-            5
-        ],
-        "textureName": "mona lisa",
-        "modelName": "map2",
-        "objectName": "spawn-9"
-    }
+    //{
+    //    "position": [
+    //        80,
+    //        0,
+    //        0
+    //    ],
+    //    "rotationDegrees": [
+    //        -90,
+    //        0,
+    //        0
+    //    ],
+    //    "scale": [
+    //        100,
+    //        55,
+    //        5
+    //    ],
+    //    "textureName": "mona lisa",
+    //    "modelName": "map2",
+    //    "objectName": "spawn-9"
+    //}
   ]
 }
