@@ -147,11 +147,11 @@ namespace GDGame
             // Setup UI renderers after all game objects added since ui text may use a gameobject as target
             InitializeUI();
             #endregion
-
+            
 
             GameObject _roachParent = new GameObject("RoachParent");
             GameObject gameObject = null;
-            var roachParts = MeshFilterFactory.CreateAllFromModel(_modelDictionary.Get("roach2"), GraphicsDevice);
+            var roachParts = MeshFilterFactory.CreateAllFromModel(_modelDictionary.Get("housewalls"), GraphicsDevice);
             _scene.Add(_roachParent);
 
             for (int i = 0; i < roachParts.Count; i++)
@@ -167,7 +167,30 @@ namespace GDGame
                 gameObject.Transform.SetParent(_roachParent.Transform);
             }
 
-            _roachParent.Transform.ScaleTo(new Vector3(10f, 10f, 10f));
+            _roachParent.Transform.TranslateTo(new Vector3(300f, 0, 0));
+            _roachParent.Transform.ScaleTo(new Vector3(100f, 85f, 5f));
+            _roachParent.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0), true);
+
+
+            var imageUI = new GameObject("imageUI");
+            var uiTexture = _textureDictionary.Get("dialogue");
+            var imageRenderer = imageUI.AddComponent<UITextureRenderer>();
+            imageRenderer.Texture = uiTexture;
+            imageRenderer.Position = new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2 - uiTexture.Width / 2, _graphics.GraphicsDevice.Viewport.Height - uiTexture.Height / 2 - 200);
+            imageRenderer.LayerDepth = UILayer.HUD;
+            _scene.Add(imageUI);
+
+            var textUI = new GameObject("textUI");
+            var uiFont = _fontDictionary.Get("menufont");
+            var textRenderer = textUI.AddComponent<UITextRenderer>();
+            textRenderer.Font = uiFont;
+            textRenderer.Color = Color.Black;
+            textRenderer.DropShadow = false;
+            textRenderer.TextProvider = () => "grrr.. Oh, I'm really hungry. I left some \ncookies on the kitchen counter. \nI need to get them. I will have \nto turn on the lights.";
+            textRenderer.Anchor = TextAnchor.Center;
+            textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2, _graphics.GraphicsDevice.Viewport.Height/ 2 + 150);
+            textRenderer.LayerDepth = UIRenderer.Behind(UILayer.HUD);
+            _scene.Add(textUI);
 
             base.Initialize();
         }

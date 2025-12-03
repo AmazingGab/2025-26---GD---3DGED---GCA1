@@ -81,8 +81,12 @@
       "contentPath": "assets/textures/ui/backgrounds/mainmenu_monkey"
     },
     {
-      "name": "controlsmenu_monkey",
-      "contentPath": "assets/textures/ui/backgrounds/controlsmenu_monkey"
+        "name": "controlsmenu_monkey",
+        "contentPath": "assets/textures/ui/backgrounds/controlsmenu_monkey"
+    },
+    {
+        "name": "dialogue",
+        "contentPath": "assets/textures/ui/chat"
     }
   ],
   "models": [
@@ -125,6 +129,10 @@
     {
         "name": "map2",
         "contentPath": "assets/models/PrototypeMap2"
+    },
+    {
+        "name": "housewalls",
+        "contentPath": "assets/models/House_Walls"
     }
   ],
   "sounds": [
