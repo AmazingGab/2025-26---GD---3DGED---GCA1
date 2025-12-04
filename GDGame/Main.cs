@@ -119,14 +119,14 @@ namespace GDGame
             
             // Collidable game object demos
             
-            DemoCollidableModel(new Vector3(0, 50, 10), new Vector3(-90,0,0), new Vector3(1.5f, 0.5f, 0.2f));
-            DemoCollidableModel(new Vector3(5, 40, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
-            DemoCollidableModel(new Vector3(10, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90,0,0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(5, 1, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(10, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
-            DemoCollidableModel(new Vector3(15, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
-            DemoCollidableModel(new Vector3(20, 25, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(15, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
-
+            DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55,5));
             DemoLoadFromJSON();
            
             #endregion
@@ -623,6 +623,11 @@ namespace GDGame
 
 
             _scene.SetActiveCamera(_cameraGO.GetComponent<Camera>());
+
+            GameObject player = InitializeModel(new Vector3(2, -6, 0),
+                new Vector3(45, 0, 0),
+                new Vector3(0.3f, 1, 1), "crate1", "spatula", AppData.PLAYER_NAME);
+            player.Transform.SetParent(_cameraGO);
         }
 
         /// <summary>
@@ -1018,15 +1023,44 @@ namespace GDGame
 
             go.AddComponent<RoachController>();
         }
+        private void DemoCollidableMap(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
+        {
+            var go = new GameObject("map");
+            go.Transform.TranslateTo(position);
+            go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
+            go.Transform.ScaleTo(scale);
 
-        
+            var model = _modelDictionary.Get("map2");
+            var texture = _textureDictionary.Get("mona lisa");
+            var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
+            go.AddComponent(meshFilter);
 
-        
+            var meshRenderer = go.AddComponent<MeshRenderer>();
+            meshRenderer.Material = _matBasicLit;
+            meshRenderer.Overrides.MainTexture = texture;
+            _scene.Add(go);
 
-        
+
+            // Add box collider (1x1x1 cube)
+            var collider = go.AddComponent<BoxCollider>();
+            collider.Size = scale; // Collider is FULL size
+            collider.Center = new Vector3(0, 0, 0);
+
+            // Add rigidbody (Dynamic so it falls)
+
+            var rigidBody = go.AddComponent<RigidBody>();
+            rigidBody.BodyType = BodyType.Static;
+            rigidBody.Mass = 1.0f;
+
+        }
 
 
-       
+
+
+
+
+
+
         private void KillRoach(GameObject roach)
         {
             var events = EngineContext.Instance.Events;

@@ -133,6 +133,10 @@
     {
         "name": "housewalls",
         "contentPath": "assets/models/House_Walls"
+    },
+    {
+      "name": "spatula",
+      "contentPath": "assets/models/spatula"
     }
   ],
   "sounds": [
