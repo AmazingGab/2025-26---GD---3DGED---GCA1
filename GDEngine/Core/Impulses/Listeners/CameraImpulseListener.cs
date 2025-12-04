@@ -6,7 +6,7 @@ namespace GDEngine.Core.Impulses
     /// <summary>
     /// Applies eased displacement impulses from <see cref="Eased3DImpulse"/> to this
     /// GameObject's <see cref="Transform"/> to create camera shake.
-    /// Attach to your camera GameObject and call <see cref="Subscribe"/> once
+    /// Attach to camera GameObject and call <see cref="Subscribe"/> once
     /// (e.g. after the <see cref="EngineContext"/> is initialised).
     /// </summary>
     /// <see cref="Eased3DImpulse"/>
@@ -68,7 +68,7 @@ namespace GDEngine.Core.Impulses
             _subscription = bus
                 .On<Eased3DImpulse>()
                 .When(MatchesChannel)
-                .WithPriorityPreset(ImpulsePriority.Systems)
+                .WithPriority(ImpulsePriority.Systems)
                 .Do(OnImpulse);
         }
 

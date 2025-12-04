@@ -6,7 +6,6 @@ using GDEngine.Core.Entities;
 using GDEngine.Core.Enums;
 using GDEngine.Core.Events;
 using GDEngine.Core.Services;
-using GDEngine.Core.Systems.Base;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 
@@ -369,7 +368,7 @@ namespace GDEngine.Core.Systems
             // Apply 3D spatialisation based on listener + emitter
             instance.Apply3D(_listener, _emitter);
 
-            // Volume still goes through your mixer
+            // Volume still goes through the mixer
             instance.Volume = v;
             instance.Play();
 
