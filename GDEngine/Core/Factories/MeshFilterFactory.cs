@@ -1,4 +1,5 @@
-﻿using GDEngine.Core.Rendering;
+﻿using System.Runtime.CompilerServices;
+using GDEngine.Core.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -724,23 +725,6 @@ namespace GDEngine.Core.Factories
         /// <param name="assetName">Content pipeline asset name (without extension).</param>
         /// <param name="meshIndex">Which ModelMesh to use (default 0).</param>
         /// <param name="partIndex">Which ModelMeshPart to use within the mesh (default 0).</param>
-
-        public static List<MeshFilter> CreateAllFromModel(Model model, GraphicsDevice device)
-        {
-            var result = new List<MeshFilter>();
-
-            for (int mi = 0; mi < model.Meshes.Count; mi++)
-            {
-                var mesh = model.Meshes[mi];
-                for (int pi = 0; pi < mesh.MeshParts.Count; pi++)
-                {
-                    result.Add(CreateFromModel(model, device, mi, pi));
-                }
-            }
-
-            return result;
-        }
-
         public static MeshFilter CreateFromModel(ContentManager content,
                                               GraphicsDevice device,
                                               string assetName,
@@ -813,6 +797,207 @@ namespace GDEngine.Core.Factories
             mf.SetGeometry(vb, ib, PrimitiveType.TriangleList, indexCount);
             return mf;
         }
+
+        /// <summary>
+        /// Returns a list of MeshFilters, one for each part of a model
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        public static List<MeshFilter> CreateAllFromModel(Model model, GraphicsDevice device)
+        {
+            var result = new List<MeshFilter>();
+
+            for (int mi = 0; mi < model.Meshes.Count; mi++)
+            {
+                var mesh = model.Meshes[mi];
+                for (int pi = 0; pi < mesh.MeshParts.Count; pi++)
+                {
+                    result.Add(CreateFromModel(model, device, mi, pi));
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates a single <see cref="MeshFilter"/> from all meshes/parts in a <see cref="Model"/>.
+        /// Concatenates all vertex/index data into one VB/IB,
+        /// rebasing indices appropriately.
+        /// </summary>
+        public static MeshFilter CreateFromMultiMeshModel(
+            Model model,
+            GraphicsDevice device)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+            if (device == null)
+                throw new ArgumentNullException(nameof(device));
+
+            // Collect all parts
+            var parts = new List<ModelMeshPart>();
+            foreach (var mesh in model.Meshes)
+            {
+                foreach (var part in mesh.MeshParts)
+                    parts.Add(part);
+            }
+
+            if (parts.Count == 0)
+                throw new InvalidOperationException("Model contains no mesh parts.");
+
+            // Assume all parts share the same vertex declaration (typical for FBX → MonoGame pipeline).
+            var vertexDecl = parts[0].VertexBuffer.VertexDeclaration;
+            int vertexStride = vertexDecl.VertexStride;
+
+            // Compute totals
+            int totalVertexCount = 0;
+            int totalIndexCount = 0;
+            bool require32BitIndices = false;
+
+            foreach (var part in parts)
+            {
+                totalVertexCount += part.NumVertices;
+                totalIndexCount += part.PrimitiveCount * 3;
+
+                if (part.IndexBuffer.IndexElementSize == IndexElementSize.ThirtyTwoBits)
+                    require32BitIndices = true;
+            }
+
+            // If we would overflow 16-bit indices, force 32-bit
+            if (totalVertexCount > ushort.MaxValue)
+                require32BitIndices = true;
+
+            // Combined vertex buffer
+            int totalVertexBytes = totalVertexCount * vertexStride;
+            var combinedVertexBytes = new byte[totalVertexBytes];
+
+            int vertexBase = 0;              // in vertices
+            int vertexBaseBytes = 0;         // in bytes
+
+            foreach (var part in parts)
+            {
+                int partVertexCount = part.NumVertices;
+                int partVertexOffsetBytes = part.VertexOffset * vertexStride;
+                int partVertexBytes = partVertexCount * vertexStride;
+
+                var temp = new byte[partVertexBytes];
+
+                // Copy raw bytes for this slice
+                part.VertexBuffer.GetData(
+                    offsetInBytes: partVertexOffsetBytes,
+                    data: temp,
+                    startIndex: 0,
+                    elementCount: partVertexBytes);
+
+                Buffer.BlockCopy(
+                    src: temp,
+                    srcOffset: 0,
+                    dst: combinedVertexBytes,
+                    dstOffset: vertexBaseBytes,
+                    count: partVertexBytes);
+
+                vertexBase += partVertexCount;
+                vertexBaseBytes += partVertexBytes;
+            }
+
+            var vb = new VertexBuffer(device, vertexDecl, totalVertexCount, BufferUsage.WriteOnly);
+            vb.SetData(combinedVertexBytes);
+
+            // Combined index buffer
+            IndexBuffer ib;
+
+            if (!require32BitIndices)
+            {
+                var combinedIndices = new short[totalIndexCount];
+
+                int indexCursor = 0;
+                int vertexBaseForPart = 0;
+
+                foreach (var part in parts)
+                {
+                    int partIndexCount = part.PrimitiveCount * 3;
+                    bool partSixteenBit = part.IndexBuffer.IndexElementSize == IndexElementSize.SixteenBits;
+                    int indexStartByte = part.StartIndex * (partSixteenBit ? 2 : 4);
+
+                    if (partSixteenBit)
+                    {
+                        var src = new ushort[partIndexCount];
+                        part.IndexBuffer.GetData(indexStartByte, src, 0, partIndexCount);
+
+                        for (int i = 0; i < partIndexCount; i++)
+                        {
+                            // Rebase relative to the part's VertexOffset (as in CreateFromMeshPart)
+                            int local = src[i] - part.VertexOffset;
+                            combinedIndices[indexCursor++] = (short)(vertexBaseForPart + local);
+                        }
+                    }
+                    else
+                    {
+                        var src = new int[partIndexCount];
+                        part.IndexBuffer.GetData(indexStartByte, src, 0, partIndexCount);
+
+                        for (int i = 0; i < partIndexCount; i++)
+                        {
+                            int local = src[i] - part.VertexOffset;
+                            combinedIndices[indexCursor++] = (short)(vertexBaseForPart + local);
+                        }
+                    }
+
+                    vertexBaseForPart += part.NumVertices;
+                }
+
+                ib = new IndexBuffer(device, IndexElementSize.SixteenBits, totalIndexCount, BufferUsage.WriteOnly);
+                ib.SetData(combinedIndices);
+            }
+            else
+            {
+                var combinedIndices = new int[totalIndexCount];
+
+                int indexCursor = 0;
+                int vertexBaseForPart = 0;
+
+                foreach (var part in parts)
+                {
+                    int partIndexCount = part.PrimitiveCount * 3;
+                    bool partSixteenBit = part.IndexBuffer.IndexElementSize == IndexElementSize.SixteenBits;
+                    int indexStartByte = part.StartIndex * (partSixteenBit ? 2 : 4);
+
+                    if (partSixteenBit)
+                    {
+                        var src = new ushort[partIndexCount];
+                        part.IndexBuffer.GetData(indexStartByte, src, 0, partIndexCount);
+
+                        for (int i = 0; i < partIndexCount; i++)
+                        {
+                            int local = src[i] - part.VertexOffset;
+                            combinedIndices[indexCursor++] = vertexBaseForPart + local;
+                        }
+                    }
+                    else
+                    {
+                        var src = new int[partIndexCount];
+                        part.IndexBuffer.GetData(indexStartByte, src, 0, partIndexCount);
+
+                        for (int i = 0; i < partIndexCount; i++)
+                        {
+                            int local = src[i] - part.VertexOffset;
+                            combinedIndices[indexCursor++] = vertexBaseForPart + local;
+                        }
+                    }
+
+                    vertexBaseForPart += part.NumVertices;
+                }
+
+                ib = new IndexBuffer(device, IndexElementSize.ThirtyTwoBits, totalIndexCount, BufferUsage.WriteOnly);
+                ib.SetData(combinedIndices);
+            }
+
+            // Package into MeshFilter
+            var mf = new MeshFilter();
+            mf.SetGeometry(vb, ib, PrimitiveType.TriangleList, totalIndexCount);
+            return mf;
+        }
+
 
         /// <summary>
         /// Extracts a single <see cref="ModelMeshPart"/> from an already-loaded

@@ -1,4 +1,5 @@
-﻿using BepuPhysics;
+﻿using System.Runtime.CompilerServices;
+using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
@@ -10,11 +11,9 @@ using GDEngine.Core.Entities;
 using GDEngine.Core.Enums;
 using GDEngine.Core.Events;
 using GDEngine.Core.Rendering.Base;
-using GDEngine.Core.Systems.Base;
 using GDEngine.Core.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Runtime.CompilerServices;
 using MathHelper = Microsoft.Xna.Framework.MathHelper;
 using Matrix = Microsoft.Xna.Framework.Matrix;
 
@@ -25,7 +24,7 @@ namespace GDEngine.Core.Systems
     /// Handles simulation stepping, body registration, syncing Transforms,
     /// collision callbacks, gravity, and runtime body-type switching.
     /// </summary>
-    public sealed class PhysicsSystem : SystemBase, IDisposable
+    public sealed class PhysicsSystem : PausableSystemBase, IDisposable
     {
         #region Fields
 
@@ -108,6 +107,8 @@ namespace GDEngine.Core.Systems
         public PhysicsSystem(int order = 1000)
             : base(FrameLifecycle.LateUpdate, order)
         {
+            // Physics should not step when the game is paused.
+            PauseMode = PauseMode.Update;
         }
 
         #endregion
@@ -227,8 +228,7 @@ namespace GDEngine.Core.Systems
             );
         }
 
-
-        public override void Update(float dt)
+        protected override void OnUpdate(float dt)
         {
             if (!Enabled)
                 return;
@@ -243,10 +243,7 @@ namespace GDEngine.Core.Systems
                 foreach (var go in Scene.GameObjects)
                 {
                     if (go.Enabled && go.Transform != null)
-                    {
-                        // Simply accessing WorldMatrix triggers recalculation if dirty
                         _ = go.Transform.WorldMatrix;
-                    }
                 }
             }
 
@@ -265,6 +262,44 @@ namespace GDEngine.Core.Systems
                 Step(dt);
             }
         }
+
+        //public override void Update(float dt)
+        //{
+        //    if (!Enabled)
+        //        return;
+
+        //    if (dt <= 0f)
+        //        return;
+
+        //    // CRITICAL FIX: Force all transforms to recalculate BEFORE physics step
+        //    // This ensures physics sees the latest transform state
+        //    if (Scene != null)
+        //    {
+        //        foreach (var go in Scene.GameObjects)
+        //        {
+        //            if (go.Enabled && go.Transform != null)
+        //            {
+        //                // Simply accessing WorldMatrix triggers recalculation if dirty
+        //                _ = go.Transform.WorldMatrix;
+        //            }
+        //        }
+        //    }
+
+        //    if (_fixedTimestep > 0f)
+        //    {
+        //        _accumulator += dt;
+
+        //        while (_accumulator >= _fixedTimestep)
+        //        {
+        //            Step(_fixedTimestep);
+        //            _accumulator -= _fixedTimestep;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        Step(dt);
+        //    }
+        //}
 
 
         protected override void OnRemoved()
@@ -742,6 +777,11 @@ namespace GDEngine.Core.Systems
             return RaycastFromScreen(camera, mouseState.X, mouseState.Y, maxDistance, layerMask, out hit, hitTriggers);
         }
 
+        internal bool RaycastFromScreen(Camera camera, float x, float y, object maxDistance, object hitMask, out RaycastHit hitInfo, object hitTriggers)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 
@@ -879,7 +919,7 @@ namespace GDEngine.Core.Systems
     /// - Yellow: Dynamic bodies (physics-driven)
     /// - Red: Triggers (no collision response)
     /// </remarks>
-    public sealed class PhysicsDebugRenderer : SystemBase
+    public sealed class PhysicsDebugSystem : PausableSystemBase
     {
         #region Fields
         private Scene _scene = null!;
@@ -946,9 +986,12 @@ namespace GDEngine.Core.Systems
         /// <summary>
         /// Creates a PhysicsDebugRenderer in PostRender lifecycle.
         /// </summary>
-        public PhysicsDebugRenderer(int order = 100)
+        public PhysicsDebugSystem(int order = 100)
             : base(FrameLifecycle.PostRender, order)
         {
+            // Physics should not step when the game is paused.
+            PauseMode = PauseMode.Update;
+
         }
         #endregion
 
@@ -973,7 +1016,7 @@ namespace GDEngine.Core.Systems
             InitializeSphereWireframe();
         }
 
-        public override void Draw(float deltaTime)
+        protected override void OnDraw(float deltaTime)
         {
             if (!_enabled)
                 return;
@@ -1068,8 +1111,6 @@ namespace GDEngine.Core.Systems
                 );
             }
         }
-
-
 
         private void DrawSphereCollider(Transform transform, SphereCollider sphere, Color color)
         {

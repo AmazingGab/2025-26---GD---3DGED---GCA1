@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using GDEngine.Core;
 using GDEngine.Core.Audio;
 using GDEngine.Core.Collections;
@@ -6,12 +8,16 @@ using GDEngine.Core.Debug;
 using GDEngine.Core.Entities;
 using GDEngine.Core.Events;
 using GDEngine.Core.Factories;
+using GDEngine.Core.Gameplay;
 using GDEngine.Core.Impulses;
 using GDEngine.Core.Input.Data;
 using GDEngine.Core.Input.Devices;
+using GDEngine.Core.Managers;
 using GDEngine.Core.Orchestration;
 using GDEngine.Core.Rendering;
 using GDEngine.Core.Rendering.Base;
+using GDEngine.Core.Rendering.UI;
+using GDEngine.Core.Screen;
 using GDEngine.Core.Serialization;
 using GDEngine.Core.Services;
 using GDEngine.Core.Systems;
@@ -22,10 +28,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
 using Color = Microsoft.Xna.Framework.Color;
 
 namespace GDGame
@@ -39,8 +41,8 @@ namespace GDGame
         private ContentDictionary<SpriteFont> _fontDictionary;
         private ContentDictionary<SoundEffect> _soundDictionary;
         private ContentDictionary<Effect> _effectsDictionary;
-        private Scene _scene;
         private bool _disposed = false;
+        private Scene _scene;
         private Material _matBasicUnlit, _matBasicLit, _matAlphaCutout, _matBasicUnlitGround;
         #endregion
 
@@ -48,15 +50,19 @@ namespace GDGame
         private AnimationCurve3D _animationPositionCurve, _animationRotationCurve;
         private AnimationCurve _animationCurve;
         private KeyboardState _newKBState, _oldKBState;
+        private int _damageAmount;
         private MouseState _oldMouseState;
         private MouseState _newMouseState;
-        private int _damageAmount;
 
         // Simple debug subscription for collision events
-        private System.IDisposable _collisionSubscription;
+        private IDisposable _collisionSubscription;
 
         // LayerMask used to filter which collisions we care about in debug
         private LayerMask _collisionDebugMask = LayerMask.All;
+        private UIMenuPanel _mainMenuPanel, _audioMenuPanel;
+        private SceneManager _sceneManager;
+        private float _currentHealth = 100;
+        private MenuManager _menuManager;
         public int score;
         private GameObject _cameraGO;
         private Camera _camera;
@@ -75,50 +81,32 @@ namespace GDGame
         protected override void Initialize()
         {
             #region Core
-
-            // Give the game a name
             Window.Title = "My Amazing Game";
-
-            // Set resolution and centering (by monitor index)
-            InitializeGraphics(ScreenResolution.R_HD_16_9_1280x720);
-
-            // Center and hide the mouse!
+            InitializeGraphics(GDEngine.Core.ScreenResolution.R_WXGA_16_10_1280x800);
             InitializeMouse();
-
-            // Shared data across entities
             InitializeContext();
 
-            // Assets from string names in JSON
             var relativeFilePathAndName = "assets/data/asset_manifest.json";
             LoadAssetsFromJSON(relativeFilePathAndName);
-
-            // All effects used in game
             InitializeEffects();
 
-            // Scene to hold game objects
+            // Game component that exists outside scene to manage and swap scenes
+            InitializeSceneManager();
+
+            // Create the scene and register it
             InitializeScene();
 
-            // Camera, UI, Menu, Physics, Rendering etc.
+            // Safe to use _sceneManager.ActiveScene from here on
             InitializeSystems();
-
-            // All cameras we want in the game are loaded now and one set as active
             InitializeCameras();
+            InitializeCameraManagers();
 
-            //game manager, camera changer, FSM, AI
-            InitializeManagers();
-
-            // Setup world
             int scale = 500;
             InitializeSkyParent();
             InitializeSkyBox(scale);
-            DemoCollidableGround(scale);
-
-            // Setup player
-            //InitializePlayer();
-
-            // Setup menu
-            //InitializeMenu();
-
+            InitializeCollidableGround(scale);
+            InitializePlayer();
+      
             #endregion
 
             #region Demos
@@ -192,7 +180,74 @@ namespace GDGame
             textRenderer.LayerDepth = UIRenderer.Behind(UILayer.HUD);
             _scene.Add(textUI);
 
+            // Mouse reticle
+            InitializeUI();
+
+            // Main menu
+            InitializeMenuManager();
+
+            // Set the active scene
+            _sceneManager.SetActiveScene(AppData.LEVEL_1_NAME);
+
+            // Set win/lose conditions
+            SetWinConditions();
+
+            // Set pause and show menu
+            SetPauseShowMenu();
+
             base.Initialize();
+        }
+
+        private void InitializeMenuManager()
+        {
+            _menuManager = new MenuManager(this, _sceneManager);
+            Components.Add(_menuManager);
+
+            Texture2D btnTex = _textureDictionary.Get("button_rectangle_10");
+            Texture2D trackTex = _textureDictionary.Get("Free Flat Hyphen Icon");
+            Texture2D handleTex = _textureDictionary.Get("Free Flat Toggle Thumb Centre Icon");
+            Texture2D controlsTx = _textureDictionary.Get("mona lisa");
+            SpriteFont uiFont = _fontDictionary.Get("menufont");
+
+            // Wire UIManager to the menu scene
+            _menuManager.Initialize(_sceneManager.ActiveScene,
+                btnTex, trackTex, handleTex, controlsTx, uiFont,
+                _textureDictionary.Get("mainmenu_monkey"),
+                 _textureDictionary.Get("controlsmenu_monkey"),
+                  _textureDictionary.Get("controlsmenu_monkey"));
+
+            // Subscribe to high-level events
+            _menuManager.PlayRequested += () =>
+            {
+                _sceneManager.Paused = false;
+                _menuManager.HideMenus();
+
+                //fade out menu sound
+            };
+
+            _menuManager.ExitRequested += () =>
+            {
+                Exit();
+            };
+
+            _menuManager.MusicVolumeChanged += v =>
+            {
+                // Forward to audio manager
+                System.Diagnostics.Debug.WriteLine("MusicVolumeChanged");
+
+                //raise event to set sound
+                // EngineContext.Instance.Events.Publish(new PlaySfxEvent)
+            };
+
+            _menuManager.SfxVolumeChanged += v =>
+            {
+                // Forward to audio manager
+                System.Diagnostics.Debug.WriteLine("SfxVolumeChanged");
+
+                //raise event to set sound
+            };
+
+
         }
 
         private void InitializeManagers()
@@ -217,7 +272,58 @@ namespace GDGame
             // Adds an inventory to the player
             player.AddComponent<InventoryComponent>();
         }
-       
+
+        private void InitializeSceneManager()
+        {
+            _sceneManager = new SceneManager(this);
+            Components.Add(_sceneManager);
+        }
+
+        private void InitializeCameraManagers()
+        {
+            //inside scene
+            var go = new GameObject("Camera Manager");
+            go.AddComponent<CameraEventListener>();
+            _sceneManager.ActiveScene.Add(go);
+        }
+
+        private void InitializeCollidableGround(int scale = 500)
+        {
+            GameObject gameObject = null;
+            MeshFilter meshFilter = null;
+            MeshRenderer meshRenderer = null;
+
+            gameObject = new GameObject("ground");
+            meshFilter = MeshFilterFactory.CreateQuadTexturedLit(_graphics.GraphicsDevice);
+            meshFilter = MeshFilterFactory.CreateQuadGridTexturedUnlit(_graphics.GraphicsDevice,
+                 1,
+                 1,
+                 1,
+                 1,
+                 20,
+                 20);
+
+            gameObject.Transform.ScaleBy(new Vector3(scale, scale, 1));
+            gameObject.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0), true);
+            gameObject.Transform.TranslateTo(new Vector3(0, -0.5f, 0));
+
+            gameObject.AddComponent(meshFilter);
+            meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.Material = _matBasicUnlitGround;
+            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("ground_grass");
+
+            // Add a box collider matching the ground size
+            var collider = gameObject.AddComponent<BoxCollider>();
+            collider.Size = new Vector3(scale, scale, 0.025f);
+            collider.Center = new Vector3(0, 0, -0.0125f);
+
+            // Add rigidbody as Static (immovable)
+            var rigidBody = gameObject.AddComponent<RigidBody>();
+            rigidBody.BodyType = BodyType.Static;
+            gameObject.IsStatic = true;
+
+            _sceneManager.ActiveScene.Add(gameObject);
+        }
 
         private void InitializeAnimationCurves()
         {
@@ -250,7 +356,7 @@ namespace GDGame
             System.Windows.Forms.Application.SetHighDpiMode(System.Windows.Forms.HighDpiMode.PerMonitorV2);
 
             // Set preferred resolution
-            ScreenResolution.SetResolution(_graphics, resolution);
+            GDEngine.Core.ScreenResolution.SetResolution(_graphics, resolution);
 
             // Center on primary display (set to index of the preferred monitor)
             WindowUtility.CenterOnMonitor(this, 1);
@@ -362,13 +468,26 @@ namespace GDGame
         private void InitializeSystems()
         {
             InitializePhysicsSystem();
-            InitializePhysicsDebugSystem(true);
-            InitializeEventSystem();  //propagate events
+            InitializePhysicsDebugSystem(false);
+            InitializeEventSystem();  //propagate events  
             InitializeInputSystem();  //input
             InitializeCameraAndRenderSystems(); //update cameras, draw renderable game objects, draw ui and menu
             InitializeAudioSystem();
-            InitializeOrchestrationSystem(true); //show debugger
-            InitializeImpulseSystem();
+            InitializeOrchestrationSystem(false); //show debugger
+            InitializeImpulseSystem();    //camera shake, audio duck volumes etc
+            InitializeUIEventSystem();
+            InitializeGameStateSystem();
+        }
+
+        private void InitializeGameStateSystem()
+        {
+            // Add game state system
+            _sceneManager.ActiveScene.AddSystem(new GameStateSystem());
+        }
+
+        private void InitializeUIEventSystem()
+        {
+            _sceneManager.ActiveScene.AddSystem(new UIEventSystem());
         }
 
         private void InitializeImpulseSystem()
@@ -391,7 +510,7 @@ namespace GDGame
             if (debugEnabled)
             {
                 GameObject debugGO = new GameObject("Perf Stats");
-                var debugRenderer = debugGO.AddComponent<UIDebugRenderer>();
+                var debugRenderer = debugGO.AddComponent<UIDebugInfo>();
 
                 debugRenderer.Font = _fontDictionary.Get("perf_stats_font");
                 debugRenderer.ScreenCorner = ScreenCorner.TopLeft;
@@ -409,8 +528,7 @@ namespace GDGame
 
                 debugRenderer.Providers.Add(perfProvider);
 
-
-                _scene.Add(debugGO);
+                _sceneManager.ActiveScene.Add(debugGO);
             }
 
         }
@@ -422,17 +540,19 @@ namespace GDGame
 
         private void InitializePhysicsDebugSystem(bool isEnabled)
         {
-            var physicsDebugRenderer = _scene.AddSystem(new PhysicsDebugRenderer());
+            if (isEnabled)
+            {
+                var physicsDebugRenderer = _sceneManager.ActiveScene.AddSystem(new PhysicsDebugSystem());
 
-            // Toggle debug rendering on/off
-            physicsDebugRenderer.Enabled = isEnabled; // or false to hide
+                // Toggle debug rendering on/off
+                physicsDebugRenderer.Enabled = isEnabled; // or false to hide
 
-            // Optional: Customize colors
-            physicsDebugRenderer.StaticColor = Color.Green;      // Immovable objects
-            physicsDebugRenderer.KinematicColor = Color.Blue;    // Animated objects
-            physicsDebugRenderer.DynamicColor = Color.Yellow;    // Physics-driven objects
-            physicsDebugRenderer.TriggerColor = Color.Red;       // Trigger volumes
-
+                // Optional: Customize colors
+                physicsDebugRenderer.StaticColor = Color.Green;      // Immovable objects
+                physicsDebugRenderer.KinematicColor = Color.Blue;    // Animated objects
+                physicsDebugRenderer.DynamicColor = Color.Yellow;    // Physics-driven objects
+                physicsDebugRenderer.TriggerColor = Color.Red;       // Trigger volumes
+            }
         }
 
         private void InitializePhysicsSystem()
@@ -651,7 +771,7 @@ namespace GDGame
             var uiFont = _fontDictionary.Get("mouse_reticle_font");
 
             // Reticle (cursor): always on top
-            var reticle = new UIReticleRenderer(reticleAtlas);
+            var reticle = new UIReticle(reticleAtlas);
             reticle.Origin = reticleAtlas.GetCenter();
             reticle.SourceRectangle = null;
             reticle.Scale = new Vector2(0.1f, 0.1f);
@@ -659,16 +779,16 @@ namespace GDGame
             reticle.LayerDepth = UILayer.Cursor;
             uiReticleGO.AddComponent(reticle);
 
-            var textRenderer = uiReticleGO.AddComponent<UITextRenderer>();
+            var textRenderer = uiReticleGO.AddComponent<UIText>();
             textRenderer.Font = uiFont;
             textRenderer.Offset = new Vector2(0, 30);  // Position text below reticle
             textRenderer.Color = Color.White;
             textRenderer.PositionProvider = () => _graphics.GraphicsDevice.Viewport.GetCenter();
             textRenderer.Anchor = TextAnchor.Center;
 
-            var picker = uiReticleGO.AddComponent<UIPickerInfoRenderer>();
+            var picker = uiReticleGO.AddComponent<UIPickerInfo>();
             picker.HitMask = LayerMask.All;
-            picker.MaxDistance = 10f;
+            picker.MaxDistance = 500f;
             picker.HitTriggers = false;
 
             // Optional custom formatting:
@@ -951,9 +1071,93 @@ namespace GDGame
                 InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
         }
 
-        
+        private bool checkEnemiesVisited()
+        {
+            //get inventory and eval using boolean if all enemies visited;
+            return false;
+        }
 
-        
+        private bool checkReachedGate()
+        {
+            // we could pause the game on a win
+            //Time.TimeScale = 0;
+            return false;
+        }
+
+        private void SetWinConditions()
+        {
+            var gameStateSystem = _sceneManager.ActiveScene.GetSystem<GameStateSystem>();
+
+            // Value providers (Strategy pattern via delegates)
+            Func<float> healthProvider = () =>
+            {
+                //get the player and access the player's health/speed/other variable
+                return _currentHealth;
+            };
+
+
+
+            // Delegate for time
+            Func<float> timeProvider = () =>
+            {
+                return (float)Time.RealtimeSinceStartupSecs;
+            };
+
+            // Lose condition: health < 10 AND time > 60
+            IGameCondition loseCondition =
+                GameConditions.FromPredicate("all enemies visited", checkEnemiesVisited);
+
+            IGameCondition winCondition =
+            GameConditions.FromPredicate("reached gate", checkReachedGate);
+
+            // Configure GameStateSystem (no win condition yet)
+            gameStateSystem.ConfigureConditions(winCondition, loseCondition);
+            gameStateSystem.StateChanged += HandleGameStateChange;
+        }
+
+        private void SetPauseShowMenu()
+        {
+            // Give scenemanager the events reference so that it can publish the pause event
+            _sceneManager.EventBus = EngineContext.Instance.Events;
+            // Set paused and publish pause event
+            _sceneManager.Paused = true;
+
+            // Put all components that should be paused to sleep
+            EngineContext.Instance.Events.Subscribe<GamePauseChangedEvent>(e =>
+            {
+                bool paused = e.IsPaused;
+
+                _sceneManager.ActiveScene.GetSystem<PhysicsSystem>()?.SetPaused(paused);
+                _sceneManager.ActiveScene.GetSystem<PhysicsDebugSystem>()?.SetPaused(paused);
+                _sceneManager.ActiveScene.GetSystem<GameStateSystem>()?.SetPaused(paused);
+            });
+        }
+
+        private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
+        {
+            System.Diagnostics.Debug.WriteLine($"Old state was {oldState} and new state is {newState}");
+
+            if (newState == GameOutcomeState.Lost)
+            {
+                System.Diagnostics.Debug.WriteLine("You lost!");
+                //play sound
+                //reset player
+                //load next level
+                //we decide what losing looks like here!
+                //Exit();
+            }
+            else if (newState == GameOutcomeState.Won)
+            {
+                System.Diagnostics.Debug.WriteLine("You win!");
+            }
+
+        }
+
+
+
+
+
+
 
         /// <summary>
         /// Subscribes a simple debug listener for physics collision events.
