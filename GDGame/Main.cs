@@ -299,7 +299,7 @@ namespace GDGame
                 }
             }
         }
-
+        
         private void InitializeEffects()
         {
             #region Unlit Textured BasicEffect 
@@ -367,10 +367,37 @@ namespace GDGame
             InitializeInputSystem();  //input
             InitializeCameraAndRenderSystems(); //update cameras, draw renderable game objects, draw ui and menu
             InitializeAudioSystem();
-            InitializeOrchestrationSystem(true); //show debugger
+            //InitializeOrchestrationSystem(true); //show debugger
             InitializeImpulseSystem();
+            InitializeTaskUI();
         }
+        private void InitializeTaskUI()
+        {
+            var taskBarGO = new GameObject("TaskBar");
+            var taskBarTexture = _textureDictionary.Get("task_bar");
 
+            var bg = taskBarGO.AddComponent<UITextureRenderer>();
+            bg.Texture = taskBarTexture;
+            bg.Anchor = TextAnchor.TopLeft;
+            bg.Position = new Vector2(20f, 20f);
+            bg.Scale = Vector2.One;
+            bg.LayerDepth = UILayer.HUD;
+
+            var kidsBusFont = _fontDictionary.Get("KidsBus");
+
+            var bodyText = taskBarGO.AddComponent<UITextRenderer>();
+            bodyText.Font = kidsBusFont;
+            bodyText.Anchor = TextAnchor.TopLeft;
+            bodyText.PositionProvider = () => new Vector2(80f, 80f);
+
+            bodyText.FallbackColor = new Color(72, 59, 32);
+
+            bodyText.LayerDepth = UILayer.Menu;
+            bodyText.DropShadow = false;
+            bodyText.TextProvider = () => "SQUASH THEM ALL!";
+
+            _scene.Add(taskBarGO);
+        }
         private void InitializeImpulseSystem()
         {
             _scene.Add(new ImpulseSystem(EngineContext.Instance.Impulses));
