@@ -18,7 +18,9 @@ namespace GDEngine.Core.Rendering
         #region Static Fields
         public static readonly UILayer Cursor = new UILayer(0f);          // on-top pointers/reticles
         public static readonly UILayer MenuFront = new UILayer(0.05f);    // highlights/selection states
-        public static readonly UILayer Menu = new UILayer(0.1f);          // menu text/buttons
+        public static readonly UILayer Menu = new UILayer(0.1f);
+        public static readonly UILayer MenuBack = new UILayer(0.2f);
+        // menu text/buttons
         public static readonly UILayer HUD = new UILayer(0.4f);           // in-game HUD overlays
         public static readonly UILayer Background = new UILayer(1f);      // background images / backdrops
         #endregion

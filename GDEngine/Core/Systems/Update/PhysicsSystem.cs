@@ -10,7 +10,6 @@ using GDEngine.Core.Entities;
 using GDEngine.Core.Enums;
 using GDEngine.Core.Events;
 using GDEngine.Core.Rendering.Base;
-using GDEngine.Core.Systems.Base;
 using GDEngine.Core.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

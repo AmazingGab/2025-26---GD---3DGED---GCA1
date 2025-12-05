@@ -77,7 +77,7 @@ namespace GDGame
             #region Core
 
             // Give the game a name
-            Window.Title = "My Amazing Game";
+            Window.Title = "My amazing game!";
 
             // Set resolution and centering (by monitor index)
             InitializeGraphics(ScreenResolution.R_HD_16_9_1280x720);
@@ -388,13 +388,13 @@ namespace GDGame
             var bodyText = taskBarGO.AddComponent<UITextRenderer>();
             bodyText.Font = kidsBusFont;
             bodyText.Anchor = TextAnchor.TopLeft;
-            bodyText.PositionProvider = () => new Vector2(80f, 80f);
+            bodyText.PositionProvider = () => new Vector2(40f, 83f);
 
             bodyText.FallbackColor = new Color(72, 59, 32);
 
             bodyText.LayerDepth = UILayer.Menu;
             bodyText.DropShadow = false;
-            bodyText.TextProvider = () => "SQUASH THEM ALL!";
+            bodyText.TextProvider = () => "SQUASH THEM ALL";
 
             _scene.Add(taskBarGO);
         }

@@ -16,6 +16,10 @@
     {
       "name": "menufont",
       "contentPath": "assets/fonts/menufont"
+    },
+    {
+      "name": "KidsBus",
+      "contentPath": "KidsBus"
     }
   ],
   "textures": [
@@ -85,8 +89,12 @@
         "contentPath": "assets/textures/ui/backgrounds/controlsmenu_monkey"
     },
     {
-        "name": "dialogue",
-        "contentPath": "assets/textures/ui/chat"
+      "name": "dialogue",
+      "contentPath": "assets/textures/ui/chat"
+    },
+    {
+      "name": "task_bar",
+      "contentPath": "assets/textures/ui/ui_interface/task_bar"
     }
   ],
   "models": [

@@ -4,7 +4,6 @@ using GDEngine.Core.Rendering;
 using GDEngine.Core.Rendering.Base;
 using GDEngine.Core.Services;
 using GDEngine.Core.Systems;
-using GDEngine.Core.Systems.Base;
 
 namespace GDEngine.Core.Entities
 {

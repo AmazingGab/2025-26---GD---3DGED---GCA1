@@ -1,6 +1,6 @@
 ﻿using GDEngine.Core.Components;
 using GDEngine.Core.Enums;
-using GDEngine.Core.Systems.Base;
+using GDEngine.Core.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
