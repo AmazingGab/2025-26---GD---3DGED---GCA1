@@ -50,6 +50,10 @@ namespace GDGame
         private AnimationCurve _animationCurve;
         private KeyboardState _newKBState, _oldKBState;
         private int _damageAmount;
+        private MouseState _oldMouseState;
+        private MouseState _newMouseState;
+        public int score;
+        private bool isRoach;
 
         // Simple debug subscription for collision events
         private IDisposable _collisionSubscription;
@@ -128,7 +132,7 @@ namespace GDGame
             DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
 
-            //DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
+            DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
             DemoLoadFromJSON();
 
             #region Alpha effect
@@ -303,6 +307,63 @@ namespace GDGame
             gameObject.IsStatic = true;
 
             _sceneManager.ActiveScene.Add(gameObject);
+        }
+
+        private void DemoCollidableMap(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
+        {
+            var go = new GameObject("map");
+            go.Transform.TranslateTo(position);
+            go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
+            go.Transform.ScaleTo(scale);
+
+            var model = _modelDictionary.Get("map2");
+            var texture = _textureDictionary.Get("mona lisa");
+            var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
+            go.AddComponent(meshFilter);
+
+            var meshRenderer = go.AddComponent<MeshRenderer>();
+            meshRenderer.Material = _matBasicLit;
+            meshRenderer.Overrides.MainTexture = texture;
+            _sceneManager.ActiveScene.Add(go);
+
+
+            // Add box collider (1x1x1 cube)
+            var collider = go.AddComponent<BoxCollider>();
+            collider.Size = scale; // Collider is FULL size
+            collider.Center = new Vector3(0, 0, 0);
+
+            // Add rigidbody (Dynamic so it falls)
+
+            var rigidBody = go.AddComponent<RigidBody>();
+            rigidBody.BodyType = BodyType.Static;
+            rigidBody.Mass = 1.0f;
+
+        }
+
+        private void KillRoach(GameObject roach)
+        {
+            var events = EngineContext.Instance.Events;
+            // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
+            //var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
+            bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
+            if (togglePressed)
+            {
+
+                //foreach (var roach in roaches)
+                //{
+
+                //var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
+                //if (roach != null && distToWaypoint < 10 && isRoach)
+                //{
+                _sceneManager.ActiveScene.Remove(roach);
+                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+            1, false, null));
+                score += 100;
+                //break;
+                //}
+                //}
+
+            }
         }
 
         private void InitializePlayer()
@@ -700,7 +761,7 @@ namespace GDGame
 
             //feed off whatever screen dimensions you set InitializeGraphics
             camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
-            cameraGO.AddComponent<KeyboardWASDController>();
+            cameraGO.AddComponent<SimpleDriveController>();
             cameraGO.AddComponent<MouseYawPitchController>();
             cameraGO.AddComponent<CameraImpulseListener>();
 
@@ -876,6 +937,16 @@ namespace GDGame
                 var go = hit.Body?.GameObject;
                 if (go == null)
                     return string.Empty;
+                if (go.Name.Equals("roach"))
+                {
+                    isRoach = true;
+                    //_scene.Remove(go);
+                    _newMouseState = Mouse.GetState();
+                    KillRoach(go);
+                    _oldMouseState = _newMouseState;
+                }
+                else
+                    isRoach = false;
 
                 return $"{go.Name}  d={hit.Distance:F1}";
             };
@@ -1075,7 +1146,7 @@ namespace GDGame
 
         private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
         {
-            var go = new GameObject("test");
+            var go = new GameObject("roach");
             go.Transform.TranslateTo(position);
             go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
             go.Transform.ScaleTo(scale);
