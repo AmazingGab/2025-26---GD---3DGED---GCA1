@@ -85,8 +85,8 @@
       "contentPath": "assets/textures/ui/backgrounds/mainmenu_monkey"
     },
     {
-        "name": "controlsmenu_monkey",
-        "contentPath": "assets/textures/ui/backgrounds/controlsmenu_monkey"
+      "name": "controlsmenu_monkey",
+      "contentPath": "assets/textures/ui/backgrounds/controlsmenu_monkey"
     },
     {
       "name": "dialogue",
@@ -95,6 +95,38 @@
     {
       "name": "task_bar",
       "contentPath": "assets/textures/ui/ui_interface/task_bar"
+    },
+    {
+      "name": "play_button",
+      "contentPath": "assets/textures/ui/ui_interface/play_button"
+    },
+    {
+      "name": "options_button",
+      "contentPath": "assets/textures/ui/ui_interface/options_button"
+    },
+    {
+      "name": "credits_button",
+      "contentPath": "assets/textures/ui/ui_interface/credits_button"
+    },
+    {
+      "name": "exit_button",
+      "contentPath": "assets/textures/ui/ui_interface/exit_button"
+    },
+    {
+      "name": "main_menu_background",
+      "contentPath": "assets/textures/ui/ui_interface/main_menu_background"
+    },
+    {
+      "name": "slider_track",
+      "contentPath": "assets/textures/ui/ui_interface/slider_track"
+    },
+    {
+      "name": "slider_handle",
+      "contentPath": "assets/textures/ui/ui_interface/slider_handle"
+    },
+    {
+      "name": "Logo",
+      "contentPath": "assets/textures/ui/ui_interface/Logo"
     }
   ],
   "models": [

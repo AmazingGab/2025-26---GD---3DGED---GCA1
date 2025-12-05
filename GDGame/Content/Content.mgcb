@@ -1490,6 +1490,30 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/UI/UI_Interface/exit_button.png
 
+#begin Assets/Textures/UI/UI_Interface/Logo.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/UI_Interface/Logo.png
+
+#begin Assets/Textures/UI/UI_Interface/main_menu_background.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/UI_Interface/main_menu_background.png
+
 #begin Assets/Textures/UI/UI_Interface/options_button.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -1525,6 +1549,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/UI/UI_Interface/roach_counter.png
+
+#begin Assets/Textures/UI/UI_Interface/slider_handle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/UI_Interface/slider_handle.png
+
+#begin Assets/Textures/UI/UI_Interface/slider_track.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/UI_Interface/slider_track.png
 
 #begin Assets/Textures/UI/UI_Interface/task_bar.png
 /importer:TextureImporter
