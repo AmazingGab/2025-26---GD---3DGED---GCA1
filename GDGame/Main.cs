@@ -262,7 +262,9 @@ namespace GDGame
                 _textureDictionary.Get("options_button"),
                 _textureDictionary.Get("credits_button"),
                 _textureDictionary.Get("exit_button"));
-
+            _menuManager.ApplyBackButtonImages(
+                _textureDictionary.Get("back_button"),   
+                _textureDictionary.Get("back_button"));
             _menuManager.PlayRequested += () =>
             {
                 InitializeTaskUI();

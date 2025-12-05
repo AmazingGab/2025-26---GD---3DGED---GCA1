@@ -410,7 +410,28 @@ namespace GDEngine.Core.Managers
             // Already present, keep it
             _controlsMenuPanel.RefreshChildren();
         }
+        public void ApplyBackButtonImages(Texture2D audioBackImage,
+                                  Texture2D controlsBackImage)
+        {
+            void SwapButtonImage(UIButton? button, Texture2D image)
+            {
+                var go = button?.GameObject;
 
+                var graphic = go.GetComponent<UITexture>();
+
+                graphic.Texture = image;
+                graphic.Size = new Vector2(image.Width, image.Height);
+
+                button.Size = graphic.Size;
+
+                var label = go.GetComponent<UIText>();
+                if (label != null)
+                    label.Enabled = false;
+            }
+
+            SwapButtonImage(_audioBackButton, audioBackImage);
+            SwapButtonImage(_controlsBackButton, controlsBackImage);
+        }
         /// <summary>
         /// Show the full menu (background + main menu).
         /// Use this when opening the menu from the game (e.g. Esc or on startup).
