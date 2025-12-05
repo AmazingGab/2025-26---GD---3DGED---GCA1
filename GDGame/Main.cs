@@ -124,12 +124,12 @@ namespace GDGame
             //DemoCollidableModel(new Vector3(0, 25, 12), Vector3.Zero, new Vector3(2, 1.25f, 2));
             #endregion
 
-            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
-            DemoCollidableModel(new Vector3(5, 1, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
-            DemoCollidableModel(new Vector3(10, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false);
+            DemoCollidableModel(new Vector3(5, 1, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
+            DemoCollidableModel(new Vector3(10, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
 
-            DemoCollidableModel(new Vector3(15, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
-            DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(15, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
+            DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
 
 
             DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
@@ -1142,13 +1142,15 @@ namespace GDGame
         {
             // we could pause the game on a win
             //Time.TimeScale = 0;
-            return false;
+            
+            return score==500;
         }
 
         private bool checkEnemiesVisited()
         {
             //get inventory and eval using boolean if all enemies visited;
-            return false;
+            
+            return Time.RealtimeSinceStartupSecs > 2;
         }
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
@@ -1172,7 +1174,7 @@ namespace GDGame
         }
         #endregion
 
-        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
+        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale, bool isMoving)
         {
             var go = new GameObject("roach");
             go.Transform.TranslateTo(position);
@@ -1200,8 +1202,9 @@ namespace GDGame
             var rigidBody = go.AddComponent<RigidBody>();
             rigidBody.BodyType = BodyType.Dynamic;
             rigidBody.Mass = 1.0f;
-
-            go.AddComponent<RoachController>();
+            if(isMoving)
+                go.AddComponent<RoachController>();
+            go.Enabled = false;
         }
 
         private void DemoStuff()
