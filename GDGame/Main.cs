@@ -64,6 +64,7 @@ namespace GDGame
         private SceneManager _sceneManager;
         private float _currentHealth = 100;
         private MenuManager _menuManager;
+        private bool hasSpatula;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -130,6 +131,8 @@ namespace GDGame
 
             DemoCollidableModel(new Vector3(15, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
             DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+
+            DemoCollidableSpatula(new Vector3(8, 1, 12), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
 
 
             DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
@@ -346,7 +349,7 @@ namespace GDGame
             // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
             //var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
             bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
-            if (togglePressed)
+            if (togglePressed && hasSpatula)
             {
 
                 //foreach (var roach in roaches)
@@ -359,6 +362,38 @@ namespace GDGame
                 events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
             1, false, null));
                 score += 100;
+                //break;
+                //}
+                //}
+
+            }
+        }
+        private void AddSpatula(GameObject spatula)
+        {
+            var events = EngineContext.Instance.Events;
+            // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
+            var cameraGO = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
+            bool togglePressed = _newKBState.IsKeyDown(Keys.E) && !_oldKBState.IsKeyDown(Keys.E);
+            System.Diagnostics.Debug.WriteLine(togglePressed);
+            if (togglePressed)
+            {
+
+                //foreach (var roach in roaches)
+                //{
+
+                //var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
+                //if (roach != null && distToWaypoint < 10 && isRoach)
+                //{
+                _sceneManager.ActiveScene.Remove(spatula);
+                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+            1, false, null));
+                GameObject playerSpatula = InitializeModel(new Vector3(2, -6, 0),
+               new Vector3(45, 0, 0),
+               new Vector3(0.3f, 1, 1), "spatula", "spatula", "spatula");
+
+                playerSpatula.Transform.SetParent(cameraGO);
+                hasSpatula= true;
+                //score += 1000;
                 //break;
                 //}
                 //}
@@ -785,10 +820,7 @@ namespace GDGame
             // Add it to the scene
             scene.Add(cameraGO);
 
-            GameObject player = InitializeModel(new Vector3(2, -6, 0),
-               new Vector3(45, 0, 0),
-               new Vector3(0.3f, 1, 1), "spatula", "spatula", AppData.PLAYER_NAME);
-            player.Transform.SetParent(cameraGO);
+            
             #endregion
 
             // Set the active camera by finding and getting its camera component
@@ -972,6 +1004,13 @@ namespace GDGame
                     _newMouseState = Mouse.GetState();
                     KillRoach(go);
                     _oldMouseState = _newMouseState;
+                }
+                if (go.Name.Equals("spatula"))
+                {
+                    //System.Diagnostics.Debug.WriteLine("helloooo");
+                    _newKBState = Keyboard.GetState();
+                    AddSpatula(go);
+                    _oldKBState = _newKBState;
                 }
                 else
                     isRoach = false;
@@ -1203,11 +1242,43 @@ namespace GDGame
 
             go.AddComponent<RoachController>();
         }
+        private void DemoCollidableSpatula(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
+        {
+
+            var go = new GameObject("spatula");
+            go.Transform.TranslateTo(position);
+            go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
+            go.Transform.ScaleTo(scale);
+
+            go.Layer = LayerMask.Interactables;
+
+            var model = _modelDictionary.Get("spatula");
+            var texture = _textureDictionary.Get("spatula");
+            var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
+            go.AddComponent(meshFilter);
+
+            var meshRenderer = go.AddComponent<MeshRenderer>();
+            meshRenderer.Material = _matBasicLit;
+            meshRenderer.Overrides.MainTexture = texture;
+            _sceneManager.ActiveScene.Add(go);
+
+            // Add box collider (1x1x1 cube)
+            var collider = go.AddComponent<BoxCollider>();
+            collider.Size = new Vector3(3f, 2f, 2f);  // Collider is FULL size
+            collider.Center = new Vector3(0, 0, -0.3f);
+
+            // Add rigidbody (Dynamic so it falls)
+            var rigidBody = go.AddComponent<RigidBody>();
+            rigidBody.BodyType = BodyType.Static;
+            rigidBody.Mass = 1.0f;
+
+            
+        }
 
         private void DemoStuff()
         {
             // Get new state
-            _newKBState = Keyboard.GetState();
+            //_newKBState = Keyboard.GetState();
             DemoEventPublish();
             DemoCameraSwitch();
             DemoToggleFullscreen();
@@ -1218,7 +1289,7 @@ namespace GDGame
             _currentHealth--;
 
             // Store old state (allows us to do was pressed type checks)
-            _oldKBState = _newKBState;
+            //_oldKBState = _newKBState;
         }
 
         private void DemoImpulsePublish()
