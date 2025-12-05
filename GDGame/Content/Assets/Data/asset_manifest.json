@@ -16,6 +16,10 @@
         {
             "name": "menufont",
             "contentPath": "assets/fonts/menufont"
+        },
+        {
+            "name": "KidsBus",
+            "contentPath": "assets/fonts/KidsBus"
         }
     ],
     "textures": [
@@ -124,6 +128,42 @@
         {
             "name": "dialogue",
             "contentPath": "assets/textures/ui/chat"
+        },
+        {
+            "name": "task_bar",
+            "contentPath": "assets/textures/ui/interface/task_bar"
+        },
+        {
+            "name": "play_button",
+            "contentPath": "assets/textures/ui/interface/play_button"
+        },
+        {
+            "name": "options_button",
+            "contentPath": "assets/textures/ui/interface/options_button"
+        },
+        {
+            "name": "credits_button",
+            "contentPath": "assets/textures/ui/interface/credits_button"
+        },
+        {
+            "name": "exit_button",
+            "contentPath": "assets/textures/ui/interface/exit_button"
+        },
+        {
+            "name": "main_menu_background",
+            "contentPath": "assets/textures/ui/interface/main_menu_background"
+        },
+        {
+            "name": "slider_track",
+            "contentPath": "assets/textures/ui/interface/slider_track"
+        },
+        {
+            "name": "slider_handle",
+            "contentPath": "assets/textures/ui/interface/slider_handle"
+        },
+        {
+            "name": "Logo",
+            "contentPath": "assets/textures/ui/interface/Logo"
         }
     ],
     "models": [
