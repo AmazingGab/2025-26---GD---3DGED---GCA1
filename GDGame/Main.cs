@@ -1207,9 +1207,11 @@ namespace GDGame
                     SetTaskBarVisible(!menuVisible);
                 }
             }
+    
             #endregion
             _newKBState = Keyboard.GetState();
-            
+            DemoStuff();
+
             #region Demo
 
             #endregion
