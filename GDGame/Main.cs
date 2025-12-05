@@ -65,6 +65,8 @@ namespace GDGame
         private float _currentHealth = 100;
         private MenuManager _menuManager;
         private bool hasSpatula;
+        private KeyboardState _newKBState2;
+        private KeyboardState _oldKBState2;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -373,7 +375,7 @@ namespace GDGame
             var events = EngineContext.Instance.Events;
             // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
             var cameraGO = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
-            bool togglePressed = _newKBState.IsKeyDown(Keys.E) && !_oldKBState.IsKeyDown(Keys.E);
+            bool togglePressed = _newKBState2.IsKeyDown(Keys.E) && !_oldKBState2.IsKeyDown(Keys.E);
             System.Diagnostics.Debug.WriteLine(togglePressed);
             if (togglePressed)
             {
@@ -598,7 +600,7 @@ namespace GDGame
         private void InitializeSystems()
         {
             InitializePhysicsSystem();
-            InitializePhysicsDebugSystem(false);
+            InitializePhysicsDebugSystem(true);
             InitializeEventSystem();  //propagate events  
             InitializeInputSystem();  //input
             InitializeCameraAndRenderSystems(); //update cameras, draw renderable game objects, draw ui and menu
@@ -1008,9 +1010,9 @@ namespace GDGame
                 if (go.Name.Equals("spatula"))
                 {
                     //System.Diagnostics.Debug.WriteLine("helloooo");
-                    _newKBState = Keyboard.GetState();
+                    _newKBState2 = Keyboard.GetState();
                     AddSpatula(go);
-                    _oldKBState = _newKBState;
+                    _oldKBState2 = _newKBState2;
                 }
                 else
                     isRoach = false;
@@ -1060,11 +1062,12 @@ namespace GDGame
             #region Core
             Time.Update(gameTime);
             #endregion
-
+            _newKBState = Keyboard.GetState();
+            
             #region Demo
             DemoStuff();
             #endregion
-
+            _oldKBState = _newKBState;
             base.Update(gameTime);
         }
 
@@ -1289,7 +1292,7 @@ namespace GDGame
             _currentHealth--;
 
             // Store old state (allows us to do was pressed type checks)
-            //_oldKBState = _newKBState;
+           // _oldKBState = _newKBState;
         }
 
         private void DemoImpulsePublish()
