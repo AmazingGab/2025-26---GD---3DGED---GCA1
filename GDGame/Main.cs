@@ -59,6 +59,7 @@ namespace GDGame
         private bool _lastMenuVisible = false;
         private GameObject _menuLogoGO;
         private GameObject _taskBarGO;
+        private GameObject uiReticleGO;
 
         // Simple debug subscription for collision events
         private IDisposable _collisionSubscription;
@@ -263,6 +264,7 @@ namespace GDGame
             _menuManager.PlayRequested += () =>
             {
                 InitializeTaskUI();
+                InitializeUIReticleRenderer();
                 _sceneManager.Paused = false;
                 _menuManager.HideMenus();
                 IsMouseVisible = false;
@@ -289,6 +291,7 @@ namespace GDGame
             IsMouseVisible = true;
             SetTaskBarVisible(false);
             SetMenuLogoVisible(true);
+            SetReticleoVisible(false);
 
 
         }
@@ -403,7 +406,13 @@ namespace GDGame
             foreach (var ui in _menuLogoGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
         }
+        private void SetReticleoVisible(bool visible)
+        {
+            if (uiReticleGO == null) return;
 
+            foreach (var ui in uiReticleGO.GetComponents<UIRenderer>())
+                ui.Enabled = visible;
+        }
         private void InitializeCollidableGround(int scale = 500)
         {
             GameObject gameObject = null;
@@ -1066,8 +1075,7 @@ namespace GDGame
         }
 
         private void InitializeUI()
-        {
-            InitializeUIReticleRenderer();
+        {       
             InitializeScoreBoard();
         }
 
@@ -1095,7 +1103,9 @@ namespace GDGame
 
         private void InitializeUIReticleRenderer()
         {
-            var uiReticleGO = new GameObject("HUD");
+            if (uiReticleGO != null)
+                return;
+             uiReticleGO = new GameObject("HUD");
 
             var reticleAtlas = _textureDictionary.Get("Crosshair_21");
             var uiFont = _fontDictionary.Get("mouse_reticle_font");
@@ -1203,6 +1213,7 @@ namespace GDGame
                     IsMouseVisible = menuVisible;
 
                     SetTaskBarVisible(!menuVisible);
+                    SetReticleoVisible(!menuVisible);
                 }
             }
             #endregion
