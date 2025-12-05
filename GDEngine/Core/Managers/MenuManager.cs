@@ -1,6 +1,7 @@
 ﻿using GDEngine.Core.Entities;
 using GDEngine.Core.Rendering;
 using GDEngine.Core.Rendering.UI;
+using GDEngine.Core.Timing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -518,11 +519,13 @@ namespace GDEngine.Core.Managers
             {
                 if (IsMenuVisible)
                 {
+                    Time.Resume();
                     _sceneManager.Paused = false;
                     HideMenus();
                 }
                 else
                 {
+                    Time.TogglePause();
                     _sceneManager.Paused = true;
                     ShowMenuRoot();
                 }

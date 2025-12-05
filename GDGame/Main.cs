@@ -71,6 +71,8 @@ namespace GDGame
         private float _currentHealth = 100;
         private MenuManager _menuManager;
         private bool hasSpatula;
+        private KeyboardState _newKBState2;
+        private KeyboardState _oldKBState2;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -131,12 +133,12 @@ namespace GDGame
             //DemoCollidableModel(new Vector3(0, 25, 12), Vector3.Zero, new Vector3(2, 1.25f, 2));
             #endregion
 
-            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
-            DemoCollidableModel(new Vector3(5, 1, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
-            DemoCollidableModel(new Vector3(10, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false);
+            DemoCollidableModel(new Vector3(5, 1, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
+            DemoCollidableModel(new Vector3(10, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
 
-            DemoCollidableModel(new Vector3(15, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
-            DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
+            DemoCollidableModel(new Vector3(15, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
+            DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
 
             DemoCollidableSpatula(new Vector3(8, 1, 12), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
 
@@ -512,7 +514,7 @@ namespace GDGame
             var events = EngineContext.Instance.Events;
             // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
             var cameraGO = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
-            bool togglePressed = _newKBState.IsKeyDown(Keys.E) && !_oldKBState.IsKeyDown(Keys.E);
+            bool togglePressed = _newKBState2.IsKeyDown(Keys.E) && !_oldKBState2.IsKeyDown(Keys.E);
             System.Diagnostics.Debug.WriteLine(togglePressed);
             if (togglePressed)
             {
@@ -737,7 +739,7 @@ namespace GDGame
         private void InitializeSystems()
         {
             InitializePhysicsSystem();
-            InitializePhysicsDebugSystem(false);
+            InitializePhysicsDebugSystem(true);
             InitializeEventSystem();  //propagate events  
             InitializeInputSystem();  //input
             InitializeCameraAndRenderSystems(); //update cameras, draw renderable game objects, draw ui and menu
@@ -1148,9 +1150,9 @@ namespace GDGame
                 if (go.Name.Equals("spatula"))
                 {
                     //System.Diagnostics.Debug.WriteLine("helloooo");
-                    _newKBState = Keyboard.GetState();
+                    _newKBState2 = Keyboard.GetState();
                     AddSpatula(go);
-                    _oldKBState = _newKBState;
+                    _oldKBState2 = _newKBState2;
                 }
                 else
                     isRoach = false;
@@ -1216,12 +1218,15 @@ namespace GDGame
                     SetReticleoVisible(!menuVisible);
                 }
             }
+    
             #endregion
+            _newKBState = Keyboard.GetState();
+            DemoStuff();
 
             #region Demo
 
             #endregion
-
+            _oldKBState = _newKBState;
             base.Update(gameTime);
         }
 
@@ -1338,13 +1343,15 @@ namespace GDGame
         {
             // we could pause the game on a win
             //Time.TimeScale = 0;
-            return false;
+            
+            return score==500;
         }
 
         private bool checkEnemiesVisited()
         {
             //get inventory and eval using boolean if all enemies visited;
-            return false;
+            
+            return Time.RealtimeSinceStartupSecs > 2;
         }
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
@@ -1368,7 +1375,7 @@ namespace GDGame
         }
         #endregion
 
-        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
+        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale, bool isMoving)
         {
             var go = new GameObject("roach");
             go.Transform.TranslateTo(position);
@@ -1396,8 +1403,9 @@ namespace GDGame
             var rigidBody = go.AddComponent<RigidBody>();
             rigidBody.BodyType = BodyType.Dynamic;
             rigidBody.Mass = 1.0f;
-
-            go.AddComponent<RoachController>();
+            if(isMoving)
+                go.AddComponent<RoachController>();
+            go.Enabled = false;
         }
         private void DemoCollidableSpatula(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
         {
@@ -1446,7 +1454,7 @@ namespace GDGame
             _currentHealth--;
 
             // Store old state (allows us to do was pressed type checks)
-            //_oldKBState = _newKBState;
+           // _oldKBState = _newKBState;
         }
 
         private void DemoImpulsePublish()
