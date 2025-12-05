@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using GDEngine.Core;
 using GDEngine.Core.Audio;
@@ -42,7 +42,6 @@ namespace GDGame
         private ContentDictionary<SoundEffect> _soundDictionary;
         private ContentDictionary<Effect> _effectsDictionary;
         private bool _disposed = false;
-        private Scene _scene;
         private Material _matBasicUnlit, _matBasicLit, _matAlphaCutout, _matBasicUnlitGround;
         #endregion
 
@@ -51,8 +50,6 @@ namespace GDGame
         private AnimationCurve _animationCurve;
         private KeyboardState _newKBState, _oldKBState;
         private int _damageAmount;
-        private MouseState _oldMouseState;
-        private MouseState _newMouseState;
 
         // Simple debug subscription for collision events
         private IDisposable _collisionSubscription;
@@ -63,11 +60,6 @@ namespace GDGame
         private SceneManager _sceneManager;
         private float _currentHealth = 100;
         private MenuManager _menuManager;
-        public int score;
-        private GameObject _cameraGO;
-        private Camera _camera;
-        private UITextRenderer _uiStatsRenderer;
-        private bool isRoach;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -82,7 +74,7 @@ namespace GDGame
         {
             #region Core
             Window.Title = "My Amazing Game";
-            InitializeGraphics(GDEngine.Core.ScreenResolution.R_WXGA_16_10_1280x800);
+            InitializeGraphics(ScreenResolution.R_WXGA_16_10_1280x800);
             InitializeMouse();
             InitializeContext();
 
@@ -106,79 +98,52 @@ namespace GDGame
             InitializeSkyBox(scale);
             InitializeCollidableGround(scale);
             InitializePlayer();
-      
             #endregion
 
             #region Demos
 
+            #region Animation curves
             // Camera-demos
             InitializeAnimationCurves();
+            #endregion
 
+            #region Collidables
             // Demo event listeners on collision
             InitializeCollisionEventListener();
-            
+
             // Collidable game object demos
-            
-            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90,0,0), new Vector3(1.5f, 0.5f, 0.2f));
+            //DemoCollidablePrimitive(new Vector3(0, 20, 5.1f), Vector3.One * 6, new Vector3(15, 45, 45));
+            //DemoCollidablePrimitive(new Vector3(0, 10, 5.2f), Vector3.One * 1, new Vector3(45, 0, 0));
+            //DemoCollidablePrimitive(new Vector3(0, 5, 5.3f), Vector3.One * 1, new Vector3(0, 0, 45));
+            //DemoCollidableModel(new Vector3(0, 50, 10), Vector3.Zero, new Vector3(2, 1.25f, 2));
+            //DemoCollidableModel(new Vector3(0, 40, 11), Vector3.Zero, new Vector3(2, 1.25f, 2));
+            //DemoCollidableModel(new Vector3(0, 25, 12), Vector3.Zero, new Vector3(2, 1.25f, 2));
+            #endregion
+
+            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
             DemoCollidableModel(new Vector3(5, 1, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
             DemoCollidableModel(new Vector3(10, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
             DemoCollidableModel(new Vector3(15, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
             DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
-            DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55,5));
+
+            //DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
             DemoLoadFromJSON();
-           
+
+            #region Alpha effect
+            DemoAlphaCutoutFoliage(new Vector3(0, 10 /*note Y=heightscale/2*/, 0), 12, 20);
             #endregion
 
-            #region Core
-            // Setup UI renderers after all game objects added since ui text may use a gameobject as target
-            InitializeUI();
+            #region Loading GameObjects from JSON
+            DemoLoadFromJSON();
             #endregion
-            
 
-            GameObject _roachParent = new GameObject("RoachParent");
-            GameObject gameObject = null;
-            var roachParts = MeshFilterFactory.CreateAllFromModel(_modelDictionary.Get("housewalls"), GraphicsDevice);
-            _scene.Add(_roachParent);
+            #region Sequencing using Orchestration
+            DemoOrchestrationSystem();
+            #endregion
 
-            for (int i = 0; i < roachParts.Count; i++)
-            {
-                gameObject = new GameObject("roach+part"+1);
-                //gameObject.Transform.ScaleTo(new Vector3(scale / 10, scale / 10, scale / 10));
-                var meshFilter = roachParts[i];
-                gameObject.AddComponent(meshFilter);
-                var meshRenderer = gameObject.AddComponent<MeshRenderer>();
-                meshRenderer.Material = _matBasicLit;
-                meshRenderer.Overrides.MainTexture = _textureDictionary.Get("roach_texture");
-                _scene.Add(gameObject);
-                gameObject.Transform.SetParent(_roachParent.Transform);
-            }
-
-            _roachParent.Transform.TranslateTo(new Vector3(300f, 0, 0));
-            _roachParent.Transform.ScaleTo(new Vector3(100f, 85f, 5f));
-            _roachParent.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0), true);
-
-
-            var imageUI = new GameObject("imageUI");
-            var uiTexture = _textureDictionary.Get("dialogue");
-            var imageRenderer = imageUI.AddComponent<UITextureRenderer>();
-            imageRenderer.Texture = uiTexture;
-            imageRenderer.Position = new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2 - uiTexture.Width / 2, _graphics.GraphicsDevice.Viewport.Height - uiTexture.Height / 2 - 200);
-            imageRenderer.LayerDepth = UILayer.HUD;
-            _scene.Add(imageUI);
-
-            var textUI = new GameObject("textUI");
-            var uiFont = _fontDictionary.Get("menufont");
-            var textRenderer = textUI.AddComponent<UITextRenderer>();
-            textRenderer.Font = uiFont;
-            textRenderer.Color = Color.Black;
-            textRenderer.DropShadow = false;
-            textRenderer.TextProvider = () => "grrr.. Oh, I'm really hungry. I left some \ncookies on the kitchen counter. \nI need to get them. I will have \nto turn on the lights.";
-            textRenderer.Anchor = TextAnchor.Center;
-            textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2, _graphics.GraphicsDevice.Viewport.Height/ 2 + 150);
-            textRenderer.LayerDepth = UIRenderer.Behind(UILayer.HUD);
-            _scene.Add(textUI);
+            #endregion
 
             // Mouse reticle
             InitializeUI();
@@ -195,7 +160,59 @@ namespace GDGame
             // Set pause and show menu
             SetPauseShowMenu();
 
+            GameObject _roachParent = new GameObject("RoachParent");
+            GameObject gameObject = null;
+            var roachParts = MeshFilterFactory.CreateAllFromModel(_modelDictionary.Get("roach2"), GraphicsDevice);
+            _sceneManager.ActiveScene.Add(_roachParent);
+
+            for (int i = 0; i < roachParts.Count; i++)
+            {
+                gameObject = new GameObject("roach+part" + 1);
+                //gameObject.Transform.ScaleTo(new Vector3(scale / 10, scale / 10, scale / 10));
+                var meshFilter = roachParts[i];
+                gameObject.AddComponent(meshFilter);
+                var meshRenderer = gameObject.AddComponent<MeshRenderer>();
+                meshRenderer.Material = _matBasicLit;
+                meshRenderer.Overrides.MainTexture = _textureDictionary.Get("roach_texture");
+                _sceneManager.ActiveScene.Add(gameObject);
+                gameObject.Transform.SetParent(_roachParent.Transform);
+            }
+
+            _roachParent.Transform.ScaleTo(new Vector3(10f, 10f, 10f));
+
             base.Initialize();
+        }
+
+        private void SetPauseShowMenu()
+        {
+            // Give scenemanager the events reference so that it can publish the pause event
+            _sceneManager.EventBus = EngineContext.Instance.Events;
+            // Set paused and publish pause event
+            _sceneManager.Paused = true;
+
+            // Put all components that should be paused to sleep
+            EngineContext.Instance.Events.Subscribe<GamePauseChangedEvent>(e =>
+            {
+                bool paused = e.IsPaused;
+
+                _sceneManager.ActiveScene.GetSystem<PhysicsSystem>()?.SetPaused(paused);
+                _sceneManager.ActiveScene.GetSystem<PhysicsDebugSystem>()?.SetPaused(paused);
+                _sceneManager.ActiveScene.GetSystem<GameStateSystem>()?.SetPaused(paused);
+            });
+        }
+
+        private void InitializeSceneManager()
+        {
+            _sceneManager = new SceneManager(this);
+            Components.Add(_sceneManager);
+        }
+
+        private void InitializeCameraManagers()
+        {
+            //inside scene
+            var go = new GameObject("Camera Manager");
+            go.AddComponent<CameraEventListener>();
+            _sceneManager.ActiveScene.Add(go);
         }
 
         private void InitializeMenuManager()
@@ -203,18 +220,18 @@ namespace GDGame
             _menuManager = new MenuManager(this, _sceneManager);
             Components.Add(_menuManager);
 
-            Texture2D btnTex = _textureDictionary.Get("button_rectangle_10");
-            Texture2D trackTex = _textureDictionary.Get("Free Flat Hyphen Icon");
-            Texture2D handleTex = _textureDictionary.Get("Free Flat Toggle Thumb Centre Icon");
+            Texture2D btnTex = _textureDictionary.Get("checkerboard");
+            Texture2D trackTex = _textureDictionary.Get("checkerboard");
+            Texture2D handleTex = _textureDictionary.Get("checkerboard");
             Texture2D controlsTx = _textureDictionary.Get("mona lisa");
             SpriteFont uiFont = _fontDictionary.Get("menufont");
 
             // Wire UIManager to the menu scene
             _menuManager.Initialize(_sceneManager.ActiveScene,
                 btnTex, trackTex, handleTex, controlsTx, uiFont,
-                _textureDictionary.Get("mainmenu_monkey"),
-                 _textureDictionary.Get("controlsmenu_monkey"),
-                  _textureDictionary.Get("controlsmenu_monkey"));
+                _textureDictionary.Get("checkerboard"),
+                 _textureDictionary.Get("checkerboard"),
+                  _textureDictionary.Get("checkerboard"));
 
             // Subscribe to high-level events
             _menuManager.PlayRequested += () =>
@@ -248,43 +265,6 @@ namespace GDGame
             };
 
 
-        }
-
-        private void InitializeManagers()
-        {
-            var go = new GameObject("Camera Manager");
-            go.AddComponent<CameraEventListener>();
-            _scene.Add(go);
-        }
-
-        private void InitializePlayer()
-        {
-            GameObject player = InitializeModel(new Vector3(0, 5, 10),
-                new Vector3(0, 0, 0),
-                2 * Vector3.One, "crate1", "monkey1", AppData.PLAYER_NAME);
-
-            var simpleDriveController = new SimpleDriveController();
-            player.AddComponent(simpleDriveController);
-
-            // Listen for damage events on the player
-            player.AddComponent<DamageEventListener>();
-
-            // Adds an inventory to the player
-            player.AddComponent<InventoryComponent>();
-        }
-
-        private void InitializeSceneManager()
-        {
-            _sceneManager = new SceneManager(this);
-            Components.Add(_sceneManager);
-        }
-
-        private void InitializeCameraManagers()
-        {
-            //inside scene
-            var go = new GameObject("Camera Manager");
-            go.AddComponent<CameraEventListener>();
-            _sceneManager.ActiveScene.Add(go);
         }
 
         private void InitializeCollidableGround(int scale = 500)
@@ -325,6 +305,45 @@ namespace GDGame
             _sceneManager.ActiveScene.Add(gameObject);
         }
 
+        private void InitializePlayer()
+        {
+            GameObject player = InitializeModel(new Vector3(0, 5, 10),
+                new Vector3(0, 0, 0),
+                2 * Vector3.One, "crate1", "monkey1", AppData.PLAYER_NAME);
+
+            var simpleDriveController = new SimpleDriveController();
+            player.AddComponent(simpleDriveController);
+
+            // Listen for damage events on the player
+            player.AddComponent<DamageEventListener>();
+
+            // Adds an inventory to the player
+            player.AddComponent<InventoryComponent>();
+        }
+
+        private void InitializePIPCamera(Vector3 position,
+      Viewport viewport, int depth, int index = 0)
+        {
+            var pipCameraGO = new GameObject("PIP camera");
+            pipCameraGO.Transform.TranslateTo(position);
+            pipCameraGO.Transform.RotateEulerBy(new Vector3(0, MathHelper.ToRadians(-90), 0));
+
+            //if (index == 0)
+            //{
+            //    pipCameraGO.AddComponent<KeyboardWASDController>();
+            //    pipCameraGO.AddComponent<MouseYawPitchController>();
+            //}
+
+            var camera = pipCameraGO.AddComponent<Camera>();
+            camera.StackRole = Camera.StackType.Overlay;
+            camera.ClearFlags = Camera.ClearFlagsType.DepthOnly;
+            camera.Depth = depth; //-100
+
+            camera.Viewport = viewport; // new Viewport(0, 0, 400, 300);
+
+            _sceneManager.ActiveScene.Add(pipCameraGO);
+        }
+
         private void InitializeAnimationCurves()
         {
             //1D animation curve demo (e.g. scale, audio volume, lerp factor for color, etc)
@@ -356,7 +375,7 @@ namespace GDGame
             System.Windows.Forms.Application.SetHighDpiMode(System.Windows.Forms.HighDpiMode.PerMonitorV2);
 
             // Set preferred resolution
-            GDEngine.Core.ScreenResolution.SetResolution(_graphics, resolution);
+            ScreenResolution.SetResolution(_graphics, resolution);
 
             // Center on primary display (set to index of the preferred monitor)
             WindowUtility.CenterOnMonitor(this, 1);
@@ -436,8 +455,17 @@ namespace GDGame
                 VertexColorEnabled = false
             };
             litBasicEffect.EnableDefaultLighting();
+            //litBasicEffect.AmbientLightColor = Color.Red.ToVector3();
+            //litBasicEffect.EmissiveColor = Color.Green.ToVector3();
+            //litBasicEffect.FogEnabled = true;
+            //litBasicEffect.FogColor = Color.LightGray.ToVector3();
+            //litBasicEffect.FogStart = 1;
+            //litBasicEffect.FogEnd = 100;
+            //litBasicEffect.SpecularPower = 8;  //int, power of 2, 1, 2, 4, 8
+            //litBasicEffect.SpecularColor = Color.Yellow.ToVector3();
             _matBasicLit = new Material(litBasicEffect);
             _matBasicLit.StateBlock = RenderStates.Opaque3D();
+
             #endregion
 
             #region Alpha-test for foliage/billboards
@@ -462,7 +490,13 @@ namespace GDGame
         private void InitializeScene()
         {
             // Make a scene that will store all drawn objects and systems for that level
-            _scene = new Scene(EngineContext.Instance, "outdoors - level 1");
+            var scene = new Scene(EngineContext.Instance, "outdoors - level 1");
+
+            // Add each new scene into the manager
+            _sceneManager.AddScene(AppData.LEVEL_1_NAME, scene);
+
+            // Set the active scene before anything that uses ActiveScene
+            _sceneManager.SetActiveScene(AppData.LEVEL_1_NAME);
         }
 
         private void InitializeSystems()
@@ -476,7 +510,19 @@ namespace GDGame
             InitializeOrchestrationSystem(false); //show debugger
             InitializeImpulseSystem();    //camera shake, audio duck volumes etc
             InitializeUIEventSystem();
-            InitializeGameStateSystem();
+            InitializeGameStateSystem();   //manage and track game state
+                                           //  InitializeNavMeshSystem();
+        }
+
+        private void InitializeNavMeshSystem()
+        {
+            var scene = _sceneManager.ActiveScene;
+
+            // Core navmesh system (implements INavigationService)
+            var navMeshSystem = scene.AddSystem(new NavMeshSystem());
+
+            // Debug overlay (F2 toggle)
+            scene.Add(new NavMeshDebugSystem());
         }
 
         private void InitializeGameStateSystem()
@@ -492,7 +538,7 @@ namespace GDGame
 
         private void InitializeImpulseSystem()
         {
-            _scene.Add(new ImpulseSystem(EngineContext.Instance.Impulses));
+            _sceneManager.ActiveScene.Add(new ImpulseSystem(EngineContext.Instance.Impulses));
         }
 
         private void InitializeOrchestrationSystem(bool debugEnabled)
@@ -504,7 +550,7 @@ namespace GDGame
                 options.LocalScale = 1;
                 options.Paused = false;
             });
-            _scene.Add(orchestrationSystem);
+            _sceneManager.ActiveScene.Add(orchestrationSystem);
 
             // Debugger
             if (debugEnabled)
@@ -535,7 +581,7 @@ namespace GDGame
 
         private void InitializeAudioSystem()
         {
-            _scene.Add(new AudioSystem(_soundDictionary));
+            _sceneManager.ActiveScene.Add(new AudioSystem(_soundDictionary));
         }
 
         private void InitializePhysicsDebugSystem(bool isEnabled)
@@ -553,30 +599,34 @@ namespace GDGame
                 physicsDebugRenderer.DynamicColor = Color.Yellow;    // Physics-driven objects
                 physicsDebugRenderer.TriggerColor = Color.Red;       // Trigger volumes
             }
+
         }
 
         private void InitializePhysicsSystem()
         {
             // 1. add physics
-            var physicsSystem = _scene.AddSystem(new PhysicsSystem());
+            var physicsSystem = _sceneManager.ActiveScene.AddSystem(new PhysicsSystem());
             physicsSystem.Gravity = AppData.GRAVITY;
         }
 
         private void InitializeEventSystem()
         {
-            _scene.Add(new EventSystem(EngineContext.Instance.Events));
+            _sceneManager.ActiveScene.Add(new EventSystem(EngineContext.Instance.Events));
         }
 
         private void InitializeCameraAndRenderSystems()
         {
+            //manages camera
             var cameraSystem = new CameraSystem(_graphics.GraphicsDevice, -100);
-            _scene.Add(cameraSystem);
+            _sceneManager.ActiveScene.Add(cameraSystem);
 
+            //3d
             var renderSystem = new RenderSystem(-100);
-            _scene.Add(renderSystem);
+            _sceneManager.ActiveScene.Add(renderSystem);
 
-            var uiRenderSystem = new UIRenderSystem(100);
-            _scene.Add(uiRenderSystem); // draws in PostRender after RenderingSystem (order = -100)
+            //2d
+            var uiRenderSystem = new UIRenderSystem(-100);
+            _sceneManager.ActiveScene.Add(uiRenderSystem); // draws in PostRender after RenderingSystem (order = -100)
         }
 
         private void InitializeInputSystem()
@@ -592,42 +642,96 @@ namespace GDGame
             // Create the input system 
             var inputSystem = new InputSystem();
 
-            //register all the devices, you dont have to, but its for the demo
+            // Register all the devices, you don't have to, but its for the demo
             inputSystem.Add(new GDKeyboardInput(bindings));
             inputSystem.Add(new GDMouseInput(bindings));
             inputSystem.Add(new GDGamepadInput(PlayerIndex.One, "Gamepad P1"));
 
-            _scene.Add(inputSystem);
+            _sceneManager.ActiveScene.Add(inputSystem);
         }
 
         private void InitializeCameras()
         {
+            Scene scene = _sceneManager.ActiveScene;
+
+            GameObject cameraGO = null;
+            Camera camera = null;
+            #region Static birds-eye camera
+            cameraGO = new GameObject(AppData.CAMERA_NAME_STATIC_BIRDS_EYE);
+            camera = cameraGO.AddComponent<Camera>();
+            camera.FieldOfView = MathHelper.ToRadians(80);
+            //ISRoT
+            cameraGO.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0));
+            cameraGO.Transform.TranslateTo(Vector3.UnitY * 50);
+
+            // _cameraGO.AddComponent<MouseYawPitchController>();
+
+            scene.Add(cameraGO);
+
+            // _camera.FieldOfView
+            //TODO - add camera
+            #endregion
+
+            #region Third-person camera
+            cameraGO = new GameObject(AppData.CAMERA_NAME_THIRD_PERSON);
+            camera = cameraGO.AddComponent<Camera>();
+
+            var thirdPersonController = new ThirdPersonController();
+            thirdPersonController.TargetName = AppData.PLAYER_NAME;
+            thirdPersonController.ShoulderOffset = 0;
+            thirdPersonController.FollowDistance = 50;
+            thirdPersonController.RotationDamping = 20;
+            cameraGO.AddComponent(thirdPersonController);
+            scene.Add(cameraGO);
+            #endregion
+
             #region First-person camera
             var position = new Vector3(0, 5, 25);
 
             //camera GO
-            _cameraGO = new GameObject(AppData.CAMERA_NAME_FIRST_PERSON);
+            cameraGO = new GameObject(AppData.CAMERA_NAME_FIRST_PERSON);
+
             //set position 
-            _cameraGO.Transform.TranslateTo(position);
+            cameraGO.Transform.TranslateTo(position);
+
             //add camera component to the GO
-            _camera = _cameraGO.AddComponent<Camera>();
-            _camera.FarPlane = 1000;
-            ////feed off whatever screen dimensions you set InitializeGraphics
-            _camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
-            _cameraGO.AddComponent<SimpleDriveController>();
-            _cameraGO.AddComponent<MouseYawPitchController>();
+            camera = cameraGO.AddComponent<Camera>();
+            camera.FarPlane = 1000;
+
+            //feed off whatever screen dimensions you set InitializeGraphics
+            camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
+            cameraGO.AddComponent<KeyboardWASDController>();
+            cameraGO.AddComponent<MouseYawPitchController>();
+            cameraGO.AddComponent<CameraImpulseListener>();
+
+            //var collider = cameraGO.AddComponent<CapsuleCollider>();
+            //collider.Height = 5f;
+            //collider.Radius = 0.25f;
+
+            //var rb = cameraGO.AddComponent<RigidBody>();
+            //rb.BodyType = BodyType.Dynamic;
+            //rb.Mass = 80f;       // “human-ish”
+            //rb.UseGravity = true;
+            //rb.LinearDamping = 0.0f;      // or a little drag if you prefer
+            //rb.AngularDamping = 0.0f;
+
+            //var physicsWASDController = cameraGO.AddComponent<PhysicsWASDController>();
+            //physicsWASDController.MoveSpeed = 25f;                     // walk speed
+
+            //var interComp = cameraGO.AddComponent<InteractionComponent>();
+            //interComp.HitMask = LayerMask.Interactables;
 
             // Add it to the scene
-            _scene.Add(_cameraGO);
+            scene.Add(cameraGO);
             #endregion
 
+            // Set the active camera by finding and getting its camera component
+            // var theCamera = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_STATIC_BIRDS_EYE)).GetComponent<Camera>();
+            ////Obviously, since we have _camera we could also just use the line below
+            //_scene.SetActiveCamera(theCamera);
 
-            _scene.SetActiveCamera(_cameraGO.GetComponent<Camera>());
-
-            GameObject player = InitializeModel(new Vector3(2, -6, 0),
-                new Vector3(45, 0, 0),
-                new Vector3(0.3f, 1, 1), "crate1", "spatula", AppData.PLAYER_NAME);
-            player.Transform.SetParent(_cameraGO);
+            //replace with new SetActiveCamera that searches by string
+            scene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
         }
 
         /// <summary>
@@ -643,17 +747,18 @@ namespace GDGame
 
             // Dramatised fast drift at 2 deg/sec. 
             rot._rotationSpeedInRadiansPerSecond = MathHelper.ToRadians(2f);
-            _scene.Add(_skyParent);
+            _sceneManager.ActiveScene.Add(_skyParent);
         }
 
         private void InitializeSkyBox(int scale = 500)
         {
+            Scene scene = _sceneManager.ActiveScene;
             GameObject gameObject = null;
             MeshFilter meshFilter = null;
             MeshRenderer meshRenderer = null;
 
             // Find the sky parent object to attach sky to so sky rotates
-            GameObject skyParent = _scene.Find((GameObject go) => go.Name.Equals("SkyParent"));
+            GameObject skyParent = scene.Find((GameObject go) => go.Name.Equals("SkyParent"));
 
             // back
             gameObject = new GameObject("back");
@@ -664,7 +769,7 @@ namespace GDGame
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.Material = _matBasicUnlit;
             meshRenderer.Overrides.MainTexture = _textureDictionary.Get("skybox_back");
-            _scene.Add(gameObject);
+            scene.Add(gameObject);
 
             //set parent to allow rotation
             gameObject.Transform.SetParent(skyParent.Transform);
@@ -679,7 +784,7 @@ namespace GDGame
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.Material = _matBasicUnlit;
             meshRenderer.Overrides.MainTexture = _textureDictionary.Get("skybox_left");
-            _scene.Add(gameObject);
+            scene.Add(gameObject);
 
             //set parent to allow rotation
             gameObject.Transform.SetParent(skyParent.Transform);
@@ -695,7 +800,7 @@ namespace GDGame
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.Material = _matBasicUnlit;
             meshRenderer.Overrides.MainTexture = _textureDictionary.Get("skybox_right");
-            _scene.Add(gameObject);
+            scene.Add(gameObject);
 
             //set parent to allow rotation
             gameObject.Transform.SetParent(skyParent.Transform);
@@ -710,7 +815,7 @@ namespace GDGame
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.Material = _matBasicUnlit;
             meshRenderer.Overrides.MainTexture = _textureDictionary.Get("skybox_front");
-            _scene.Add(gameObject);
+            scene.Add(gameObject);
 
             //set parent to allow rotation
             gameObject.Transform.SetParent(skyParent.Transform);
@@ -725,7 +830,7 @@ namespace GDGame
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.Material = _matBasicUnlit;
             meshRenderer.Overrides.MainTexture = _textureDictionary.Get("skybox_sky");
-            _scene.Add(gameObject);
+            scene.Add(gameObject);
 
             //set parent to allow rotation
             gameObject.Transform.SetParent(skyParent.Transform);
@@ -735,39 +840,8 @@ namespace GDGame
         private void InitializeUI()
         {
             InitializeUIReticleRenderer();
-            InitializeScoreBoard();
         }
-        private void InitializeScoreBoard()
-        {
-            var scoreBoard = new GameObject("ScoreBoard");
 
-            //var reticleAtlas = _textureDictionary.Get("Crosshair_21");
-            var uiFont = _fontDictionary.Get("mouse_reticle_font");
-
-            // Reticle (cursor): always on top
-           // var reticle = new UIReticleRenderer(reticleAtlas);
-            //reticle.Origin = reticleAtlas.GetCenter();
-            //reticle.SourceRectangle = null;
-            ////reticle.Scale = new Vector2(0.1f, 0.1f);
-            //reticle.RotationSpeedDegPerSec = 55;
-            //reticle.LayerDepth = UILayer.Cursor;
-            //uiReticleGO.AddComponent(reticle);
-
-            var textRenderer = scoreBoard.AddComponent<UITextRenderer>();
-            textRenderer.Font = uiFont;
-            //textRenderer.Offset = new Vector2(0, 0);  // Position text below reticle
-            textRenderer.Color = Color.White;
-            textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width-100, 0);
-            //textRenderer.Anchor = TextAnchor.Center;
-            textRenderer.TextProvider = () => "Score: " + score;
-
-
-
-            _scene.Add(scoreBoard);
-
-            // Hide mouse since reticle will take its place
-            IsMouseVisible = false;
-        }
         private void InitializeUIReticleRenderer()
         {
             var uiReticleGO = new GameObject("HUD");
@@ -796,28 +870,17 @@ namespace GDGame
             picker.MaxDistance = 500f;
             picker.HitTriggers = false;
 
-            // Optional custom formatting:
+            // Optional custom formatting
             picker.Formatter = hit =>
             {
                 var go = hit.Body?.GameObject;
                 if (go == null)
                     return string.Empty;
-                if (go.Name.Equals("roach"))
-                {
-                    isRoach = true;
-                    //_scene.Remove(go);
-                    _newMouseState = Mouse.GetState();
-                    KillRoach(go);
-                    _oldMouseState = _newMouseState;
-                }
-                   
-                else
-                    isRoach = false;
 
-                    return $"{go.Name}  d={hit.Distance:F1}";
+                return $"{go.Name}  d={hit.Distance:F1}";
             };
 
-            _scene.Add(uiReticleGO);
+            _sceneManager.ActiveScene.Add(uiReticleGO);
 
             // Hide mouse since reticle will take its place
             IsMouseVisible = false;
@@ -837,6 +900,8 @@ namespace GDGame
             gameObject.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
             gameObject.Transform.ScaleTo(scale);
 
+            // gameObject.Layer = LayerMask.Interactables | LayerMask.NPC;  //100000 | 010000 = 110000
+
             var model = _modelDictionary.Get(modelName);
             var texture = _textureDictionary.Get(textureName);
             var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
@@ -847,7 +912,7 @@ namespace GDGame
             meshRenderer.Material = _matBasicLit;
             meshRenderer.Overrides.MainTexture = texture;
 
-            _scene.Add(gameObject);
+            _sceneManager.ActiveScene.Add(gameObject);
 
             return gameObject;
         }
@@ -856,13 +921,10 @@ namespace GDGame
             //call time update
             #region Core
             Time.Update(gameTime);
-
-            //update Scene
-            _scene.Update(Time.DeltaTimeSecs);
             #endregion
 
             #region Demo
-            
+            DemoStuff();
             #endregion
 
             base.Update(gameTime);
@@ -871,9 +933,6 @@ namespace GDGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.CornflowerBlue);
-
-            //just as called update, we now have to call draw to call the draw in the renderingsystem
-            _scene.Draw(Time.DeltaTimeSecs);
 
             base.Draw(gameTime);
         }
@@ -895,12 +954,7 @@ namespace GDGame
             {
                 System.Diagnostics.Debug.WriteLine("Disposing Main...");
 
-                // 1. Dispose Scene (which will cascade to GameObjects and Components)
-                System.Diagnostics.Debug.WriteLine("Disposing Scene");
-                _scene?.Dispose();
-                _scene = null;
-
-                // 2. Dispose Materials (which may own Effects)
+                // 1. Dispose Materials (which may own Effects)
                 System.Diagnostics.Debug.WriteLine("Disposing Materials");
                 _matBasicUnlit?.Dispose();
                 _matBasicUnlit = null;
@@ -911,11 +965,11 @@ namespace GDGame
                 _matAlphaCutout?.Dispose();
                 _matAlphaCutout = null;
 
-                // 3. Clear cached MeshFilters in factory registry
+                // 2. Clear cached MeshFilters in factory registry
                 System.Diagnostics.Debug.WriteLine("Clearing MeshFilter Registry");
                 MeshFilterFactory.ClearRegistry();
 
-                // 4. Dispose content dictionaries (now they implement IDisposable!)
+                // 3. Dispose content dictionaries (now they implement IDisposable!)
                 System.Diagnostics.Debug.WriteLine("Disposing Content Dictionaries");
                 _textureDictionary?.Dispose();
                 _textureDictionary = null;
@@ -926,17 +980,17 @@ namespace GDGame
                 _fontDictionary?.Dispose();
                 _fontDictionary = null;
 
-                // 5. Dispose EngineContext (which owns SpriteBatch and Content)
+                // 4. Dispose EngineContext (which owns SpriteBatch and Content)
                 System.Diagnostics.Debug.WriteLine("Disposing EngineContext");
                 EngineContext.Instance?.Dispose();
 
-                // 6. Clear references to help GC
+                // 5. Clear references to help GC
                 System.Diagnostics.Debug.WriteLine("Clearing References");
                 _animationCurve = null;
                 _animationPositionCurve = null;
                 _animationRotationCurve = null;
 
-                // 7. Dispose of collision handlers
+                // 6. Dispose of collision handlers
                 if (_collisionSubscription != null)
                 {
                     _collisionSubscription.Dispose();
@@ -952,172 +1006,10 @@ namespace GDGame
             base.Dispose(disposing);
         }
 
-        #endregion    }
+        #endregion
 
         #region Demo Methods (remove in the game)
-        private void DemoCollidableGround(int scale = 500)
-        {
-            GameObject gameObject = null;
-            MeshFilter meshFilter = null;
-            MeshRenderer meshRenderer = null;
-
-            gameObject = new GameObject("ground");
-            meshFilter = MeshFilterFactory.CreateQuadTexturedLit(_graphics.GraphicsDevice);
-            meshFilter = MeshFilterFactory.CreateQuadGridTexturedUnlit(_graphics.GraphicsDevice,
-                 1,
-                 1,
-                 1,
-                 1,
-                 20,
-                 20);
-
-            gameObject.Transform.ScaleBy(new Vector3(scale, scale, 1));
-            gameObject.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0), true);
-            gameObject.Transform.TranslateTo(new Vector3(0, -0.5f, 0));
-
-            gameObject.AddComponent(meshFilter);
-            meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            meshRenderer.Material = _matBasicUnlitGround;
-            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("ground_grass");
-
-            // Add a box collider matching the ground size
-            var collider = gameObject.AddComponent<BoxCollider>();
-            collider.Size = new Vector3(scale, scale, 0.025f);
-            collider.Center = new Vector3(0, 0, -0.0125f);
-
-            // Add rigidbody as Static (immovable)
-            var rigidBody = gameObject.AddComponent<RigidBody>();
-            rigidBody.BodyType = BodyType.Static;
-            gameObject.IsStatic = true;
-
-            _scene.Add(gameObject);
-        }
-
-        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
-        {
-            var go = new GameObject("roach");
-            go.Transform.TranslateTo(position);
-            go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
-            go.Transform.ScaleTo(scale);
-
-            var model = _modelDictionary.Get("roach");
-            var texture = _textureDictionary.Get("mona lisa");
-            var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
-            go.AddComponent(meshFilter);
-
-            var meshRenderer = go.AddComponent<MeshRenderer>();
-            meshRenderer.Material = _matBasicLit;
-            meshRenderer.Overrides.MainTexture = texture;
-            _scene.Add(go);
-
-
-            // Add box collider (1x1x1 cube)
-            var collider = go.AddComponent<BoxCollider>();
-            collider.Size = new Vector3(3f, 2f, 2f);  // Collider is FULL size
-            collider.Center = new Vector3(0,0,-0.3f);
-
-            // Add rigidbody (Dynamic so it falls)
-            var rigidBody = go.AddComponent<RigidBody>();
-            rigidBody.BodyType = BodyType.Dynamic;
-            rigidBody.Mass = 1.0f;
-
-            go.AddComponent<RoachController>();
-        }
-        private void DemoCollidableMap(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
-        {
-            var go = new GameObject("map");
-            go.Transform.TranslateTo(position);
-            go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
-            go.Transform.ScaleTo(scale);
-
-            var model = _modelDictionary.Get("map2");
-            var texture = _textureDictionary.Get("mona lisa");
-            var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
-            go.AddComponent(meshFilter);
-
-            var meshRenderer = go.AddComponent<MeshRenderer>();
-            meshRenderer.Material = _matBasicLit;
-            meshRenderer.Overrides.MainTexture = texture;
-            _scene.Add(go);
-
-
-            // Add box collider (1x1x1 cube)
-            var collider = go.AddComponent<BoxCollider>();
-            collider.Size = scale; // Collider is FULL size
-            collider.Center = new Vector3(0, 0, 0);
-
-            // Add rigidbody (Dynamic so it falls)
-
-            var rigidBody = go.AddComponent<RigidBody>();
-            rigidBody.BodyType = BodyType.Static;
-            rigidBody.Mass = 1.0f;
-
-        }
-
-
-
-
-
-
-
-
-        private void KillRoach(GameObject roach)
-        {
-            var events = EngineContext.Instance.Events;
-           // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
-            //var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
-            bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
-            if (togglePressed)
-            {
-                
-                //foreach (var roach in roaches)
-                //{
-
-                    //var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
-                    //if (roach != null && distToWaypoint < 10 && isRoach)
-                    //{
-                        _scene.Remove(roach);
-                        events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
-                    1, false, null));
-                        score += 100;
-                        //break;
-                    //}
-                //}
-
-            }
-        }
-
-        
-        
-
-        private void DemoLoadFromJSON()
-        {
-            var relativeFilePathAndName = "assets/data/single_model_spawn.json";
-            List<ModelSpawnData> mList = JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName);
-
-            //load a single model
-            foreach (var d in mList)
-                InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
-
-            relativeFilePathAndName = "assets/data/multi_model_spawn.json";
-            //load multiple models
-            foreach (var d in JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName))
-                InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
-        }
-
-        private bool checkEnemiesVisited()
-        {
-            //get inventory and eval using boolean if all enemies visited;
-            return false;
-        }
-
-        private bool checkReachedGate()
-        {
-            // we could pause the game on a win
-            //Time.TimeScale = 0;
-            return false;
-        }
-
+        #region Demo - Game State
         private void SetWinConditions()
         {
             var gameStateSystem = _sceneManager.ActiveScene.GetSystem<GameStateSystem>();
@@ -1128,8 +1020,6 @@ namespace GDGame
                 //get the player and access the player's health/speed/other variable
                 return _currentHealth;
             };
-
-
 
             // Delegate for time
             Func<float> timeProvider = () =>
@@ -1149,22 +1039,17 @@ namespace GDGame
             gameStateSystem.StateChanged += HandleGameStateChange;
         }
 
-        private void SetPauseShowMenu()
+        private bool checkReachedGate()
         {
-            // Give scenemanager the events reference so that it can publish the pause event
-            _sceneManager.EventBus = EngineContext.Instance.Events;
-            // Set paused and publish pause event
-            _sceneManager.Paused = true;
+            // we could pause the game on a win
+            //Time.TimeScale = 0;
+            return false;
+        }
 
-            // Put all components that should be paused to sleep
-            EngineContext.Instance.Events.Subscribe<GamePauseChangedEvent>(e =>
-            {
-                bool paused = e.IsPaused;
-
-                _sceneManager.ActiveScene.GetSystem<PhysicsSystem>()?.SetPaused(paused);
-                _sceneManager.ActiveScene.GetSystem<PhysicsDebugSystem>()?.SetPaused(paused);
-                _sceneManager.ActiveScene.GetSystem<GameStateSystem>()?.SetPaused(paused);
-            });
+        private bool checkEnemiesVisited()
+        {
+            //get inventory and eval using boolean if all enemies visited;
+            return false;
         }
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
@@ -1186,12 +1071,334 @@ namespace GDGame
             }
 
         }
+        #endregion
+
+        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
+        {
+            var go = new GameObject("test");
+            go.Transform.TranslateTo(position);
+            go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
+            go.Transform.ScaleTo(scale);
+
+            go.Layer = LayerMask.Interactables;
+
+            var model = _modelDictionary.Get("roach");
+            var texture = _textureDictionary.Get("mona lisa");
+            var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
+            go.AddComponent(meshFilter);
+
+            var meshRenderer = go.AddComponent<MeshRenderer>();
+            meshRenderer.Material = _matBasicLit;
+            meshRenderer.Overrides.MainTexture = texture;
+            _sceneManager.ActiveScene.Add(go);
+
+            // Add box collider (1x1x1 cube)
+            var collider = go.AddComponent<SphereCollider>();
+            collider.Diameter = scale.Length();
+
+            // Add rigidbody (Dynamic so it falls)
+            var rigidBody = go.AddComponent<RigidBody>();
+            rigidBody.BodyType = BodyType.Dynamic;
+            rigidBody.Mass = 1.0f;
+
+            go.AddComponent<RoachController>();
+        }
+
+        private void DemoStuff()
+        {
+            // Get new state
+            _newKBState = Keyboard.GetState();
+            DemoEventPublish();
+            DemoCameraSwitch();
+            DemoToggleFullscreen();
+            DemoAudioSystem();
+            DemoOrchestrationSystem();
+            DemoImpulsePublish();
+            //a demo relating to GameStateSystem
+            _currentHealth--;
+
+            // Store old state (allows us to do was pressed type checks)
+            _oldKBState = _newKBState;
+        }
+
+        private void DemoImpulsePublish()
+        {
+            var impulses = EngineContext.Instance.Impulses;
+
+            // a simple explosion reaction
+            bool isZPressed = _newKBState.IsKeyDown(Keys.Z) && !_oldKBState.IsKeyDown(Keys.Z);
+            if (isZPressed)
+            {
+                float duration = 0.35f;
+                float amplitude = 0.6f;
+
+                impulses.CreateContinuousSource(
+                    (elapsed, totalDuration) =>
+                    {
+                        // Random 2D screen-space-ish direction
+                        Vector3 dir = MathUtility.RandomShakeXY();
+
+                        // Let Eased3DImpulse use its default easing (e.g. Ease.Linear)
+                        return new Eased3DImpulse(
+                            channel: "camera/impulse",
+                            direction: dir,
+                            amplitude: amplitude,
+                            time: elapsed,
+                            duration: totalDuration);
+                    },
+                    duration,
+                    true);
+            }
+
+            // like a locked door try and fail
+            bool isCPressed = _newKBState.IsKeyDown(Keys.X) && !_oldKBState.IsKeyDown(Keys.X);
+            if (isCPressed)
+            {
+                float duration = 0.2f;
+                float amplitude = 0.1f;
+
+                impulses.CreateContinuousSource(
+                    (elapsed, totalDuration) =>
+                    {
+                        float jitter = 0.05f;
+
+                        // Small random left/right component
+                        float z = (float)(Random.Shared.NextDouble() * 2.0 - 1.0) * jitter;
+
+                        // Backward in world-space 
+                        Vector3 dir = new Vector3(0, 0, z);
+
+                        return new Eased3DImpulse(
+                            channel: "camera/impulse",
+                            direction: dir,
+                            amplitude: amplitude,
+                            time: elapsed,
+                            duration: totalDuration,
+                            ease: Ease.EaseOutQuad); // snappier than cubic, but still smooth
+                    },
+                    duration,
+                    true);
+            }
+        }
+
+        private void DemoOrchestrationSystem()
+        {
+            var orchestrator = _sceneManager.ActiveScene.GetSystem<OrchestrationSystem>().Orchestrator;
+
+            bool isPressed = _newKBState.IsKeyDown(Keys.O) && !_oldKBState.IsKeyDown(Keys.O);
+            if (isPressed)
+            {
+                //orchestrator.Build("my first sequence")
+                //   .Do(() =>
+                //   {
+                //       var textObj = _sceneManager.ActiveScene.Find("init_texture");
+                //       // var textObj = _scene.Find("init_texture");
+                //       textObj.Enabled = false;
+                //   })
+                //   .WaitSeconds(2)
+                //   .Do()
+                //   .Register();
+
+                orchestrator.Build("my first sequence")
+                    .WaitSeconds(2)
+                    .Publish(new CameraEvent(AppData.CAMERA_NAME_FIRST_PERSON))
+                    .WaitSeconds(2)
+                    .Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1", 1, false, null))
+                    .Register();
+
+                orchestrator.Start("my first sequence", _sceneManager.ActiveScene, EngineContext.Instance);
+            }
+
+            bool isIPressed = _newKBState.IsKeyDown(Keys.I) && !_oldKBState.IsKeyDown(Keys.I);
+            if (isIPressed)
+                orchestrator.Pause("my first sequence");
+
+            bool isPPressed = _newKBState.IsKeyDown(Keys.P) && !_oldKBState.IsKeyDown(Keys.P);
+            if (isPPressed)
+                orchestrator.Resume("my first sequence");
+        }
+
+        private void DemoAudioSystem()
+        {
+            var events = EngineContext.Instance.Events;
+
+            //TODO - Exercise
+            bool isD3Pressed = _newKBState.IsKeyDown(Keys.D3) && !_oldKBState.IsKeyDown(Keys.D3);
+            if (isD3Pressed)
+            {
+                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+                    1, false, null));
+            }
+
+            bool isD4Pressed = _newKBState.IsKeyDown(Keys.D4) && !_oldKBState.IsKeyDown(Keys.D4);
+            if (isD4Pressed)
+            {
+                events.Publish(new PlayMusicEvent("secret_door", 1, 8));
+            }
+
+            bool isD5Pressed = _newKBState.IsKeyDown(Keys.D5) && !_oldKBState.IsKeyDown(Keys.D5);
+            if (isD5Pressed)
+            {
+                events.Publish(new StopMusicEvent(4));
+            }
+
+            bool isD6Pressed = _newKBState.IsKeyDown(Keys.D6) && !_oldKBState.IsKeyDown(Keys.D6);
+            if (isD6Pressed)
+            {
+                events.Publish(new FadeChannelEvent(AudioMixer.AudioChannel.Master,
+                    0.1f, 4));
+            }
+
+            bool isD7Pressed = _newKBState.IsKeyDown(Keys.D7) && !_oldKBState.IsKeyDown(Keys.D7);
+            if (isD7Pressed)
+            {
+                //expensive and crude => move to Component::Start()
+                var go = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.PLAYER_NAME));
+                Transform emitterTransform = go.Transform;
+
+                events.Publish(new PlaySfxEvent("hand_gun1",
+                    1, true, emitterTransform));
+            }
+        }
+
+        private void DemoToggleFullscreen()
+        {
+            bool togglePressed = _newKBState.IsKeyDown(Keys.F5) && !_oldKBState.IsKeyDown(Keys.F5);
+            if (togglePressed)
+                _graphics.ToggleFullScreen();
+        }
+
+        private void DemoCameraSwitch()
+        {
+            var events = EngineContext.Instance.Events;
+
+            bool isFirst = _newKBState.IsKeyDown(Keys.D1) && !_oldKBState.IsKeyDown(Keys.D1);
+            if (isFirst)
+            {
+                events.Post(new CameraEvent(AppData.CAMERA_NAME_FIRST_PERSON));
+                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+                  1, false, null));
+            }
+
+            bool isThird = _newKBState.IsKeyDown(Keys.D2) && !_oldKBState.IsKeyDown(Keys.D2);
+            if (isThird)
+            {
+                events.Post(new CameraEvent(AppData.CAMERA_NAME_THIRD_PERSON));
+                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Mallet_Open_1",
+                1, false, null));
+            }
+        }
+
+        private void DemoEventPublish()
+        {
+            // F2: publish a test DamageEvent
+            if (_newKBState.IsKeyDown(Keys.F6) && !_oldKBState.IsKeyDown(Keys.F6))
+            {
+                // Simple “debug” damage example
+                var hitPos = new Vector3(0, 5, 0); //some fake position
+                _damageAmount++;
+
+                var damageEvent = new DamageEvent(_damageAmount, DamageEvent.DamageType.Strength,
+                    "Plasma rifle", AppData.PLAYER_NAME, hitPos, false);
+
+                EngineContext.Instance.Events.Post(damageEvent);
+            }
+
+            // Raise inventory event
+            if (_newKBState.IsKeyDown(Keys.E) && !_oldKBState.IsKeyDown(Keys.E))
+            {
+                var inventoryEvent = new GDEngine.Core.Components.InventoryEvent();
+                inventoryEvent.ItemType = ItemType.Weapon;
+                inventoryEvent.Value = 10;
+                EngineContext.Instance.Events.Publish(inventoryEvent);
+            }
+
+            if (_newKBState.IsKeyDown(Keys.L) && !_oldKBState.IsKeyDown(Keys.L))
+            {
+                var inventoryEvent = new GDEngine.Core.Components.InventoryEvent();
+                inventoryEvent.ItemType = ItemType.Lore;
+                inventoryEvent.Value = 0;
+                EngineContext.Instance.Events.Publish(inventoryEvent);
+            }
+
+            if (_newKBState.IsKeyDown(Keys.M) && !_oldKBState.IsKeyDown(Keys.M))
+            {
+                // EngineContext.Instance.Messages.Post(new PlayerDamageEvent(45, DamageType.Strength));
+                //EngineContext.Instance.Messages.PublishImmediate(new PlayerDamageEvent(45, DamageType.Strength));
+            }
+        }
+
+        private void DemoLoadFromJSON()
+        {
+            var relativeFilePathAndName = "assets/data/single_model_spawn.json";
+            List<ModelSpawnData> mList = JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName);
+
+            //load a single model
+            foreach (var d in mList)
+                InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
+
+            relativeFilePathAndName = "assets/data/multi_model_spawn.json";
+            //load multiple models
+            foreach (var d in JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName))
+                InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
+        }
+
+        private void DemoCollidablePrimitive(Vector3 position, Vector3 scale, Vector3 rotateDegrees)
+        {
+            GameObject gameObject = null;
+            MeshFilter meshFilter = null;
+            MeshRenderer meshRenderer = null;
+
+            gameObject = new GameObject("test crate textured cube");
+            gameObject.Transform.TranslateTo(position);
+            gameObject.Transform.ScaleTo(scale * 0.5f);
+            gameObject.Transform.RotateEulerBy(rotateDegrees * MathHelper.Pi / 180f);
 
 
+            meshFilter = MeshFilterFactory.CreateCubeTexturedLit(_graphics.GraphicsDevice);
+            gameObject.AddComponent(meshFilter);
 
+            meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.Material = _matBasicLit; //enable lighting for the crate
+            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("crate1");
 
+            var collider = gameObject.AddComponent<BoxCollider>();
+            collider.Size = scale;  // Collider is FULL size
+            collider.Center = Vector3.Zero;
 
+            var rb = gameObject.AddComponent<RigidBody>();
+            rb.Mass = 1.0f;
+            rb.BodyType = BodyType.Dynamic;
 
+            _sceneManager.ActiveScene.Add(gameObject);
+        }
+
+        private void DemoAlphaCutoutFoliage(Vector3 position, float width, float height)
+        {
+            var go = new GameObject("tree");
+
+            // A unit quad facing +Z (the factory already supplies lit quad with UVs)
+            var mf = MeshFilterFactory.CreateQuadTexturedLit(GraphicsDevice);
+            go.AddComponent(mf);
+
+            var treeRenderer = go.AddComponent<MeshRenderer>();
+            treeRenderer.Material = _matAlphaCutout;
+
+            // Per-object properties via the overrides block
+            treeRenderer.Overrides.MainTexture = _textureDictionary.Get("tree4");
+
+            // AlphaTest: pixels with alpha below ReferenceAlpha are discarded (0–255).
+            // 128–160 is a good starting range for foliage; tweak to taste.
+            treeRenderer.Overrides.SetInt("ReferenceAlpha", 128);
+            treeRenderer.Overrides.Alpha = 1f; // overall alpha multiplier (kept at 1 for cutout)
+
+            // Scale the quad so it looks like a tree (aspect from the PNG)
+            go.Transform.ScaleTo(new Vector3(width, height, 1f));
+
+            go.Transform.TranslateTo(position);
+
+            _sceneManager.ActiveScene.Add(go);
+        }
 
         /// <summary>
         /// Subscribes a simple debug listener for physics collision events.

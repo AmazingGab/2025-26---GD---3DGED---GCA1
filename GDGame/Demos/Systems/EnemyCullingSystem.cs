@@ -1,11 +1,7 @@
-﻿using GDEngine.Core.Components;
+﻿using System.Collections.Generic;
+using GDEngine.Core.Components;
 using GDEngine.Core.Enums;
-using GDEngine.Core.Systems.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GDEngine.Core.Systems;
 
 namespace GDGame.Demos.Systems
 {

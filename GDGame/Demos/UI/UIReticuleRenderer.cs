@@ -32,6 +32,9 @@ namespace GDEngine.Core.Rendering.UI
             if (_spriteBatch == null)
                 throw new NullReferenceException(nameof(_spriteBatch));
 
+            if(_texture == null)
+                throw new NullReferenceException(nameof(_texture));
+
             _spriteBatch.Begin(
                 SpriteSortMode.FrontToBack,
                 BlendState.AlphaBlend,         

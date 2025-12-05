@@ -1,4 +1,4 @@
-using GDEngine.Core.Systems;
+﻿using GDEngine.Core.Systems;
 using GDEngine.Core.Timing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -32,8 +32,8 @@ namespace GDEngine.Core.Components
 
         private KeyboardState _keyboardState;
         private float timeLeft;
-        private int r1=4;
-        private int r2=4;
+        private int r1 = 4;
+        private int r2 = 4;
 
         #endregion
 
@@ -118,7 +118,7 @@ namespace GDEngine.Core.Components
             forward = Vector3.Forward;
             right = Vector3.Right;
 
-            
+
 
             // Flatten to XZ plane
             forward.Y = 0f;
@@ -151,7 +151,7 @@ namespace GDEngine.Core.Components
             if (_rigidBody.BodyType != BodyType.Dynamic)
                 System.Diagnostics.Debug.WriteLine(
                     "PhysicsWASDController: RigidBody is not Dynamic; movement may not behave as expected.");
-            
+
         }
 
         protected override void Update(float deltaTime)
@@ -171,12 +171,12 @@ namespace GDEngine.Core.Components
             //    moveDir += right;
             //if (_keyboardState.IsKeyDown(_leftKey))
             //    moveDir -= right;
-            
+
             Random random = new Random();
-            
+
             timeLeft += Time.DeltaTimeSecs;
             //System.Diagnostics.Debug.WriteLine(
-               //    timeLeft);
+            //    timeLeft);
             if (timeLeft > random.Next(1, 3))
             {
                 r1 = random.Next(0, 2);
@@ -202,7 +202,7 @@ namespace GDEngine.Core.Components
             ////Quaternion targetWorld;
             ////targetWorld = desiredWorld;
             //Transform.RotateToWorld(desiredWorld);
-            
+
             float speed = _moveSpeed;
             if (_keyboardState.IsKeyDown(_boostKey))
                 speed *= _boostMultiplier;

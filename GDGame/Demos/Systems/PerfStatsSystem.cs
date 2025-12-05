@@ -1,12 +1,12 @@
 ﻿#nullable enable
+using System;
+using System.Collections.Generic;
 using GDEngine.Core.Collections;
 using GDEngine.Core.Enums;
-using GDEngine.Core.Systems.Base;
+using GDEngine.Core.Systems;
 using GDEngine.Core.Timing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
 
 namespace GDGame.Demos
 {
