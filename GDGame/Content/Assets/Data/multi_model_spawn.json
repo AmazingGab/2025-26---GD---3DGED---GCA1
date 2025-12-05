@@ -108,26 +108,27 @@
             "modelName": "roach",
             "objectName": "spawn-5"
         },
-        {
-            "position": [
-                20,
-                5,
-                -5
-            ],
-            "rotationDegrees": [
-                -90,
-                0,
-                0
-            ],
-            "scale": [
-                1,
-                1,
-                1
-            ],
-            "textureName": "roach",
-            "modelName": "roach",
-            "objectName": "spawn-5"
-        }
+      {
+        "position": [
+          20,
+          5,
+          -5
+        ],
+        "rotationDegrees": [
+          -90,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "textureName": "roach",
+        "modelName": "roach",
+        "objectName": "spawn-5"
+      }
+     
         //{
         //    "position": [
         //        80,
