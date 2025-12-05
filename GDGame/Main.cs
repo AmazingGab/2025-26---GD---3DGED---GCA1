@@ -9,9 +9,11 @@ using GDEngine.Core.Factories;
 using GDEngine.Core.Impulses;
 using GDEngine.Core.Input.Data;
 using GDEngine.Core.Input.Devices;
+using GDEngine.Core.Managers;
 using GDEngine.Core.Orchestration;
 using GDEngine.Core.Rendering;
 using GDEngine.Core.Rendering.Base;
+using GDEngine.Core.Rendering.UI;
 using GDEngine.Core.Serialization;
 using GDEngine.Core.Services;
 using GDEngine.Core.Systems;
@@ -25,6 +27,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
 using Color = Microsoft.Xna.Framework.Color;
 
@@ -33,7 +36,14 @@ namespace GDGame
     public class Main : Game
     {
         #region Core Fields (Common to all games)     
+        private SceneManager _sceneManager;
+        private MenuManager _menuManager;
+        private bool _menuVisible = true;
+        private bool _taskUiCreated = false;
+        private bool _lastMenuVisible = false;
         private GraphicsDeviceManager _graphics;
+        private GameObject _menuLogoGO;
+        private GameObject _taskBarGO;
         private ContentDictionary<Texture2D> _textureDictionary;
         private ContentDictionary<Model> _modelDictionary;
         private ContentDictionary<SpriteFont> _fontDictionary;
@@ -128,26 +138,26 @@ namespace GDGame
 
             // Demo event listeners on collision
             InitializeCollisionEventListener();
-            
+
             // Collidable game object demos
-            
-            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90,0,0), new Vector3(1.5f, 0.5f, 0.2f));
+
+            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
             DemoCollidableModel(new Vector3(5, 1, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
             DemoCollidableModel(new Vector3(10, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
             DemoCollidableModel(new Vector3(15, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
             DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f));
 
-            DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55,5));
+            DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
             DemoLoadFromJSON();
-           
+
             #endregion
 
             #region Core
             // Setup UI renderers after all game objects added since ui text may use a gameobject as target
             InitializeUI();
             #endregion
-            
+
 
             GameObject _roachParent = new GameObject("RoachParent");
             GameObject gameObject = null;
@@ -156,7 +166,7 @@ namespace GDGame
 
             for (int i = 0; i < roachParts.Count; i++)
             {
-                gameObject = new GameObject("roach+part"+1);
+                gameObject = new GameObject("roach+part" + 1);
                 //gameObject.Transform.ScaleTo(new Vector3(scale / 10, scale / 10, scale / 10));
                 var meshFilter = roachParts[i];
                 gameObject.AddComponent(meshFilter);
@@ -188,11 +198,139 @@ namespace GDGame
             textRenderer.DropShadow = false;
             textRenderer.TextProvider = () => "grrr.. Oh, I'm really hungry. I left some \ncookies on the kitchen counter. \nI need to get them. I will have \nto turn on the lights.";
             textRenderer.Anchor = TextAnchor.Center;
-            textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2, _graphics.GraphicsDevice.Viewport.Height/ 2 + 150);
+            textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width / 2, _graphics.GraphicsDevice.Viewport.Height / 2 + 150);
             textRenderer.LayerDepth = UIRenderer.Behind(UILayer.HUD);
             _scene.Add(textUI);
 
             base.Initialize();
+        }
+        private void InitializeMenuManager()
+        {
+            _sceneManager = new SceneManager(this);
+
+            _menuManager = new MenuManager(this, _sceneManager);
+            Components.Add(_menuManager);
+            Texture2D logoTex = _textureDictionary.Get("Logo");
+            Texture2D buttonTex = _textureDictionary.Get("play_button");  
+            Texture2D sliderTrackTex = _textureDictionary.Get("slider_track");
+            Texture2D sliderHandleTex = _textureDictionary.Get("slider_handle");
+            Texture2D controlsLayoutTex = _textureDictionary.Get("main_menu_background");
+            SpriteFont uiFont = _fontDictionary.Get("menufont");
+            Texture2D mainBg = _textureDictionary.Get("main_menu_background");
+            Texture2D audioBg = _textureDictionary.Get("main_menu_background");
+            Texture2D controlsBg = _textureDictionary.Get("main_menu_background");
+
+            _menuManager.Initialize(
+                _scene,
+                buttonTex,
+                sliderTrackTex,
+                sliderHandleTex,
+                controlsLayoutTex,
+                uiFont,
+                mainBg,
+                audioBg,
+                controlsBg
+            );
+            InitializeMenuLogo();
+
+            _menuManager.ApplyMainButtonImages(
+                _textureDictionary.Get("play_button"),
+                _textureDictionary.Get("options_button"),
+                _textureDictionary.Get("credits_button"),
+                _textureDictionary.Get("exit_button"));
+
+            _menuManager.PlayRequested += () =>
+            {
+                InitializeTaskUI();
+                _sceneManager.Paused = false;
+                _menuManager.HideMenus();
+                IsMouseVisible = false;
+                SetMenuLogoVisible(false);
+            };
+
+            _menuManager.ExitRequested += () =>
+            {
+                Exit();
+            };
+
+            _menuManager.MusicVolumeChanged += v =>
+            {
+                System.Diagnostics.Debug.WriteLine("MusicVolumeChanged: " + v);
+            };
+
+            _menuManager.SfxVolumeChanged += v =>
+            {
+                System.Diagnostics.Debug.WriteLine("SfxVolumeChanged: " + v);
+            };
+
+            _sceneManager.Paused = true;
+            _menuManager.ShowMainMenu();
+            IsMouseVisible = true;
+            SetTaskBarVisible(false);
+            SetMenuLogoVisible(true);
+        }
+        private GameObject CreateImageButton(string textureKey, Vector2 centerPosition, Action onClick)
+        {
+
+            var go = new GameObject($"Button_{textureKey}");
+            _scene.Add(go);
+
+            Texture2D tex = _textureDictionary.Get(textureKey);
+
+            var graphic = go.AddComponent<UITexture>();
+            graphic.Texture = tex;
+
+            graphic.Size = new Vector2(tex.Width, tex.Height);
+
+            Vector2 topLeft = centerPosition - (graphic.Size * 0.5f);
+            graphic.Position = topLeft;
+
+            graphic.Tint = Color.White;
+            graphic.LayerDepth = UILayer.Menu;
+
+            var button = go.AddComponent<UIButton>();
+
+            button.TargetGraphic = graphic;
+            button.AutoSizeFromTargetGraphic = false;
+
+            button.Position = topLeft;
+            button.Size = graphic.Size;
+
+
+            button.NormalColor = Color.White;
+            button.HighlightedColor = Color.LightGray;
+            button.PressedColor = Color.Gray;
+            button.DisabledColor = Color.DarkGray;
+
+    
+            button.Clicked += onClick;
+
+            
+            button.PointerEntered += () => graphic.Tint = Color.White;
+            button.PointerExited += () => graphic.Tint = Color.White;
+            button.PointerDown += () => graphic.Tint = Color.LightGray;
+            button.PointerUp += () => graphic.Tint = Color.White;
+
+            return go;
+        }
+
+        private void InitializeMenuLogo()
+        {
+            var logoTex = _textureDictionary.Get("Logo");
+
+            _menuLogoGO = new GameObject("MenuLogo");
+            var logoUI = _menuLogoGO.AddComponent<UITexture>();
+            logoUI.Texture = logoTex;
+
+            var nativeSize = new Vector2(logoTex.Width, logoTex.Height);
+            var size = nativeSize * 1f;
+            logoUI.Size = size;
+
+            int screenW = _graphics.PreferredBackBufferWidth;
+            logoUI.Position = new Vector2(screenW - size.X - 45f, 10f);
+            logoUI.LayerDepth = UILayer.Menu;
+
+            _scene.Add(_menuLogoGO);
         }
 
         private void InitializeManagers()
@@ -364,19 +502,26 @@ namespace GDGame
             InitializePhysicsSystem();
             InitializePhysicsDebugSystem(true);
             InitializeEventSystem();  //propagate events
-            InitializeInputSystem();  //input
-            InitializeCameraAndRenderSystems(); //update cameras, draw renderable game objects, draw ui and menu
+            InitializeInputSystem();
+            InitializeUISystems(); 
+            InitializeCameraAndRenderSystems();
+            InitializeMenuManager();//update cameras, draw renderable game objects, draw ui and menu
             InitializeAudioSystem();
             //InitializeOrchestrationSystem(true); //show debugger
             InitializeImpulseSystem();
-            InitializeTaskUI();
         }
         private void InitializeTaskUI()
         {
-            var taskBarGO = new GameObject("TaskBar");
+            if (_taskUiCreated)
+                return;
+
+            _taskUiCreated = true;
+
+            _taskBarGO = new GameObject("TaskBar");
+
             var taskBarTexture = _textureDictionary.Get("task_bar");
 
-            var bg = taskBarGO.AddComponent<UITextureRenderer>();
+            var bg = _taskBarGO.AddComponent<UITextureRenderer>();
             bg.Texture = taskBarTexture;
             bg.Anchor = TextAnchor.TopLeft;
             bg.Position = new Vector2(20f, 20f);
@@ -385,18 +530,35 @@ namespace GDGame
 
             var kidsBusFont = _fontDictionary.Get("KidsBus");
 
-            var bodyText = taskBarGO.AddComponent<UITextRenderer>();
+            var bodyText = _taskBarGO.AddComponent<UITextRenderer>();
             bodyText.Font = kidsBusFont;
             bodyText.Anchor = TextAnchor.TopLeft;
-            bodyText.PositionProvider = () => new Vector2(40f, 83f);
-
+            bodyText.PositionProvider = () => new Vector2(43f, 82f);
             bodyText.FallbackColor = new Color(72, 59, 32);
-
             bodyText.LayerDepth = UILayer.Menu;
             bodyText.DropShadow = false;
-            bodyText.TextProvider = () => "SQUASH THEM ALL";
+            bodyText.TextProvider = () => "SQUASH THEM ALL!";
 
-            _scene.Add(taskBarGO);
+            _scene.Add(_taskBarGO);
+        }
+        private void InitializeUISystems()
+        {
+            var uiEventSystem = new UIEventSystem();
+            _scene.Add(uiEventSystem);
+        }
+        private void SetTaskBarVisible(bool visible)
+        {
+            if (_taskBarGO == null) return;
+
+            foreach (var ui in _taskBarGO.GetComponents<UIRenderer>())
+                ui.Enabled = visible;
+        }
+        private void SetMenuLogoVisible(bool visible)
+        {
+            if (_menuLogoGO == null) return;
+
+            foreach (var ui in _menuLogoGO.GetComponents<UIRenderer>())
+                ui.Enabled = visible;
         }
         private void InitializeImpulseSystem()
         {
@@ -673,7 +835,7 @@ namespace GDGame
             _scene.Add(scoreBoard);
 
             // Hide mouse since reticle will take its place
-            IsMouseVisible = false;
+            IsMouseVisible = true;
         }
         private void InitializeUIReticleRenderer()
         {
@@ -766,10 +928,23 @@ namespace GDGame
 
             //update Scene
             _scene.Update(Time.DeltaTimeSecs);
+            if (_menuManager != null)
+            {
+                bool menuVisible = _menuManager.IsMenuVisible;
+
+                if (menuVisible != _lastMenuVisible)
+                {
+                    _lastMenuVisible = menuVisible;
+
+                    IsMouseVisible = menuVisible;
+
+                    SetTaskBarVisible(!menuVisible);
+                }
+            }
             #endregion
 
             #region Demo
-            
+
             #endregion
 
             base.Update(gameTime);

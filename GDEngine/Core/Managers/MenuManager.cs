@@ -228,7 +228,34 @@ namespace GDEngine.Core.Managers
        
             ShowMainMenu();
         }
+        public void ApplyMainButtonImages(
+         Texture2D playImage,
+         Texture2D audioImage,
+         Texture2D controlsImage,
+         Texture2D exitImage)
+        {
 
+            void SwapButtonImage(UIButton? button, Texture2D image)
+            {
+               
+                var go = button?.GameObject;
+
+                var graphic = go?.GetComponent<UITexture>();
+                
+                graphic.Texture = image;
+                graphic.Size = new Vector2(image.Width, image.Height);
+                button.Size = graphic.Size;
+                
+
+               var label = go.GetComponent<UIText>();    
+               label.Enabled = false;
+            }
+
+            SwapButtonImage(_playButton, playImage);
+            SwapButtonImage(_audioButton, audioImage);
+            SwapButtonImage(_controlsButton, controlsImage);
+            SwapButtonImage(_exitButton, exitImage);
+        }
         private void BuildPanels(Scene scene)
         {
             int backBufferWidth = Game.GraphicsDevice.PresentationParameters.BackBufferWidth;
@@ -236,8 +263,8 @@ namespace GDEngine.Core.Managers
             Vector2 viewportSize = new Vector2(backBufferWidth, backBufferHeight);
 
             // Basic layout: top-left-ish anchor + consistent item size
-            Vector2 panelPosition = new Vector2((backBufferWidth - 390)/2, 200f);
-            Vector2 itemSize = new Vector2(390, 96f);
+            Vector2 panelPosition = new Vector2(100f, 180f); ;
+            Vector2 itemSize = new Vector2(390, 100f);
             float spacing = 20f;
 
             // Main menu panel
@@ -265,25 +292,25 @@ namespace GDEngine.Core.Managers
             }
 
             _playButton = _mainMenuPanel.AddButton(
-                "Play",
+                "",
                 _buttonTexture!,
                 _font!,
                 OnPlayClicked);
 
             _audioButton = _mainMenuPanel.AddButton(
-                "Audio",
+                "",
                 _buttonTexture!,
                 _font!,
                 OnAudioClicked);
 
             _controlsButton = _mainMenuPanel.AddButton(
-                "Controls",
+                "",
                 _buttonTexture!,
                 _font!,
                 OnControlsClicked);
 
             _exitButton = _mainMenuPanel.AddButton(
-        "Exit",
+        "",
         _buttonTexture!,
         _font!,
         OnExitClicked);
@@ -339,7 +366,7 @@ namespace GDEngine.Core.Managers
                 OnSfxSliderChanged);
 
             _audioBackButton = _audioMenuPanel.AddButton(
-                "Back",
+                "",
                 _buttonTexture!,
                 _font!,
                 OnBackToMainFromAudio);
@@ -374,7 +401,7 @@ namespace GDEngine.Core.Managers
             }
 
             _controlsBackButton = _controlsMenuPanel.AddButton(
-                "Back",
+                "",
                 _buttonTexture!,
                 _font!,
                 OnBackToMainFromControls);
