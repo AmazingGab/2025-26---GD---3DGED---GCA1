@@ -28,26 +28,26 @@
             "modelName": "cube",
             "objectName": "spawn-4"
         },
-        {
-            "position": [
-                50,
-                10,
-                -5
-            ],
-            "rotationDegrees": [
-                -90,
-                45,
-                -45
-            ],
-            "scale": [
-                0.5,
-                0.4,
-                0.3
-            ],
-            "textureName": "mona lisa",
-            "modelName": "teapot",
-            "objectName": "spawn-5"
-        },
+        //{
+        //    "position": [
+        //        50,
+        //        10,
+        //        -5
+        //    ],
+        //    "rotationDegrees": [
+        //        -90,
+        //        45,
+        //        -45
+        //    ],
+        //    "scale": [
+        //        0.5,
+        //        0.4,
+        //        0.3
+        //    ],
+        //    "textureName": "mona lisa",
+        //    "modelName": "teapot",
+        //    "objectName": "spawn-5"
+        //},
         {
             "position": [
                 50,
@@ -64,7 +64,7 @@
                 0.5,
                 0.2
             ],
-            "textureName": "mona lisa",
+            "textureName": "roach",
             "modelName": "roach",
             "objectName": "spawn-5"
         },
@@ -84,8 +84,8 @@
                 1,
                 1
             ],
-            "textureName": "mona lisa",
-            "modelName": "roach2",
+            "textureName": "roach",
+            "modelName": "roach",
             "objectName": "spawn-5"
         },
         {
@@ -104,7 +104,7 @@
                 0.5,
                 0.2
             ],
-            "textureName": "mona lisa",
+            "textureName": "roach",
             "modelName": "roach",
             "objectName": "spawn-5"
         },
@@ -124,8 +124,8 @@
                 1,
                 1
             ],
-            "textureName": "mona lisa",
-            "modelName": "roach2",
+            "textureName": "roach",
+            "modelName": "roach",
             "objectName": "spawn-5"
         }
         //{

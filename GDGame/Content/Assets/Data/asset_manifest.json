@@ -45,14 +45,51 @@
             "contentPath": "assets/textures/skybox/sky"
         },
 
+        //{
+        //    "name": "bed",
+        //    "contentPath": "assets/models/texture/BedBig"
+        //},
+        //{
+        //    "name": "small_bed",
+        //    "contentPath": "assets/models/texture/BedSmall1"
+        //},
+        //{
+        //    "name": "shelf",
+        //    "contentPath": "assets/models/texture/BigShelf"
+        //},
+        //{
+        //    "name": "small_shelf",
+        //    "contentPath": "assets/models/texture/SmallShelf"
+        //},
+        //{
+        //    "name": "fridge",
+        //    "contentPath": "assets/models/texture/Fridge"
+        //},
+        //{
+        //    "name": "table",
+        //    "contentPath": "assets/models/texture/LongTableKitchen"
+        //},
         {
-            "name": "crate1",
-            "contentPath": "assets/textures/props/crates/crate1"
+            "name": "roach",
+            "contentPath": "assets/models/textures/Roach_Texture"
         },
+        //{
+        //    "name": "sink",
+        //    "contentPath": "assets/models/texture/SinkTable"
+        //},
         {
-            "name": "tree4",
-            "contentPath": "assets/textures/foliage/trees/tree4"
+            "name": "spatula",
+            "contentPath": "assets/models/textures/Spatula Texture"
         },
+        //{
+        //    "name": "toilet",
+        //    "contentPath": "assets/models/texture/Toilet"
+        //},
+        {
+            "name": "wallpaper",
+            "contentPath": "assets/models/textures/Wallpaper"
+        },
+
 
         {
             "name": "checkerboard",
@@ -91,48 +128,48 @@
     ],
     "models": [
         {
-            "name": "monkey1",
-            "contentPath": "assets/models/monkey1"
+            "name": "bed",
+            "contentPath": "assets/models/Bed"
         },
         {
-            "name": "cube",
-            "contentPath": "assets/models/cube"
+            "name": "walls",
+            "contentPath": "assets/models/House_Walls"
         },
         {
-            "name": "teapot",
-            "contentPath": "assets/models/teapot"
+            "name": "table",
+            "contentPath": "assets/models/Long_Table"
         },
         {
-            "name": "teapot_lowpoly",
-            "contentPath": "assets/models/teapot_lowpoly"
-        },
-        {
-            "name": "plane",
-            "contentPath": "assets/models/plane"
+            "name": "microwave",
+            "contentPath": "assets/models/Microwave"
         },
         {
             "name": "roach",
-            "contentPath": "assets/models/Roaches"
+            "contentPath": "assets/models/Roaches1"
         },
         {
-            "name": "house",
-            "contentPath": "assets/models/House Final"
+            "name": "shelf",
+            "contentPath": "assets/models/Shelf"
         },
         {
-            "name": "roach2",
-            "contentPath": "assets/models/Roaches (1)"
+            "name": "sink",
+            "contentPath": "assets/models/Sink"
+        },
+        //{
+        //    "name": "small_bed",
+        //    "contentPath": "assets/models/Small_Bed"
+        //},
+        {
+            "name": "small_shelf",
+            "contentPath": "assets/models/Small_Shelf"
         },
         {
-            "name": "map",
-            "contentPath": "assets/models/PrototypeMap"
+            "name": "toilet",
+            "contentPath": "assets/models/Toilet2"
         },
         {
-            "name": "map2",
-            "contentPath": "assets/models/PrototypeMap2"
-        },
-        {
-            "name": "housewalls",
-            "contentPath": "assets/models/House_Walls"
+            "name": "cube",
+            "contentPath": "assets/models/Toilet2"
         },
         {
             "name": "spatula",

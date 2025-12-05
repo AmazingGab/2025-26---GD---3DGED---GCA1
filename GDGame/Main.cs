@@ -164,25 +164,25 @@ namespace GDGame
             // Set pause and show menu
             SetPauseShowMenu();
 
-            GameObject _roachParent = new GameObject("RoachParent");
-            GameObject gameObject = null;
-            var roachParts = MeshFilterFactory.CreateAllFromModel(_modelDictionary.Get("roach2"), GraphicsDevice);
-            _sceneManager.ActiveScene.Add(_roachParent);
+            //GameObject _roachParent = new GameObject("RoachParent");
+            //GameObject gameObject = null;
+            //var roachParts = MeshFilterFactory.CreateAllFromModel(_modelDictionary.Get("roach2"), GraphicsDevice);
+            //_sceneManager.ActiveScene.Add(_roachParent);
 
-            for (int i = 0; i < roachParts.Count; i++)
-            {
-                gameObject = new GameObject("roach+part" + 1);
-                //gameObject.Transform.ScaleTo(new Vector3(scale / 10, scale / 10, scale / 10));
-                var meshFilter = roachParts[i];
-                gameObject.AddComponent(meshFilter);
-                var meshRenderer = gameObject.AddComponent<MeshRenderer>();
-                meshRenderer.Material = _matBasicLit;
-                meshRenderer.Overrides.MainTexture = _textureDictionary.Get("roach_texture");
-                _sceneManager.ActiveScene.Add(gameObject);
-                gameObject.Transform.SetParent(_roachParent.Transform);
-            }
+            //for (int i = 0; i < roachParts.Count; i++)
+            //{
+            //    gameObject = new GameObject("roach+part" + 1);
+            //    //gameObject.Transform.ScaleTo(new Vector3(scale / 10, scale / 10, scale / 10));
+            //    var meshFilter = roachParts[i];
+            //    gameObject.AddComponent(meshFilter);
+            //    var meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            //    meshRenderer.Material = _matBasicLit;
+            //    meshRenderer.Overrides.MainTexture = _textureDictionary.Get("roach_texture");
+            //    _sceneManager.ActiveScene.Add(gameObject);
+            //    gameObject.Transform.SetParent(_roachParent.Transform);
+            //}
 
-            _roachParent.Transform.ScaleTo(new Vector3(10f, 10f, 10f));
+            //_roachParent.Transform.ScaleTo(new Vector3(10f, 10f, 10f));
 
             base.Initialize();
         }
@@ -316,8 +316,8 @@ namespace GDGame
             go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
             go.Transform.ScaleTo(scale);
 
-            var model = _modelDictionary.Get("map2");
-            var texture = _textureDictionary.Get("mona lisa");
+            var model = _modelDictionary.Get("walls");
+            var texture = _textureDictionary.Get("wallpaper");
             var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
             go.AddComponent(meshFilter);
 
@@ -787,7 +787,7 @@ namespace GDGame
 
             GameObject player = InitializeModel(new Vector3(2, -6, 0),
                new Vector3(45, 0, 0),
-               new Vector3(0.3f, 1, 1), "crate1", "spatula", AppData.PLAYER_NAME);
+               new Vector3(0.3f, 1, 1), "spatula", "spatula", AppData.PLAYER_NAME);
             player.Transform.SetParent(cameraGO);
             #endregion
 
@@ -1182,7 +1182,7 @@ namespace GDGame
             go.Layer = LayerMask.Interactables;
 
             var model = _modelDictionary.Get("roach");
-            var texture = _textureDictionary.Get("mona lisa");
+            var texture = _textureDictionary.Get("roach");
             var meshFilter = MeshFilterFactory.CreateFromModel(model, _graphics.GraphicsDevice, 0, 0);
             go.AddComponent(meshFilter);
 
@@ -1431,11 +1431,11 @@ namespace GDGame
         private void DemoLoadFromJSON()
         {
             var relativeFilePathAndName = "assets/data/single_model_spawn.json";
-            List<ModelSpawnData> mList = JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName);
+            //List<ModelSpawnData> mList = JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName);
 
-            //load a single model
-            foreach (var d in mList)
-                InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
+            ////load a single model
+            //foreach (var d in mList)
+            //    InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
 
             relativeFilePathAndName = "assets/data/multi_model_spawn.json";
             //load multiple models
