@@ -101,7 +101,7 @@ namespace GDGame
             InitializeSkyParent();
             InitializeSkyBox(scale);
             InitializeCollidableGround(scale);
-            InitializePlayer();
+            //InitializePlayer();
             #endregion
 
             #region Demos
@@ -784,6 +784,11 @@ namespace GDGame
 
             // Add it to the scene
             scene.Add(cameraGO);
+
+            GameObject player = InitializeModel(new Vector3(2, -6, 0),
+               new Vector3(45, 0, 0),
+               new Vector3(0.3f, 1, 1), "crate1", "spatula", AppData.PLAYER_NAME);
+            player.Transform.SetParent(cameraGO);
             #endregion
 
             // Set the active camera by finding and getting its camera component
@@ -901,6 +906,29 @@ namespace GDGame
         private void InitializeUI()
         {
             InitializeUIReticleRenderer();
+            InitializeScoreBoard();
+        }
+
+        private void InitializeScoreBoard()
+        {
+            var scoreBoard = new GameObject("ScoreBoard");
+
+            var uiFont = _fontDictionary.Get("mouse_reticle_font");
+
+            var textRenderer = scoreBoard.AddComponent<UIText>();
+            textRenderer.Font = uiFont;
+            //textRenderer.Offset = new Vector2(0, 0);  // Position text below reticle
+            textRenderer.Color = Color.White;
+            textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width - 100, 0);
+            //textRenderer.Anchor = TextAnchor.Center;
+            textRenderer.TextProvider = () => "Score: " + score;
+
+
+
+            _sceneManager.ActiveScene.Add(scoreBoard);
+
+            // Hide mouse since reticle will take its place
+            IsMouseVisible = false;
         }
 
         private void InitializeUIReticleRenderer()
@@ -1164,8 +1192,9 @@ namespace GDGame
             _sceneManager.ActiveScene.Add(go);
 
             // Add box collider (1x1x1 cube)
-            var collider = go.AddComponent<SphereCollider>();
-            collider.Diameter = scale.Length();
+            var collider = go.AddComponent<BoxCollider>();
+            collider.Size = new Vector3(3f, 2f, 2f);  // Collider is FULL size
+            collider.Center = new Vector3(0, 0, -0.3f);
 
             // Add rigidbody (Dynamic so it falls)
             var rigidBody = go.AddComponent<RigidBody>();
