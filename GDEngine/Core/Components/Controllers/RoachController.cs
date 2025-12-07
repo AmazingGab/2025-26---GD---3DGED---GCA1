@@ -21,7 +21,7 @@ namespace GDEngine.Core.Components
 
         private RigidBody _rigidBody = null!;
 
-        private float _moveSpeed = 10f;
+        private float _moveSpeed = 300f;
         private float _boostMultiplier = 2f;
 
         private Keys _forwardKey = Keys.W;
@@ -204,8 +204,8 @@ namespace GDEngine.Core.Components
             //Transform.RotateToWorld(desiredWorld);
 
             float speed = _moveSpeed;
-            if (_keyboardState.IsKeyDown(_boostKey))
-                speed *= _boostMultiplier;
+            //if (_keyboardState.IsKeyDown(_boostKey))
+            //    speed *= _boostMultiplier;
 
             // Read current velocity so we preserve vertical motion (gravity/jumps).
             Vector3 velocity = _rigidBody.LinearVelocity;
@@ -215,8 +215,8 @@ namespace GDEngine.Core.Components
                 moveDir.Normalize();
 
                 // Set horizontal velocity; keep Y as-is.
-                velocity.X = moveDir.X * speed;
-                velocity.Z = moveDir.Z * speed;
+                velocity.X = moveDir.X * speed*Time.DeltaTimeSecs;
+                velocity.Z = moveDir.Z * speed * Time.DeltaTimeSecs;
             }
             else
             {

@@ -1407,7 +1407,7 @@ namespace GDGame
             rigidBody.Mass = 1.0f;
             if(isMoving)
                 go.AddComponent<RoachController>();
-            go.Enabled = false;
+            //go.Enabled = false;
         }
         private void DemoCollidableSpatula(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
         {
