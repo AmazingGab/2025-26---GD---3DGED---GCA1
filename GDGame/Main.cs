@@ -595,11 +595,12 @@ namespace GDGame
             _animationCurve.AddKey(0f, 13.5f); //down
 
             //3D animation curve demo
-            _animationPositionCurve = new AnimationCurve3D(CurveLoopType.Oscillate);
-            _animationPositionCurve.AddKey(new Vector3(0, 4, 0), 0);
-            _animationPositionCurve.AddKey(new Vector3(5, 8, 2), 1);
-            _animationPositionCurve.AddKey(new Vector3(10, 12, 4), 2);
-            _animationPositionCurve.AddKey(new Vector3(0, 4, 0), 3);
+            _animationPositionCurve = new AnimationCurve3D(CurveLoopType.Cycle);
+            _animationPositionCurve.AddKey(new Vector3(0, 0, 0), 0);
+            _animationPositionCurve.AddKey(new Vector3(0, 0, -20), 1);
+            _animationPositionCurve.AddKey(new Vector3(20, 0, -20), 2);
+            _animationPositionCurve.AddKey(new Vector3(40, 0, -30), 3);
+            // _animationPositionCurve.AddKey(new Vector3(0, 4, 0), 4);
 
             // Absolute yaw/pitch/roll angles (radians) over time
             _animationRotationCurve = new AnimationCurve3D(CurveLoopType.Oscillate);
@@ -1455,9 +1456,14 @@ namespace GDGame
             _sceneManager.ActiveScene.Add(go);
             CurveController curveController = new CurveController();
             curveController.PositionCurve = _animationPositionCurve;
+            curveController.Duration = 10;
+            curveController.TargetCurve = _animationPositionCurve;
+            curveController.Loop = false;
+            
             go.AddComponent(curveController);
             GameObject cameraObject = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_RAIL));
             cameraObject.Transform.SetParent(go);
+            
         }
 
         private void DemoStuff()
@@ -1480,7 +1486,11 @@ namespace GDGame
         private void DemoImpulsePublish()
         {
             var impulses = EngineContext.Instance.Impulses;
-
+            bool isSpacePressed = _newKBState.IsKeyDown(Keys.Space) && !_oldKBState.IsKeyDown(Keys.Space);
+            if (isSpacePressed) 
+            {
+                _sceneManager.ActiveScene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
+            }
             // a simple explosion reaction
             bool isZPressed = _newKBState.IsKeyDown(Keys.Z) && !_oldKBState.IsKeyDown(Keys.Z);
             if (isZPressed)
