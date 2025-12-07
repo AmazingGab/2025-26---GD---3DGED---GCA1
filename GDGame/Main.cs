@@ -141,6 +141,7 @@ namespace GDGame
             DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
 
             DemoCollidableSpatula(new Vector3(8, 1, 12), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
+            DemoCameraParent(new Vector3(0, 0, 0), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
 
 
             DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
@@ -963,16 +964,22 @@ namespace GDGame
             // Add it to the scene
             scene.Add(cameraGO);
 
-            
+
             #endregion
+            cameraGO = new GameObject(AppData.CAMERA_NAME_RAIL);
+            cameraGO.Transform.TranslateTo(position);
 
-            // Set the active camera by finding and getting its camera component
-            // var theCamera = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_STATIC_BIRDS_EYE)).GetComponent<Camera>();
-            ////Obviously, since we have _camera we could also just use the line below
-            //_scene.SetActiveCamera(theCamera);
+            //add camera component to the GO
+            camera = cameraGO.AddComponent<Camera>();
+            camera.FarPlane = 1000;
 
+            //feed off whatever screen dimensions you set InitializeGraphics
+            camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
+            
+            
+            scene.Add(cameraGO);
             //replace with new SetActiveCamera that searches by string
-            scene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
+            scene.SetActiveCamera(AppData.CAMERA_NAME_RAIL);
         }
 
         /// <summary>
@@ -1440,6 +1447,17 @@ namespace GDGame
             rigidBody.Mass = 1.0f;
 
             
+        }
+        private void DemoCameraParent(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
+        {
+
+            var go = new GameObject("CameraParent");
+            _sceneManager.ActiveScene.Add(go);
+            CurveController curveController = new CurveController();
+            curveController.PositionCurve = _animationPositionCurve;
+            go.AddComponent(curveController);
+            GameObject cameraObject = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_RAIL));
+            cameraObject.Transform.SetParent(go);
         }
 
         private void DemoStuff()
