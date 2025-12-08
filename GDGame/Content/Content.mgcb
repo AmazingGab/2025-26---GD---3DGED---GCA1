@@ -996,6 +996,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/UI/Interface/Logo.png
 
+#begin Assets/Textures/UI/Interface/lose_screen_logo.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/Interface/lose_screen_logo.png
+
 #begin Assets/Textures/UI/Interface/main_menu_background.png
 /importer:TextureImporter
 /processor:TextureProcessor

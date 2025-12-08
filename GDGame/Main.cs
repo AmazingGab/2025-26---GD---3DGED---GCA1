@@ -254,6 +254,9 @@ namespace GDGame
 
             Texture2D winLogo = _textureDictionary.Get("win_screen_logo");
             _menuManager.SetWinLogo(winLogo);
+            Texture2D loseLogo = _textureDictionary.Get("lose_screen_logo");
+            _menuManager.SetLoseLogo(loseLogo);
+
             _menuManager.Initialize(
                 _sceneManager.ActiveScene,
                 buttonTex,
@@ -1427,7 +1430,7 @@ namespace GDGame
         {
             //get inventory and eval using boolean if all enemies visited;
             
-            return false;
+            return Time.RealtimeSinceStartupSecs > 20;
         }
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
@@ -1437,12 +1440,9 @@ namespace GDGame
 
             if (newState == GameOutcomeState.Lost)
             {
-                System.Diagnostics.Debug.WriteLine("You lost!");
-                //play sound
-                //reset player
-                //load next level
-                //we decide what losing looks like here!
-                //Exit();
+                _sceneManager.Paused = true;
+                _menuManager.ShowGameOver(true);
+                IsMouseVisible = true;
             }
             else if (newState == GameOutcomeState.Won)
             {
@@ -1453,14 +1453,14 @@ namespace GDGame
 
                 // Pass final score into menu and show end screen
                 if (_menuManager != null)
-                {
-                    _menuManager.CurrentScore = score;
-                    _menuManager.ShowGameOverScreen();
-                }
-
-                // Show mouse for UI interaction
-                IsMouseVisible = true;
+                    _sceneManager.Paused = true;
+                _menuManager.ShowGameOver(false);
+                _menuManager.CurrentScore = score;
+                _menuManager.ShowGameOverScreen();
             }
+
+            // Show mouse for UI interaction
+            IsMouseVisible = true;
         }
         #endregion
 
