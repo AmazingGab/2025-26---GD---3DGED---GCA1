@@ -639,10 +639,14 @@ namespace GDEngine.Core.Managers
                 tex.Width * scale,
                 tex.Height * scale);
 
-            float centerX = backBufferWidth * 0.30f;
-            float logoY = backBufferHeight * 0.15f;
+            float scaledW = tex.Width * scale;
+            float scaledH = tex.Height * scale;
 
-            _gameOverLogo.Position = new Vector2(centerX, logoY);  
+
+            float centerX = (backBufferWidth - scaledW) * 0.46f;
+            float centerY = (backBufferHeight - scaledH) * 0.3f;
+
+            _gameOverLogo.Position = new Vector2(centerX, centerY);  
         }
 
         public void ShowMenuRoot()
