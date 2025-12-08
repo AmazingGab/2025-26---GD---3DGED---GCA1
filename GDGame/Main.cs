@@ -1429,7 +1429,7 @@ namespace GDGame
         {
             //get inventory and eval using boolean if all enemies visited;
 
-            return Time.RealtimeSinceStartupSecs > 2;
+            return Time.RealtimeSinceStartupSecs > 30;
         }
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
@@ -1440,11 +1440,7 @@ namespace GDGame
             if (newState == GameOutcomeState.Lost)
             {
                 System.Diagnostics.Debug.WriteLine("You lost!");
-                //play sound
-                //reset player
-                //load next level
-                //we decide what losing looks like here!
-                //Exit();
+                _menuManager.ShowGameOver(false);
             }
             else if (newState == GameOutcomeState.Won)
             {
@@ -1457,7 +1453,7 @@ namespace GDGame
                 if (_menuManager != null)
                 {
                     _menuManager.CurrentScore = score;
-                    _menuManager.ShowGameOverScreen();
+                    _menuManager.ShowGameOver(true);
                 }
 
                 // Show mouse for UI interaction

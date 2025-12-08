@@ -78,6 +78,7 @@ namespace GDEngine.Core.Managers
         private Texture2D? _audioPanelBackground;
         private Texture2D? _controlsPanelBackground;
         private Texture2D? _loseLogoTexture;
+        private UITexture? _gameOverLogo;
         #endregion
 
         #region Properties
@@ -224,6 +225,7 @@ namespace GDEngine.Core.Managers
         public void ShowGameOver(bool won)
         {
             _isWin = won;
+            UpdateGameOverLogo();
             ShowGameOverScreen();
         }
         public void ShowGameOverScreen()
@@ -523,20 +525,16 @@ namespace GDEngine.Core.Managers
                 scene.Add(logoGO);
                 logoGO.Transform.SetParent(_gameOverPanel.Transform);
 
-                var logoUI = logoGO.AddComponent<UITexture>();
-                logoUI.Texture = logoToUse;
+                _gameOverLogo = logoGO.AddComponent<UITexture>();
+                _gameOverLogo.LayerDepth = UILayer.Menu;
 
                 float scale = 0.55f;
 
-                logoUI.Size = new Vector2(
+                _gameOverLogo.Size = new Vector2(
                     logoToUse.Width * scale,
                     logoToUse.Height * scale);
 
-                float centerX = backBufferWidth * 0.26f;
-                float logoY = backBufferHeight * 0.15f;
-
-                logoUI.Position = new Vector2(centerX, logoY);
-                logoUI.LayerDepth = UILayer.Menu;
+                _gameOverLogo.LayerDepth = UILayer.Menu;
             }
             // Already present, keep it
             _gameOverPanel.RefreshChildren();
@@ -605,6 +603,48 @@ namespace GDEngine.Core.Managers
         /// Show the full menu (background + main menu).
         /// Use this when opening the menu from the game (e.g. Esc or on startup).
         /// </summary>
+        /// 
+        private void UpdateGameOverLogo()
+        {
+            int backBufferWidth = Game.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            int backBufferHeight = Game.GraphicsDevice.PresentationParameters.BackBufferHeight;
+
+            if (_gameOverLogo == null)
+                return;
+
+            Texture2D tex = null;
+
+            if (_isWin)
+            {
+                if (_winLogoTexture != null)
+                {
+                    tex = _winLogoTexture;
+                }
+            }
+            else
+            {
+                if (_loseLogoTexture != null)
+                {
+                    tex = _loseLogoTexture;
+                }
+            }
+
+            if (tex == null)
+                return;
+
+            float scale = 0.55f;
+
+            _gameOverLogo.Texture = tex;
+            _gameOverLogo.Size = new Vector2(
+                tex.Width * scale,
+                tex.Height * scale);
+
+            float centerX = backBufferWidth * 0.30f;
+            float logoY = backBufferHeight * 0.15f;
+
+            _gameOverLogo.Position = new Vector2(centerX, logoY);  
+        }
+
         public void ShowMenuRoot()
         {
             _menuVisible = true;
