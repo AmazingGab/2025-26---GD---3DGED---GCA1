@@ -151,22 +151,22 @@
     //}
     {
       "position": [
-        20,
-        5,
-        -5
+        0,
+        0,
+        0
       ],
       "rotationDegrees": [
-        -90,
+        0,
         0,
         0
       ],
       "scale": [
         1,
-        1,
-        1
+        3,
+        2
       ],
       "textureName": "BedBig1",
-      "modelName": "Bed",
+      "modelName": "bed",
       "objectName": "spawn-5"
     },
     {
@@ -185,8 +185,8 @@
         0.5,
         0.2
       ],
-      "textureName": "Floor",
-      "modelName": "House_Floor",
+      "textureName": "floor",
+      "modelName": "floor",
       "objectName": "spawn-5"
     },
     {
@@ -205,8 +205,8 @@
         1,
         1
       ],
-      "textureName": "Wallpaper",
-      "modelName": "House_Walls",
+      "textureName": "wallpaper",
+      "modelName": "walls",
       "objectName": "spawn-5"
     },
     {
@@ -225,8 +225,8 @@
         0.5,
         0.2
       ],
-      "textureName": "LongTableKitchen",
-      "modelName": "Long_Table",
+      "textureName": "table",
+      "modelName": "table",
       "objectName": "spawn-5"
     },
     {
@@ -245,8 +245,8 @@
         1,
         1
       ],
-      "textureName": "Microwave",
-      "modelName": "Microwave",
+      "textureName": "microwave",
+      "modelName": "microwave",
       "objectName": "spawn-5"
     },
     {
@@ -265,8 +265,8 @@
         0.5,
         0.2
       ],
-      "textureName": "BigShelf",
-      "modelName": "Shelf",
+      "textureName": "shelf",
+      "modelName": "shelf",
       "objectName": "spawn-5"
     },
     {
@@ -285,8 +285,8 @@
         1,
         1
       ],
-      "textureName": "SinkTable",
-      "modelName": "Sink",
+      "textureName": "sink",
+      "modelName": "sink",
       "objectName": "spawn-5"
     },
     {
@@ -305,8 +305,8 @@
         0.5,
         0.2
       ],
-      "textureName": "BedSmall1",
-      "modelName": "Small_Bed",
+      "textureName": "small_bed",
+      "modelName": "small_bed",
       "objectName": "spawn-5"
     },
     {
@@ -325,8 +325,8 @@
         1,
         1
       ],
-      "textureName": "SmallShelf",
-      "modelName": "Small_Shelf",
+      "textureName": "small_shelf",
+      "modelName": "small_shelf",
       "objectName": "spawn-5"
     },
     {
@@ -345,7 +345,7 @@
         0.5,
         0.2
       ],
-      "textureName": "Spatula Texture",
+      "textureName": "spatula",
       "modelName": "spatula",
       "objectName": "spawn-5"
     },
@@ -365,8 +365,8 @@
         1,
         1
       ],
-      "textureName": "Toilet",
-      "modelName": "Toilet2",
+      "textureName": "toilet",
+      "modelName": "toilet",
       "objectName": "spawn-5"
     },
     {
@@ -385,29 +385,9 @@
         0.5,
         0.2
       ],
-      "textureName": "TV_Texture",
+      "textureName": "TV",
       "modelName": "TV",
       "objectName": "spawn-5"
     },
-    {
-      "position": [
-        50,
-        5,
-        -5
-      ],
-      "rotationDegrees": [
-        -90,
-        0,
-        0
-      ],
-      "scale": [
-        1.5,
-        0.5,
-        0.2
-      ],
-      "textureName": "Roach_Texture",
-      "modelName": "Roaches1",
-      "objectName": "spawn-5"
-    }
   ]
 }
