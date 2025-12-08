@@ -31,6 +31,13 @@ namespace GDEngine.Core.Managers
         #region Fields
         private Scene? _menuScene;
 
+        public event Action? BackToMenuRequested;
+
+        private UIMenuPanel? _gameOverPanel;
+        private UIButton? _playAgainButton;
+        private UIButton? _backToMenuButton;
+
+
         // Panels
         private UIMenuPanel? _mainMenuPanel;
         private UIMenuPanel? _audioMenuPanel;
@@ -57,6 +64,7 @@ namespace GDEngine.Core.Managers
         private Texture2D? _sliderHandleTexture;
         private Texture2D? _controlsLayout;
         private SpriteFont? _font;
+        private Texture2D? _winLogoTexture;
 
         private bool _configured;
         private bool _built;
@@ -110,6 +118,8 @@ namespace GDEngine.Core.Managers
         {
             _sceneManager = sceneManager;
         }
+
+        public int CurrentScore { get; set; }
         #endregion
 
         #region Methods
@@ -173,9 +183,12 @@ namespace GDEngine.Core.Managers
         public void ShowMainMenu()
         {
             if (_mainMenuPanel == null ||
-                _audioMenuPanel == null ||
-                _controlsMenuPanel == null)
+              _audioMenuPanel == null ||
+              _controlsMenuPanel == null)
                 return;
+
+            if (_gameOverPanel != null)   
+                _gameOverPanel.IsVisible = false;
 
             SetActivePanel(_mainMenuPanel, _audioMenuPanel, _controlsMenuPanel);
         }
@@ -205,7 +218,52 @@ namespace GDEngine.Core.Managers
 
             SetActivePanel(_controlsMenuPanel, _mainMenuPanel, _audioMenuPanel);
         }
+        public void ShowGameOver()
+        {
+            if (_gameOverPanel == null) return;
 
+            _mainMenuPanel!.IsVisible = false;
+            _audioMenuPanel!.IsVisible = false;
+            _controlsMenuPanel!.IsVisible = false;
+
+            _gameOverPanel.IsVisible = true;
+            _menuVisible = true;
+        }
+        public void ShowGameOverScreen()
+        {
+            if (_gameOverPanel == null)
+                return;
+
+            if (_mainMenuPanel != null)
+                _mainMenuPanel.IsVisible = false;
+
+            if (_audioMenuPanel != null)
+                _audioMenuPanel.IsVisible = false;
+
+            if (_controlsMenuPanel != null)
+                _controlsMenuPanel.IsVisible = false;
+
+            _gameOverPanel.IsVisible = true;
+
+            _menuVisible = true;
+        }
+        public void HideGameOver()
+        {
+            if (_gameOverPanel == null) return;
+            _gameOverPanel.IsVisible = false;
+        }
+        private void HideMenuBackgrounds()
+        {
+            if (_menuScene == null)
+                return;
+
+            foreach (var go in _menuScene.GameObjects)
+            {
+                var ui = go.GetComponent<UITexture>();
+                if (ui != null)
+                    ui.Enabled = false;
+            }
+        }
         private void TryBuildMenus()
         {
             if (_built)
@@ -228,6 +286,14 @@ namespace GDEngine.Core.Managers
             _built = true;
 
             ShowMainMenu();
+        }
+        //public void SetFinalScore(int value)
+        //{
+        //    _finalScore = value;
+        //}
+        public void SetWinLogo(Texture2D tex)
+        {
+            _winLogoTexture = tex;
         }
         public void ApplyMainButtonImages(
          Texture2D playImage,
@@ -406,9 +472,72 @@ namespace GDEngine.Core.Managers
                 _buttonTexture!,
                 _font!,
                 OnBackToMainFromControls);
+            //End screen
 
+            GameObject gameOverRoot = new GameObject("UI_GameOverPanel");
+            scene.Add(gameOverRoot);
+
+            _gameOverPanel = gameOverRoot.AddComponent<UIMenuPanel>();
+            _gameOverPanel = gameOverRoot.AddComponent<UIMenuPanel>();
+
+            _gameOverPanel.PanelPosition = new Vector2(
+                backBufferWidth * 0.5f - itemSize.X * 0.5f,
+                backBufferHeight * 0.60f  
+            );
+
+            
+            _gameOverPanel.VerticalSpacing = 12f;  
+            _gameOverPanel.IsVisible = false;
+
+
+            if (_mainPanelBackground != null)
+            {
+                GameObject bgRoot = new GameObject("UI_GameOverBackground");
+                scene.Add(bgRoot);
+                bgRoot.Transform.SetParent(_gameOverPanel.Transform);
+
+                var bg = bgRoot.AddComponent<UITexture>();
+                bg.Texture = _mainPanelBackground;
+                bg.Size = viewportSize;
+                bg.LayerDepth = UILayer.MenuBack;
+            }
+           
+
+            if (_winLogoTexture != null)
+            {
+                var logoGO = new GameObject("WinLogo");
+                scene.Add(logoGO);
+                logoGO.Transform.SetParent(_gameOverPanel.Transform);
+
+                var logoUI = logoGO.AddComponent<UITexture>();
+                logoUI.Texture = _winLogoTexture;
+                float scale = 0.55f;
+
+                logoUI.Size = new Vector2(
+                    _winLogoTexture.Width * scale,
+                    _winLogoTexture.Height * scale);
+
+                float centerX = backBufferWidth * 0.26f;
+                float logoY = backBufferHeight * 0.15f;
+
+                logoUI.Position = new Vector2(centerX, logoY);
+                logoUI.LayerDepth = UILayer.Menu;
+            }
             // Already present, keep it
-            _controlsMenuPanel.RefreshChildren();
+            _gameOverPanel.RefreshChildren();
+
+            _playAgainButton = _gameOverPanel.AddButton(
+                "",
+               _buttonTexture!,
+               _font!,
+               OnPlayAgainClicked);
+            _backToMenuButton = _gameOverPanel.AddButton(
+               "",
+              _buttonTexture!,
+              _font!,
+              OnBackToMenuFromGameOver);
+
+            
         }
         public void ApplyBackButtonImages(Texture2D audioBackImage,
                                   Texture2D controlsBackImage)
@@ -432,6 +561,31 @@ namespace GDEngine.Core.Managers
             SwapButtonImage(_audioBackButton, audioBackImage);
             SwapButtonImage(_controlsBackButton, controlsBackImage);
         }
+        public void ApplyGameOverButtonImages(Texture2D playAgainImage, Texture2D backImage)
+        {
+            void Swap(UIButton? button, Texture2D image)
+            {
+
+                var go = button.GameObject;
+                var graphic = go.GetComponent<UITexture>();
+                graphic.Texture = image;
+                graphic.Size = new Vector2(image.Width, image.Height);
+
+                float buttonScale = 1.08f;
+                graphic.Size = new Vector2(
+                    image.Width * buttonScale,
+                    image.Height * buttonScale);
+
+                button.Size = graphic.Size;
+
+                var label = go.GetComponent<UIText>();
+                if (label != null)
+                    label.Enabled = false;  
+            }
+
+            Swap(_playAgainButton, playAgainImage);
+            Swap(_backToMenuButton, backImage);
+        }
         /// <summary>
         /// Show the full menu (background + main menu).
         /// Use this when opening the menu from the game (e.g. Esc or on startup).
@@ -442,6 +596,14 @@ namespace GDEngine.Core.Managers
 
             ShowMainMenu();
         }
+        private void OnBackToMenuFromGameOver()
+        {
+            ShowMainMenu();
+        }
+        private void OnPlayAgainClicked()
+        {
+            PlayRequested?.Invoke();
+        }
 
         /// <summary>
         /// Hides all menu panels and the background.
@@ -449,6 +611,7 @@ namespace GDEngine.Core.Managers
         /// </summary>
         public void HideMenus()
         {
+
             _menuVisible = false;
 
             if (_mainMenuPanel != null)
@@ -459,6 +622,12 @@ namespace GDEngine.Core.Managers
 
             if (_controlsMenuPanel != null)
                 _controlsMenuPanel.IsVisible = false;
+
+            if (_gameOverPanel != null)
+                _gameOverPanel.IsVisible = false;
+
+            HideMenuBackgrounds();
+
         }
 
         private void SetActivePanel(UIMenuPanel toShow, UIMenuPanel toHideA, UIMenuPanel toHideB)

@@ -915,6 +915,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/UI/Interface/back_button.png;Assets/Textures/UI/Interface/back_button
 
+#begin Assets/Textures/UI/Interface/back_to_menu_button.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/Interface/back_to_menu_button.png
+
 #begin Assets/Textures/UI/Interface/credits_button.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -987,6 +999,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/UI/Interface/options_button.png
 
+#begin Assets/Textures/UI/Interface/play_again_button.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/Interface/play_again_button.png
+
 #begin Assets/Textures/UI/Interface/play_button.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -1058,6 +1082,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/UI/Interface/timer_ui.png
+
+#begin Assets/Textures/UI/Interface/win_screen_logo.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/Interface/win_screen_logo.png
 
 #begin Assets/Textures/UI/Mouse/Crosshair_01.png
 /importer:TextureImporter

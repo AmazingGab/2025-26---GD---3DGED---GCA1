@@ -168,6 +168,18 @@
     {
       "name": "back_button",
       "contentPath": "assets/textures/ui/interface/back_button"
+    },
+    {
+      "name": "back_to_menu_button",
+      "contentPath": "assets/textures/ui/interface/back_to_menu_button"
+    },
+    {
+      "name": "win_screen_logo",
+      "contentPath": "assets/textures/ui/interface/win_screen_logo"
+    },
+    {
+      "name": "play_again_button",
+      "contentPath": "assets/textures/ui/interface/play_again_button"
     }
   ],
     "models": [

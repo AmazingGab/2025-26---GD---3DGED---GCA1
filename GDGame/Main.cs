@@ -43,6 +43,9 @@ namespace GDGame
         private ContentDictionary<Effect> _effectsDictionary;
         private bool _disposed = false;
         private Material _matBasicUnlit, _matBasicLit, _matAlphaCutout, _matBasicUnlitGround;
+
+        public event Action? PlayAgainRequested;
+        public event Action? BackToMenuRequested;
         #endregion
 
         #region Demo Fields (remove in the game)
@@ -245,6 +248,8 @@ namespace GDGame
             Texture2D audioBg = _textureDictionary.Get("main_menu_background");
             Texture2D controlsBg = _textureDictionary.Get("main_menu_background");
 
+            Texture2D winLogo = _textureDictionary.Get("win_screen_logo");
+            _menuManager.SetWinLogo(winLogo);
             _menuManager.Initialize(
                 _sceneManager.ActiveScene,
                 buttonTex,
@@ -266,6 +271,11 @@ namespace GDGame
             _menuManager.ApplyBackButtonImages(
                 _textureDictionary.Get("back_button"),   
                 _textureDictionary.Get("back_button"));
+            _menuManager.ApplyGameOverButtonImages(
+                _textureDictionary.Get("play_again_button"),
+                _textureDictionary.Get("back_to_menu_button"));
+
+            
             _menuManager.PlayRequested += () =>
             {
                 InitializeTaskUI();
@@ -274,6 +284,7 @@ namespace GDGame
                 _menuManager.HideMenus();
                 IsMouseVisible = false;
                 SetMenuLogoVisible(false);
+                SetTaskBarVisible(true);
             };
 
             _menuManager.ExitRequested += () =>
@@ -291,8 +302,26 @@ namespace GDGame
                 System.Diagnostics.Debug.WriteLine("SfxVolumeChanged: " + v);
             };
 
+            //_menuManager.ShowGameOver();
+            //_sceneManager.Paused = true;
+            //IsMouseVisible = true;
+
+            //_menuManager.PlayAgainRequested += () =>
+            //{
+            //    RestartLevel();
+            //    _menuManager.HideGameOver();
+            //    _sceneManager.Paused = false;
+            //};
+
+            //_menuManager.BackToMenuRequested += () =>
+            //{
+            //    _menuManager.HideGameOver();
+            //    _menuManager.ShowMainMenu();
+            //};
+
             _sceneManager.Paused = true;
             _menuManager.ShowMainMenu();
+
             IsMouseVisible = true;
             SetTaskBarVisible(false);
             SetMenuLogoVisible(true);
@@ -391,6 +420,9 @@ namespace GDGame
             bodyText.TextProvider = () => "SQUASH THEM ALL!";
             _sceneManager.ActiveScene.Add(_taskBarGO);
         }
+        private void OnPlayAgainClicked() => PlayAgainRequested?.Invoke();
+        private void OnBackToMenuFromGameOver() => BackToMenuRequested?.Invoke();
+
 
         private void InitializeUISystems()
         {
@@ -418,6 +450,7 @@ namespace GDGame
             foreach (var ui in uiReticleGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
         }
+
         private void InitializeCollidableGround(int scale = 500)
         {
             GameObject gameObject = null;
@@ -1089,6 +1122,7 @@ namespace GDGame
         private void InitializeUI()
         {       
             InitializeScoreBoard();
+            
         }
 
         private void InitializeScoreBoard()
@@ -1354,19 +1388,20 @@ namespace GDGame
             // we could pause the game on a win
             //Time.TimeScale = 0;
             
-            return score==500;
+            return score == 500; ;
         }
 
         private bool checkEnemiesVisited()
         {
             //get inventory and eval using boolean if all enemies visited;
             
-            return Time.RealtimeSinceStartupSecs > 2;
+            return false;
         }
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
         {
             System.Diagnostics.Debug.WriteLine($"Old state was {oldState} and new state is {newState}");
+
 
             if (newState == GameOutcomeState.Lost)
             {
@@ -1380,8 +1415,20 @@ namespace GDGame
             else if (newState == GameOutcomeState.Won)
             {
                 System.Diagnostics.Debug.WriteLine("You win!");
-            }
 
+                // Pause gameplay
+                _sceneManager.Paused = true;
+
+                // Pass final score into menu and show end screen
+                if (_menuManager != null)
+                {
+                    _menuManager.CurrentScore = score;
+                    _menuManager.ShowGameOverScreen();
+                }
+
+                // Show mouse for UI interaction
+                IsMouseVisible = true;
+            }
         }
         #endregion
 
