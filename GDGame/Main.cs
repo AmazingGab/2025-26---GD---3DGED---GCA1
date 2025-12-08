@@ -256,9 +256,6 @@ namespace GDGame
             Texture2D loseLogo = _textureDictionary.Get("lose_screen_logo");
             _menuManager.SetLoseLogo(loseLogo);
             _menuManager.SetWinLogo(winLogo);
-            Texture2D loseLogo = _textureDictionary.Get("lose_screen_logo");
-            _menuManager.SetLoseLogo(loseLogo);
-
             _menuManager.Initialize(
                 _sceneManager.ActiveScene,
                 buttonTex,
@@ -1432,9 +1429,7 @@ namespace GDGame
         {
             //get inventory and eval using boolean if all enemies visited;
 
-            return false;
-            
-            return Time.RealtimeSinceStartupSecs > 20;
+            return Time.RealtimeSinceStartupSecs > 2;
         }
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
