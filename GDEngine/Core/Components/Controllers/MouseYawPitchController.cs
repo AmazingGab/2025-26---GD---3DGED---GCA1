@@ -72,6 +72,7 @@ namespace GDEngine.Core.Components
             // Apply delta in world space so the underlying Transform stays in sync.
             Transform.RotateBy(delta, worldSpace: true);
 
+
             // Store old state for next frame delta
             _oldMouseState = _newMouseState;
         }

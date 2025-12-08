@@ -237,18 +237,6 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/Small_Shelf.fbx
 
-#begin Assets/Models/Spatula Texture.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Assets/Models/Spatula Texture.png
-
 #begin Assets/Models/spatula.fbx
 /importer:FbxImporter
 /processor:ModelProcessor

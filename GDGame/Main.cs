@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using GDEngine.Core;
+﻿using GDEngine.Core;
 using GDEngine.Core.Audio;
 using GDEngine.Core.Collections;
 using GDEngine.Core.Components;
@@ -28,6 +26,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 using Color = Microsoft.Xna.Framework.Color;
 
 namespace GDGame
@@ -76,6 +78,8 @@ namespace GDGame
         private bool hasSpatula;
         private KeyboardState _newKBState2;
         private KeyboardState _oldKBState2;
+        private float timeLeft;
+        private bool roachKilled=false;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -525,6 +529,7 @@ namespace GDGame
             var events = EngineContext.Instance.Events;
             // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
             //var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
+            var spatula = _sceneManager.ActiveScene.Find(go => go.Name.Equals("spatula"));
             bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
             if (togglePressed && hasSpatula)
             {
@@ -546,6 +551,9 @@ namespace GDGame
                 events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
             1, false, null));
                 score += 100;
+                spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
+                roachKilled = true;
+               
                 //break;
                 //}
                 //}
@@ -1187,6 +1195,22 @@ namespace GDGame
             // Optional custom formatting
             picker.Formatter = hit =>
             {
+              
+                if(roachKilled)
+                {
+                    var spatula = _sceneManager.ActiveScene.Find(go => go.Name.Equals("spatula"));
+
+                    timeLeft += Time.DeltaTimeSecs;
+                    //System.Diagnostics.Debug.WriteLine(
+                    //    timeLeft);
+                    if (timeLeft > 1)
+                    {
+                        spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(10)), worldSpace: false);
+                        timeLeft = 0;
+                        roachKilled = false;
+                    }
+                }
+               
                 var go = hit.Body?.GameObject;
                 if (go == null)
                     return string.Empty;
@@ -1196,6 +1220,7 @@ namespace GDGame
                     //_scene.Remove(go);
                     _newMouseState = Mouse.GetState();
                     KillRoach(go);
+                    
                     _oldMouseState = _newMouseState;
                 }
                 if (go.Name.Equals("spatula"))
