@@ -190,6 +190,10 @@
             "contentPath": "assets/textures/ui/interface/win_screen_logo"
         },
         {
+            "name": "lose_screen_logo",
+            "contentPath": "assets/textures/ui/interface/lose_screen_logo"
+        },
+        {
             "name": "play_again_button",
             "contentPath": "assets/textures/ui/interface/play_again_button"
         }
