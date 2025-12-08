@@ -79,7 +79,7 @@ namespace GDGame
         private KeyboardState _newKBState2;
         private KeyboardState _oldKBState2;
         private float timeLeft;
-        private bool roachKilled=false;
+        private bool roachKilled = false;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -253,6 +253,8 @@ namespace GDGame
             Texture2D controlsBg = _textureDictionary.Get("main_menu_background");
 
             Texture2D winLogo = _textureDictionary.Get("win_screen_logo");
+            Texture2D loseLogo = _textureDictionary.Get("lose_screen_logo");
+            _menuManager.SetLoseLogo(loseLogo);
             _menuManager.SetWinLogo(winLogo);
             _menuManager.Initialize(
                 _sceneManager.ActiveScene,
@@ -273,13 +275,13 @@ namespace GDGame
                 _textureDictionary.Get("credits_button"),
                 _textureDictionary.Get("exit_button"));
             _menuManager.ApplyBackButtonImages(
-                _textureDictionary.Get("back_button"),   
+                _textureDictionary.Get("back_button"),
                 _textureDictionary.Get("back_button"));
             _menuManager.ApplyGameOverButtonImages(
                 _textureDictionary.Get("play_again_button"),
                 _textureDictionary.Get("back_to_menu_button"));
 
-            
+
             _menuManager.PlayRequested += () =>
             {
                 InitializeTaskUI();
@@ -553,7 +555,7 @@ namespace GDGame
                 score += 100;
                 spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
                 roachKilled = true;
-               
+
                 //break;
                 //}
                 //}
@@ -584,7 +586,7 @@ namespace GDGame
                new Vector3(0.3f, 1, 1), "spatula", "spatula", "spatula");
 
                 playerSpatula.Transform.SetParent(cameraGO);
-                hasSpatula= true;
+                hasSpatula = true;
                 //score += 1000;
                 //break;
                 //}
@@ -1024,8 +1026,8 @@ namespace GDGame
 
             //feed off whatever screen dimensions you set InitializeGraphics
             camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
-            
-            
+
+
             scene.Add(cameraGO);
             //replace with new SetActiveCamera that searches by string
             scene.SetActiveCamera(AppData.CAMERA_NAME_RAIL);
@@ -1135,9 +1137,9 @@ namespace GDGame
         }
 
         private void InitializeUI()
-        {       
+        {
             InitializeScoreBoard();
-            
+
         }
 
         private void InitializeScoreBoard()
@@ -1166,7 +1168,7 @@ namespace GDGame
         {
             if (uiReticleGO != null)
                 return;
-             uiReticleGO = new GameObject("HUD");
+            uiReticleGO = new GameObject("HUD");
 
             var reticleAtlas = _textureDictionary.Get("Crosshair_21");
             var uiFont = _fontDictionary.Get("mouse_reticle_font");
@@ -1195,8 +1197,8 @@ namespace GDGame
             // Optional custom formatting
             picker.Formatter = hit =>
             {
-              
-                if(roachKilled)
+
+                if (roachKilled)
                 {
                     var spatula = _sceneManager.ActiveScene.Find(go => go.Name.Equals("spatula"));
 
@@ -1210,7 +1212,7 @@ namespace GDGame
                         roachKilled = false;
                     }
                 }
-               
+
                 var go = hit.Body?.GameObject;
                 if (go == null)
                     return string.Empty;
@@ -1220,7 +1222,7 @@ namespace GDGame
                     //_scene.Remove(go);
                     _newMouseState = Mouse.GetState();
                     KillRoach(go);
-                    
+
                     _oldMouseState = _newMouseState;
                 }
                 if (go.Name.Equals("spatula"))
@@ -1294,7 +1296,7 @@ namespace GDGame
                     SetReticleoVisible(!menuVisible);
                 }
             }
-    
+
             #endregion
             _newKBState = Keyboard.GetState();
             DemoStuff();
@@ -1419,14 +1421,14 @@ namespace GDGame
         {
             // we could pause the game on a win
             //Time.TimeScale = 0;
-            
+
             return score == 500; ;
         }
 
         private bool checkEnemiesVisited()
         {
             //get inventory and eval using boolean if all enemies visited;
-            
+
             return false;
         }
 
@@ -1437,12 +1439,9 @@ namespace GDGame
 
             if (newState == GameOutcomeState.Lost)
             {
-                System.Diagnostics.Debug.WriteLine("You lost!");
-                //play sound
-                //reset player
-                //load next level
-                //we decide what losing looks like here!
-                //Exit();
+                _sceneManager.Paused = true;
+                _menuManager.ShowGameOver(true);
+                IsMouseVisible = true;
             }
             else if (newState == GameOutcomeState.Won)
             {
@@ -1453,14 +1452,14 @@ namespace GDGame
 
                 // Pass final score into menu and show end screen
                 if (_menuManager != null)
-                {
-                    _menuManager.CurrentScore = score;
-                    _menuManager.ShowGameOverScreen();
-                }
-
-                // Show mouse for UI interaction
-                IsMouseVisible = true;
+                    _sceneManager.Paused = true;
+                _menuManager.ShowGameOver(false);
+                _menuManager.CurrentScore = score;
+                _menuManager.ShowGameOverScreen();
             }
+
+            // Show mouse for UI interaction
+            IsMouseVisible = true;
         }
         #endregion
 
