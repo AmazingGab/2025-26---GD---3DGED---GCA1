@@ -22,166 +22,178 @@
             "contentPath": "assets/fonts/KidsBus"
         }
     ],
-  "textures": [
-    {
-      "name": "ground_grass",
-      "contentPath": "assets/textures/foliage/ground/grass1"
-    },
+    "textures": [
+        {
+            "name": "ground_grass",
+            "contentPath": "assets/textures/foliage/ground/grass1"
+        },
 
-    {
-      "name": "skybox_back",
-      "contentPath": "assets/textures/skybox/back"
-    },
-    {
-      "name": "skybox_front",
-      "contentPath": "assets/textures/skybox/front"
-    },
-    {
-      "name": "skybox_left",
-      "contentPath": "assets/textures/skybox/left"
-    },
-    {
-      "name": "skybox_right",
-      "contentPath": "assets/textures/skybox/right"
-    },
-    {
-      "name": "skybox_sky",
-      "contentPath": "assets/textures/skybox/sky"
-    },
+        {
+            "name": "skybox_back",
+            "contentPath": "assets/textures/skybox/back"
+        },
+        {
+            "name": "skybox_front",
+            "contentPath": "assets/textures/skybox/front"
+        },
+        {
+            "name": "skybox_left",
+            "contentPath": "assets/textures/skybox/left"
+        },
+        {
+            "name": "skybox_right",
+            "contentPath": "assets/textures/skybox/right"
+        },
+        {
+            "name": "skybox_sky",
+            "contentPath": "assets/textures/skybox/sky"
+        },
 
-    //{
-    //    "name": "bed",
-    //    "contentPath": "assets/models/texture/BedBig"
-    //},
-    //{
-    //    "name": "small_bed",
-    //    "contentPath": "assets/models/texture/BedSmall1"
-    //},
-    //{
-    //    "name": "shelf",
-    //    "contentPath": "assets/models/texture/BigShelf"
-    //},
-    //{
-    //    "name": "small_shelf",
-    //    "contentPath": "assets/models/texture/SmallShelf"
-    //},
-    //{
-    //    "name": "fridge",
-    //    "contentPath": "assets/models/texture/Fridge"
-    //},
-    //{
-    //    "name": "table",
-    //    "contentPath": "assets/models/texture/LongTableKitchen"
-    //},
-    {
-      "name": "roach",
-      "contentPath": "assets/models/textures/Roach_Texture"
-    },
-    //{
-    //    "name": "sink",
-    //    "contentPath": "assets/models/texture/SinkTable"
-    //},
-    {
-      "name": "spatula",
-      "contentPath": "assets/models/textures/Spatula Texture"
-    },
-    //{
-    //    "name": "toilet",
-    //    "contentPath": "assets/models/texture/Toilet"
-    //},
-    {
-      "name": "wallpaper",
-      "contentPath": "assets/models/textures/Wallpaper"
-    },
+        {
+            "name": "bed",
+            "contentPath": "assets/models/textures/BedBig1"
+        },
+        {
+            "name": "small_bed",
+            "contentPath": "assets/models/textures/BedSmall1"
+        },
+        {
+            "name": "shelf",
+            "contentPath": "assets/models/textures/BigShelf"
+        },
+        {
+            "name": "small_shelf",
+            "contentPath": "assets/models/textures/SmallShelf"
+        },
+        {
+            "name": "table",
+            "contentPath": "assets/models/textures/LongTableKitchen"
+        },
+        {
+            "name": "roach",
+            "contentPath": "assets/models/textures/Roach_Texture"
+        },
+        {
+            "name": "sink",
+            "contentPath": "assets/models/textures/SinkTable"
+        },
+        {
+            "name": "spatula",
+            "contentPath": "assets/models/textures/Spatula Texture"
+        },
+        {
+            "name": "toilet",
+            "contentPath": "assets/models/textures/Toilet"
+        },
+        {
+            "name": "wallpaper",
+            "contentPath": "assets/models/textures/Wallpaper"
+        },
+        {
+            "name": "tv",
+            "contentPath": "assets/models/textures/TV_Texture"
+        },
+        {
+            "name": "wallpaper",
+            "contentPath": "assets/models/textures/Wallpaper"
+        },
+        {
+            "name": "microwave",
+            "contentPath": "assets/models/textures/Microwave"
+        },
+        {
+            "name": "floor",
+            "contentPath": "assets/models/textures/Floor"
+        },
 
 
-    {
-      "name": "checkerboard",
-      "contentPath": "assets/textures/demo/checkerboard"
-    },
-    {
-      "name": "mona lisa",
-      "contentPath": "assets/textures/demo/mona lisa"
-    },
+        {
+            "name": "checkerboard",
+            "contentPath": "assets/textures/demo/checkerboard"
+        },
+        {
+            "name": "mona lisa",
+            "contentPath": "assets/textures/demo/mona lisa"
+        },
 
-    {
-      "name": "mouse_reticle",
-      "contentPath": "assets/textures/ui/mouse/reticleClosed"
-    },
-    {
-      "name": "Crosshair_21",
-      "contentPath": "assets/textures/ui/mouse/Crosshair_01"
-    },
+        {
+            "name": "mouse_reticle",
+            "contentPath": "assets/textures/ui/mouse/reticleClosed"
+        },
+        {
+            "name": "Crosshair_21",
+            "contentPath": "assets/textures/ui/mouse/Crosshair_01"
+        },
 
-    {
-      "name": "mainmenu",
-      "contentPath": "assets/textures/ui/backgrounds/mainmenu"
-    },
-    {
-      "name": "mainmenu_monkey",
-      "contentPath": "assets/textures/ui/backgrounds/mainmenu_monkey"
-    },
-    {
-      "name": "controlsmenu_monkey",
-      "contentPath": "assets/textures/ui/backgrounds/controlsmenu_monkey"
-    },
-    {
-      "name": "dialogue",
-      "contentPath": "assets/textures/ui/chat"
-    },
-    {
-      "name": "task_bar",
-      "contentPath": "assets/textures/ui/interface/task_bar"
-    },
-    {
-      "name": "play_button",
-      "contentPath": "assets/textures/ui/interface/play_button"
-    },
-    {
-      "name": "options_button",
-      "contentPath": "assets/textures/ui/interface/options_button"
-    },
-    {
-      "name": "credits_button",
-      "contentPath": "assets/textures/ui/interface/credits_button"
-    },
-    {
-      "name": "exit_button",
-      "contentPath": "assets/textures/ui/interface/exit_button"
-    },
-    {
-      "name": "main_menu_background",
-      "contentPath": "assets/textures/ui/interface/main_menu_background"
-    },
-    {
-      "name": "slider_track",
-      "contentPath": "assets/textures/ui/interface/slider_track"
-    },
-    {
-      "name": "slider_handle",
-      "contentPath": "assets/textures/ui/interface/slider_handle"
-    },
-    {
-      "name": "Logo",
-      "contentPath": "assets/textures/ui/interface/Logo"
-    },
-    {
-      "name": "back_button",
-      "contentPath": "assets/textures/ui/interface/back_button"
-    },
-    {
-      "name": "back_to_menu_button",
-      "contentPath": "assets/textures/ui/interface/back_to_menu_button"
-    },
-    {
-      "name": "win_screen_logo",
-      "contentPath": "assets/textures/ui/interface/win_screen_logo"
-    },
-    {
-      "name": "play_again_button",
-      "contentPath": "assets/textures/ui/interface/play_again_button"
-    }
-  ],
+        {
+            "name": "mainmenu",
+            "contentPath": "assets/textures/ui/backgrounds/mainmenu"
+        },
+        {
+            "name": "mainmenu_monkey",
+            "contentPath": "assets/textures/ui/backgrounds/mainmenu_monkey"
+        },
+        {
+            "name": "controlsmenu_monkey",
+            "contentPath": "assets/textures/ui/backgrounds/controlsmenu_monkey"
+        },
+        {
+            "name": "dialogue",
+            "contentPath": "assets/textures/ui/chat"
+        },
+        {
+            "name": "task_bar",
+            "contentPath": "assets/textures/ui/interface/task_bar"
+        },
+        {
+            "name": "play_button",
+            "contentPath": "assets/textures/ui/interface/play_button"
+        },
+        {
+            "name": "options_button",
+            "contentPath": "assets/textures/ui/interface/options_button"
+        },
+        {
+            "name": "credits_button",
+            "contentPath": "assets/textures/ui/interface/credits_button"
+        },
+        {
+            "name": "exit_button",
+            "contentPath": "assets/textures/ui/interface/exit_button"
+        },
+        {
+            "name": "main_menu_background",
+            "contentPath": "assets/textures/ui/interface/main_menu_background"
+        },
+        {
+            "name": "slider_track",
+            "contentPath": "assets/textures/ui/interface/slider_track"
+        },
+        {
+            "name": "slider_handle",
+            "contentPath": "assets/textures/ui/interface/slider_handle"
+        },
+        {
+            "name": "Logo",
+            "contentPath": "assets/textures/ui/interface/Logo"
+        },
+        {
+            "name": "back_button",
+            "contentPath": "assets/textures/ui/interface/back_button"
+        },
+        {
+            "name": "back_to_menu_button",
+            "contentPath": "assets/textures/ui/interface/back_to_menu_button"
+        },
+        {
+            "name": "win_screen_logo",
+            "contentPath": "assets/textures/ui/interface/win_screen_logo"
+        },
+        {
+            "name": "play_again_button",
+            "contentPath": "assets/textures/ui/interface/play_again_button"
+        }
+    ],
     "models": [
         {
             "name": "bed",
@@ -211,10 +223,10 @@
             "name": "sink",
             "contentPath": "assets/models/Sink"
         },
-        //{
-        //    "name": "small_bed",
-        //    "contentPath": "assets/models/Small_Bed"
-        //},
+        {
+            "name": "small_bed",
+            "contentPath": "assets/models/Small_Bed"
+        },
         {
             "name": "small_shelf",
             "contentPath": "assets/models/Small_Shelf"
@@ -225,7 +237,11 @@
         },
         {
             "name": "cube",
-            "contentPath": "assets/models/Toilet2"
+            "contentPath": "assets/models/TV"
+        },
+        {
+            "name": "TV",
+            "contentPath": "assets/models/TV"
         },
         {
             "name": "spatula",

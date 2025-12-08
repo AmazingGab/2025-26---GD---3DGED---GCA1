@@ -136,12 +136,12 @@ namespace GDGame
             //DemoCollidableModel(new Vector3(0, 25, 12), Vector3.Zero, new Vector3(2, 1.25f, 2));
             #endregion
 
-            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false);
-            DemoCollidableModel(new Vector3(5, 1, 11), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
-            DemoCollidableModel(new Vector3(10, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
-
-            DemoCollidableModel(new Vector3(15, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
-            DemoCollidableModel(new Vector3(20, 1, 12), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true);
+            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false, "mainRoach");
+            for (int i = 0; i < 30; i++)
+            {
+                Random rng = new Random();
+                DemoCollidableModel(new Vector3(rng.Next(-50, 60), 1, rng.Next(-50, 60)), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true, "roach");
+            }
 
             DemoCollidableSpatula(new Vector3(8, 1, 12), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
             DemoCameraParent(new Vector3(0, 0, 0), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
@@ -528,7 +528,14 @@ namespace GDGame
             bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
             if (togglePressed && hasSpatula)
             {
-
+                if (roach.Name == "mainRoach")
+                {
+                    List<GameObject> roaches = _sceneManager.ActiveScene.FindAll((GameObject go) => go.Name.Equals("roach"));
+                    foreach (var r in roaches)
+                    {
+                        r.Enabled = true;
+                    }
+                }    
                 //foreach (var roach in roaches)
                 //{
 
@@ -1183,7 +1190,7 @@ namespace GDGame
                 var go = hit.Body?.GameObject;
                 if (go == null)
                     return string.Empty;
-                if (go.Name.Equals("roach"))
+                if (go.Name.Equals("roach") || go.Name.Equals("mainRoach"))
                 {
                     isRoach = true;
                     //_scene.Remove(go);
@@ -1432,9 +1439,9 @@ namespace GDGame
         }
         #endregion
 
-        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale, bool isMoving)
+        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale, bool isMoving, string name)
         {
-            var go = new GameObject("roach");
+            var go = new GameObject(name);
             go.Transform.TranslateTo(position);
             go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
             go.Transform.ScaleTo(scale);
@@ -1460,8 +1467,11 @@ namespace GDGame
             var rigidBody = go.AddComponent<RigidBody>();
             rigidBody.BodyType = BodyType.Dynamic;
             rigidBody.Mass = 1.0f;
-            if(isMoving)
+            if(isMoving) {
                 go.AddComponent<RoachController>();
+                go.Enabled = false;
+            }
+                
             //go.Enabled = false;
         }
         private void DemoCollidableSpatula(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)

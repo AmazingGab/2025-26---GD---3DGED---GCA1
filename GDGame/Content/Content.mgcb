@@ -66,6 +66,25 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/Bed.fbx
 
+#begin Assets/Models/House_Floor.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Assets/Models/House_Floor.fbx
+
 #begin Assets/Models/House_Walls.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -180,6 +199,25 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/Sink.fbx
 
+#begin Assets/Models/Small_Bed.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Assets/Models/Small_Bed.fbx
+
 #begin Assets/Models/Small_Shelf.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -230,7 +268,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/spatula.fbx
 
-#begin Assets/Models/Textures/BedBig.png
+#begin Assets/Models/Textures/BedBig1.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -240,7 +278,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Assets/Models/Textures/BedBig.png;Assets/Models/Textures/BedBig
+/build:Assets/Models/Textures/BedBig1.png
 
 #begin Assets/Models/Textures/BedSmall1.png
 /importer:TextureImporter
@@ -266,7 +304,7 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Models/Textures/BigShelf.png
 
-#begin Assets/Models/Textures/Fridge.png
+#begin Assets/Models/Textures/Floor.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -276,7 +314,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Assets/Models/Textures/Fridge.png
+/build:Assets/Models/Textures/Floor.png
 
 #begin Assets/Models/Textures/LongTableKitchen.png
 /importer:TextureImporter
@@ -301,30 +339,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Models/Textures/Microwave.png
-
-#begin Assets/Models/Textures/Microwave1.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Assets/Models/Textures/Microwave1.png
-
-#begin Assets/Models/Textures/Microwave2.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Assets/Models/Textures/Microwave2.png
 
 #begin Assets/Models/Textures/Roach_Texture.png
 /importer:TextureImporter
@@ -362,18 +376,6 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Models/Textures/SmallShelf.png
 
-#begin Assets/Models/Textures/SmallShelfHandle.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Assets/Models/Textures/SmallShelfHandle.png
-
 #begin Assets/Models/Textures/Spatula Texture.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -397,6 +399,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Models/Textures/Toilet.png
+
+#begin Assets/Models/Textures/TV_Texture.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Models/Textures/TV_Texture.png
 
 #begin Assets/Models/Textures/Wallpaper.png
 /importer:TextureImporter
@@ -428,6 +442,25 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:Assets/Models/Toilet2.fbx
+
+#begin Assets/Models/TV.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Assets/Models/TV.fbx
 
 #begin Assets/Sounds/15419__pagancow__dorm-door-opening.wav
 /importer:WavImporter
