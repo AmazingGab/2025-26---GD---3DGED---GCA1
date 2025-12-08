@@ -480,7 +480,7 @@ namespace GDGame
             gameObject.AddComponent(meshFilter);
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.Material = _matBasicUnlitGround;
-            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("ground_grass");
+            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("grass_texture");
 
             // Add a box collider matching the ground size
             var collider = gameObject.AddComponent<BoxCollider>();
