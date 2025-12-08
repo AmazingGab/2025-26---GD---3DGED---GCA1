@@ -49,46 +49,46 @@
       "contentPath": "assets/textures/skybox/sky"
     },
 
-    //{
-    //    "name": "bed",
-    //    "contentPath": "assets/models/texture/BedBig"
-    //},
-    //{
-    //    "name": "small_bed",
-    //    "contentPath": "assets/models/texture/BedSmall1"
-    //},
-    //{
-    //    "name": "shelf",
-    //    "contentPath": "assets/models/texture/BigShelf"
-    //},
-    //{
-    //    "name": "small_shelf",
-    //    "contentPath": "assets/models/texture/SmallShelf"
-    //},
-    //{
-    //    "name": "fridge",
-    //    "contentPath": "assets/models/texture/Fridge"
-    //},
-    //{
-    //    "name": "table",
-    //    "contentPath": "assets/models/texture/LongTableKitchen"
-    //},
+    {
+        "name": "bed",
+        "contentPath": "assets/models/texture/BedBig"
+    },
+    {
+        "name": "small_bed",
+        "contentPath": "assets/models/texture/BedSmall1"
+    },
+    {
+        "name": "shelf",
+        "contentPath": "assets/models/texture/BigShelf"
+    },
+    {
+        "name": "small_shelf",
+        "contentPath": "assets/models/texture/SmallShelf"
+    },
+    {
+        "name": "fridge",
+        "contentPath": "assets/models/texture/Fridge"
+    },
+    {
+        "name": "table",
+        "contentPath": "assets/models/texture/LongTableKitchen"
+    },
     {
       "name": "roach",
       "contentPath": "assets/models/textures/Roach_Texture"
     },
-    //{
-    //    "name": "sink",
-    //    "contentPath": "assets/models/texture/SinkTable"
-    //},
+    {
+        "name": "sink",
+        "contentPath": "assets/models/texture/SinkTable"
+    },
     {
       "name": "spatula",
       "contentPath": "assets/models/textures/Spatula Texture"
     },
-    //{
-    //    "name": "toilet",
-    //    "contentPath": "assets/models/texture/Toilet"
-    //},
+    {
+        "name": "toilet",
+        "contentPath": "assets/models/texture/Toilet"
+    },
     {
       "name": "wallpaper",
       "contentPath": "assets/models/textures/Wallpaper"
@@ -211,10 +211,10 @@
             "name": "sink",
             "contentPath": "assets/models/Sink"
         },
-        //{
-        //    "name": "small_bed",
-        //    "contentPath": "assets/models/Small_Bed"
-        //},
+        {
+            "name": "small_bed",
+            "contentPath": "assets/models/Small_Bed"
+        },
         {
             "name": "small_shelf",
             "contentPath": "assets/models/Small_Shelf"
