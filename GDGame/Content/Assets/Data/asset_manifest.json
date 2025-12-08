@@ -50,44 +50,44 @@
     },
 
     {
-        "name": "bed",
-        "contentPath": "assets/models/texture/BedBig"
+      "name": "BedBig",
+      "contentPath": "assets/models/texture/BedBig"
     },
     {
-        "name": "small_bed",
-        "contentPath": "assets/models/texture/BedSmall1"
+      "name": "small_bed",
+      "contentPath": "assets/models/texture/BedSmall1"
     },
     {
-        "name": "shelf",
-        "contentPath": "assets/models/texture/BigShelf"
+      "name": "shelf",
+      "contentPath": "assets/models/texture/BigShelf"
     },
     {
-        "name": "small_shelf",
-        "contentPath": "assets/models/texture/SmallShelf"
+      "name": "small_shelf",
+      "contentPath": "assets/models/texture/SmallShelf"
     },
     {
-        "name": "fridge",
-        "contentPath": "assets/models/texture/Fridge"
+      "name": "fridge",
+      "contentPath": "assets/models/texture/Fridge"
     },
     {
-        "name": "table",
-        "contentPath": "assets/models/texture/LongTableKitchen"
+      "name": "table",
+      "contentPath": "assets/models/texture/LongTableKitchen"
     },
     {
       "name": "roach",
       "contentPath": "assets/models/textures/Roach_Texture"
     },
     {
-        "name": "sink",
-        "contentPath": "assets/models/texture/SinkTable"
+      "name": "sink",
+      "contentPath": "assets/models/texture/SinkTable"
     },
     {
       "name": "spatula",
       "contentPath": "assets/models/textures/Spatula Texture"
     },
     {
-        "name": "toilet",
-        "contentPath": "assets/models/texture/Toilet"
+      "name": "toilet",
+      "contentPath": "assets/models/texture/Toilet"
     },
     {
       "name": "wallpaper",
@@ -176,6 +176,11 @@
     {
       "name": "win_screen_logo",
       "contentPath": "assets/textures/ui/interface/win_screen_logo"
+    },
+
+    {
+      "name": "lose_screen_logo",
+      "contentPath": "assets/textures/ui/interface/lose_screen_logo"
     },
     {
       "name": "play_again_button",

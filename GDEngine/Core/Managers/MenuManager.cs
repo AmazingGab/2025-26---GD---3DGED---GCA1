@@ -31,6 +31,8 @@ namespace GDEngine.Core.Managers
         #region Fields
         private Scene? _menuScene;
 
+        private bool _isWin = true;
+
         public event Action? BackToMenuRequested;
 
         private UIMenuPanel? _gameOverPanel;
@@ -75,6 +77,7 @@ namespace GDEngine.Core.Managers
         private Texture2D? _mainPanelBackground;
         private Texture2D? _audioPanelBackground;
         private Texture2D? _controlsPanelBackground;
+        private Texture2D? _loseLogoTexture;
         #endregion
 
         #region Properties
@@ -218,16 +221,10 @@ namespace GDEngine.Core.Managers
 
             SetActivePanel(_controlsMenuPanel, _mainMenuPanel, _audioMenuPanel);
         }
-        public void ShowGameOver()
+        public void ShowGameOver(bool won)
         {
-            if (_gameOverPanel == null) return;
-
-            _mainMenuPanel!.IsVisible = false;
-            _audioMenuPanel!.IsVisible = false;
-            _controlsMenuPanel!.IsVisible = false;
-
-            _gameOverPanel.IsVisible = true;
-            _menuVisible = true;
+            _isWin = won;
+            ShowGameOverScreen();
         }
         public void ShowGameOverScreen()
         {
@@ -501,21 +498,39 @@ namespace GDEngine.Core.Managers
                 bg.Size = viewportSize;
                 bg.LayerDepth = UILayer.MenuBack;
             }
-           
 
-            if (_winLogoTexture != null)
+
+            Texture2D logoToUse = null;
+
+            if (_isWin)
             {
-                var logoGO = new GameObject("WinLogo");
+                if (_winLogoTexture != null)
+                {
+                    logoToUse = _winLogoTexture;
+                }
+            }
+            else
+            {
+                if (_loseLogoTexture != null)
+                {
+                    logoToUse = _loseLogoTexture;
+                }
+            }
+
+            if (logoToUse != null)
+            {
+                var logoGO = new GameObject("GameOverLogo");
                 scene.Add(logoGO);
                 logoGO.Transform.SetParent(_gameOverPanel.Transform);
 
                 var logoUI = logoGO.AddComponent<UITexture>();
-                logoUI.Texture = _winLogoTexture;
+                logoUI.Texture = logoToUse;
+
                 float scale = 0.55f;
 
                 logoUI.Size = new Vector2(
-                    _winLogoTexture.Width * scale,
-                    _winLogoTexture.Height * scale);
+                    logoToUse.Width * scale,
+                    logoToUse.Height * scale);
 
                 float centerX = backBufferWidth * 0.26f;
                 float logoY = backBufferHeight * 0.15f;
@@ -638,7 +653,10 @@ namespace GDEngine.Core.Managers
 
             _menuVisible = true;
         }
-
+        public void SetLoseLogo(Texture2D tex)
+        {
+            _loseLogoTexture = tex;
+        }
 
 
         private void OnPlayClicked()
