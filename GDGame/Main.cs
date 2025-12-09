@@ -1230,7 +1230,7 @@ namespace GDGame
                 return;
             uiReticleGO = new GameObject("HUD");
 
-            var reticleAtlas = _textureDictionary.Get("Crosshair_21");
+            var reticleAtlas = _textureDictionary.Get("Crosshair");
             var uiFont = _fontDictionary.Get("mouse_reticle_font");
 
             // Reticle (cursor): always on top
