@@ -208,6 +208,26 @@ namespace GDEngine.Core.Rendering.UI
             return button;
         }
 
+        public GameObject AddImage(Texture2D imageTexture, Vector2 size, Vector2 pos)
+        {
+            var scene = GameObject?.Scene;
+            if (scene == null)
+                throw new InvalidOperationException("UIMenuPanel must be attached to a GameObject that is added to a Scene.");
+           
+            GameObject go = new GameObject("Image");
+            scene.Add(go);
+            go.Transform.SetParent(Transform);
+            // Image graphic
+            UITexture graphic = go.AddComponent<UITexture>();
+            graphic.Texture = imageTexture;
+            graphic.Position = pos;
+            graphic.Size = size;
+            graphic.LayerDepth = UILayer.Menu;
+            TrackCreatedControl(go);
+
+            return go;
+        }
+
         /// <summary>
         /// Creates a unity-style horizontal slider (track + handle + label)
         /// as a child of this panel.

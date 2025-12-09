@@ -165,6 +165,10 @@
         {
             "name": "play_again_button",
             "contentPath": "assets/textures/ui/interface/play_again_button"
+        },
+        {
+            "name": "controls",
+            "contentPath": "assets/textures/ui/interface/controls"
         }
     ],
     "models": [

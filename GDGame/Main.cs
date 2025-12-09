@@ -34,6 +34,7 @@ using Color = Microsoft.Xna.Framework.Color;
 using System.Security.AccessControl;
 //using GDEngine.Core.Components.Controllers.Physics;
 using GDGame.Demos.Components;
+using System.Diagnostics;
 
 namespace GDGame
 {
@@ -157,7 +158,7 @@ namespace GDGame
             for (int i = 0; i < 40; i++)
             {
                 Random rng = new Random();
-                DemoCollidableModel(new Vector3(rng.Next(-20, 170), 1, rng.Next(-60, 50)), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true, "roach");
+                DemoCollidableModel(new Vector3(rng.Next(-20, 170), 1, rng.Next(-60, 50)), new Vector3(-90, rng.Next(-360, 360), 0), new Vector3(1.5f, 0.5f, 0.2f), true, "roach");
             }
 
             DemoCollidableSpatula(new Vector3(8, 0.5f, 12), new Vector3(0, 0, 180), new Vector3(0.3f, 0.3f, .7f));
@@ -189,9 +190,10 @@ namespace GDGame
             SetWinConditions();
 
             // Set pause and show menu
-            SetPauseShowMenu();
+            //SetPauseShowMenu();
             var events = EngineContext.Instance.Events;
             events.Publish(new PlayMusicEvent("background_calm"));
+            Time.TimeScale = 0;
             base.Initialize();
         }
 
@@ -240,11 +242,13 @@ namespace GDGame
             Texture2D mainBg = _textureDictionary.Get("main_menu_background");
             Texture2D audioBg = _textureDictionary.Get("main_menu_background");
             Texture2D controlsBg = _textureDictionary.Get("main_menu_background");
+            Texture2D controlsLayout = _textureDictionary.Get("controls");
 
             Texture2D winLogo = _textureDictionary.Get("win_screen_logo");
             Texture2D loseLogo = _textureDictionary.Get("lose_screen_logo");
             _menuManager.SetLoseLogo(loseLogo);
             _menuManager.SetWinLogo(winLogo);
+
             _menuManager.Initialize(
                 _sceneManager.ActiveScene,
                 buttonTex,
@@ -254,7 +258,8 @@ namespace GDGame
                 uiFont,
                 mainBg,
                 audioBg,
-                controlsBg
+                controlsBg,
+                controlsLayout
             );
             InitializeMenuLogo();
 
@@ -272,17 +277,24 @@ namespace GDGame
 
             _menuManager.PlayRequested += () =>
             {
+                //print details
+                Debug.WriteLine("Play clicked!");
                 InitializeTaskUI();
                 InitializeUIReticleRenderer();
-                _sceneManager.Paused = true;
+                _sceneManager.Paused = false;
                 _menuManager.HideMenus();
 
                 SetMenuLogoVisible(false);
                 SetTaskBarVisible(true);
-                SetReticleoVisible(false);
-
-                IsMouseVisible = true;
-                ShowDialogue("YOU'RE KID WHO WAS LEFT HOME \nALONE AS YOUR PARENTS WENT \nON HOLIDAYS.");
+                if (dialogueStage == 1)
+                {
+                    ShowDialogue("YOU'RE KID WHO WAS LEFT HOME \nALONE AS YOUR PARENTS WENT \nON HOLIDAYS.");
+                }
+                else
+                {
+                    Time.TogglePause();
+                    _sceneManager.Paused = false;
+                }
             };
 
             _menuManager.ExitRequested += () =>
@@ -407,7 +419,7 @@ namespace GDGame
             bodyText.Anchor = TextAnchor.TopLeft;
             bodyText.PositionProvider = () => new Vector2(43f, 82f);
             bodyText.FallbackColor = new Color(72, 59, 32);
-            bodyText.LayerDepth = UILayer.Menu;
+            bodyText.LayerDepth = UILayer.MenuBack;
             bodyText.DropShadow = false;
             bodyText.TextProvider = () => "SQUASH THEM ALL!";
             _sceneManager.ActiveScene.Add(_taskBarGO);
@@ -477,10 +489,11 @@ namespace GDGame
         {
             if (_dialogueText != null)
             {
+                Debug.WriteLine("dialogue cuz yeah");
+                _isDialogueOpen = true;
                 _dialogueText.TextProvider = () => message;
                 IsMouseVisible = true;
                 SetDialogueVisible(true);
-                _isDialogueOpen = true;
                 _sceneManager.Paused = true;
                 Time.TimeScale = 0;
                 SetReticleoVisible(false);
@@ -504,15 +517,15 @@ namespace GDGame
             }
             else if (dialogueStage == 3)
             {
-                ShowDialogue("EW... THERE IS A ROACH! I NEED \nGET A SPATULA BY PRESSING 'E' \nAND SQUASH ROACH WITH IT!");
+                ShowDialogue("EW... THERE IS A ROACH! I NEED \nGET A SPATULA AND SQUASH \nROACHES WITH IT!");
                 dialogueStage = 0;
                 return;
             }
-            _isDialogueOpen = false;
             _sceneManager.Paused = false;
             Time.TimeScale = 1;
             IsMouseVisible = false;
             SetReticleoVisible(true);
+            _isDialogueOpen = false;
         }
 
         private void InitializeUISystems()
@@ -651,7 +664,6 @@ namespace GDGame
             // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
             var cameraGO = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
             bool togglePressed = _newKBState2.IsKeyDown(Keys.E) && !_oldKBState2.IsKeyDown(Keys.E);
-            System.Diagnostics.Debug.WriteLine(togglePressed);
             if (togglePressed)
             {
                 //foreach (var roach in roaches)
@@ -876,7 +888,7 @@ namespace GDGame
         private void InitializeSystems()
         {
             InitializePhysicsSystem();
-            InitializePhysicsDebugSystem(true);
+            InitializePhysicsDebugSystem(false);
             InitializeEventSystem();  //propagate events
             InitializeInputSystem();  //input
             InitializeCameraAndRenderSystems(); //update cameras, draw renderable game objects, draw ui and menu
@@ -1380,14 +1392,25 @@ namespace GDGame
                 {
                     _lastMenuVisible = menuVisible;
 
-                    //  IsMouseVisible = menuVisible;
+                    if (!_isDialogueOpen)
+                    {
+                        IsMouseVisible = menuVisible;
+                        SetReticleoVisible(!menuVisible);
+                    }
+                    else
+                    {
+                        SetReticleoVisible(false);
+                    }
+
 
                     SetTaskBarVisible(!menuVisible);
-                    SetReticleoVisible(!menuVisible);
+                    
                 }
             }
 
             #endregion Core
+
+            //Debug.WriteLine(Time.TimeScale);
 
             _newKBState = Keyboard.GetState();
             DemoStuff();
@@ -1520,8 +1543,6 @@ namespace GDGame
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
         {
-            System.Diagnostics.Debug.WriteLine($"Old state was {oldState} and new state is {newState}");
-
             if (newState == GameOutcomeState.Lost)
             {
                 System.Diagnostics.Debug.WriteLine("You lost!");
@@ -1630,7 +1651,8 @@ namespace GDGame
             camera.FieldOfView = MathHelper.ToRadians(80);
 
             var curveController = cameraGO.AddComponent<CurveController>();
-            curveController.PositionCurve = _animationPositionCurve;
+            curveController.PositionCurve = BuildCameraPositionCurve(CurveLoopType.Oscillate);
+            curveController.TargetCurve = BuildCameraTargetCurve(CurveLoopType.Constant);
             curveController.Duration = 10;
             _sceneManager.ActiveScene.Add(cameraGO);
 

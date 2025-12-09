@@ -59,6 +59,7 @@ namespace GDEngine.Core.Managers
         // Controls menu controls
         private UIButton? _controlsBackButton;
         private UITexture? _controlsLayoutTexture;
+        private GameObject? _controlsImage;
 
         // Assets
         private Texture2D? _buttonTexture;
@@ -143,7 +144,8 @@ namespace GDEngine.Core.Managers
          SpriteFont font,
          Texture2D mainPanelBackground,
          Texture2D audioPanelBackground,
-         Texture2D controlsPanelBackground)
+         Texture2D controlsPanelBackground,
+         Texture2D controlsLayout)
         {
             if (menuScene == null)
                 throw new ArgumentNullException(nameof(menuScene));
@@ -163,6 +165,8 @@ namespace GDEngine.Core.Managers
                 throw new ArgumentNullException(nameof(audioPanelBackground));
             if (controlsPanelBackground == null)
                 throw new ArgumentNullException(nameof(controlsPanelBackground));
+            if (controlsLayout == null)
+                throw new ArgumentNullException(nameof(controlsLayout));
 
             _menuScene = menuScene;
             _buttonTexture = buttonTexture;
@@ -174,6 +178,7 @@ namespace GDEngine.Core.Managers
             _mainPanelBackground = mainPanelBackground;
             _audioPanelBackground = audioPanelBackground;
             _controlsPanelBackground = controlsPanelBackground;
+            _controlsLayout = controlsLayout;
 
             _configured = true;
 
@@ -464,7 +469,14 @@ namespace GDEngine.Core.Managers
                 controlsBg.Position = Vector2.Zero;
                 controlsBg.Tint = Color.White;
                 controlsBg.LayerDepth = UILayer.MenuBack;
+
             }
+
+            _controlsImage = _controlsMenuPanel.AddImage(
+                _controlsLayout,
+                viewportSize / 2,
+                viewportSize / 4 + new Vector2(0, 200)
+                );
 
             _controlsBackButton = _controlsMenuPanel.AddButton(
                 "",
@@ -500,6 +512,7 @@ namespace GDEngine.Core.Managers
                 bg.Size = viewportSize;
                 bg.LayerDepth = UILayer.MenuBack;
             }
+
 
 
             Texture2D logoToUse = null;
@@ -771,7 +784,7 @@ namespace GDEngine.Core.Managers
             {
                 if (IsMenuVisible)
                 {
-                    Time.Resume();
+                    Time.TogglePause();
                     _sceneManager.Paused = false;
                     HideMenus();
                 }
