@@ -80,6 +80,10 @@ namespace GDGame
         private KeyboardState _oldKBState2;
         private float timeLeft;
         private bool roachKilled = false;
+
+        private GameObject _dialogueGO;
+        private UIText _dialogueText;
+        private bool _isDialogueOpen = false;
         #endregion
 
         #region Core Methods (Common to all games)     
@@ -288,9 +292,11 @@ namespace GDGame
                 InitializeUIReticleRenderer();
                 _sceneManager.Paused = false;
                 _menuManager.HideMenus();
-                IsMouseVisible = false;
+
                 SetMenuLogoVisible(false);
                 SetTaskBarVisible(true);
+
+                ShowDialogue("EW... There is a roach \n i need get spatula by \n pressing 'E' and kill it");
             };
 
             _menuManager.ExitRequested += () =>
@@ -429,7 +435,81 @@ namespace GDGame
         private void OnPlayAgainClicked() => PlayAgainRequested?.Invoke();
         private void OnBackToMenuFromGameOver() => BackToMenuRequested?.Invoke();
 
+        private void InitializeDialogueUI()
+        {
 
+            _dialogueGO = new GameObject("DialogueWindow");
+
+            var bgTex = _textureDictionary.Get("dialugue_ui");
+
+            var textureComp = _dialogueGO.AddComponent<UITexture>();
+            textureComp.Texture = bgTex;
+            textureComp.Size = new Vector2(bgTex.Width, bgTex.Height);
+
+            int screenW = _graphics.PreferredBackBufferWidth;
+            int screenH = _graphics.PreferredBackBufferHeight;
+
+            float xPos = (screenW - bgTex.Width) / 2;
+
+            float yPos = screenH - bgTex.Height - 50;
+
+            textureComp.Position = new Vector2(xPos, yPos);
+
+            textureComp.LayerDepth = 0.1f;
+
+            _dialogueText = _dialogueGO.AddComponent<UIText>();
+            _dialogueText.Font = _fontDictionary.Get("KidsBus");
+            _dialogueText.FallbackColor = new Color(72, 59, 32);
+
+            _dialogueText.PositionProvider = () => textureComp.Position + new Vector2(40, 25);
+            _dialogueText.LayerDepth = 0.05f;
+
+            var btn = _dialogueGO.AddComponent<UIButton>();
+            btn.TargetGraphic = textureComp;
+            btn.Size = textureComp.Size;
+            btn.Position = textureComp.Position; 
+
+            btn.Clicked += () =>
+            {
+                CloseDialogue();
+            };
+
+            _sceneManager.ActiveScene.Add(_dialogueGO);
+            SetDialogueVisible(false);
+        }
+
+        private void SetDialogueVisible(bool visible)
+        {
+            if (_dialogueGO == null) return;
+
+            foreach (var renderable in _dialogueGO.GetComponents<UIRenderer>())
+            {
+                renderable.Enabled = visible;
+            }
+
+            var btn = _dialogueGO.GetComponent<UIButton>();
+            if (btn != null) btn.Enabled = visible;
+        }
+        private void ShowDialogue(string message)
+        {
+            if (_dialogueText != null)
+            {
+                _dialogueText.TextProvider = () => message;
+
+                SetDialogueVisible(true);
+                _isDialogueOpen = true;
+
+                IsMouseVisible = true; 
+            }
+        }
+
+        private void CloseDialogue()
+        {
+            SetDialogueVisible(false);
+            _isDialogueOpen = false;
+
+            IsMouseVisible = false; 
+        }
         private void InitializeUISystems()
         {
             var uiEventSystem = new UIEventSystem();
@@ -542,6 +622,7 @@ namespace GDGame
                     {
                         r.Enabled = true;
                     }
+                    ShowDialogue("There are so many of them, \nI NEED TO SQUASH THEM ALL!");
                 }    
                 //foreach (var roach in roaches)
                 //{
@@ -1139,7 +1220,7 @@ namespace GDGame
         private void InitializeUI()
         {
             InitializeScoreBoard();
-
+            InitializeDialogueUI();
         }
 
         private void InitializeScoreBoard()

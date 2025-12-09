@@ -137,10 +137,10 @@
             "name": "controlsmenu_monkey",
             "contentPath": "assets/textures/ui/backgrounds/controlsmenu_monkey"
         },
-        {
-            "name": "dialogue",
-            "contentPath": "assets/textures/ui/chat"
-        },
+      {
+        "name": "dialugue_ui",
+        "contentPath": "assets/textures/ui/interface/dialugue_ui"
+      },
         {
             "name": "task_bar",
             "contentPath": "assets/textures/ui/interface/task_bar"
