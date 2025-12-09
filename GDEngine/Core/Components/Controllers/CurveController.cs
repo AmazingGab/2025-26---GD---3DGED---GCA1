@@ -26,7 +26,6 @@ namespace GDEngine.Core.Components
         private float _time;
         private float _duration = 5f;
         private float _playbackSpeed = 1f;
-        private bool _loop = true;
         #endregion
 
         #region Properties
@@ -73,14 +72,6 @@ namespace GDEngine.Core.Components
             set => _playbackSpeed = value;
         }
 
-        /// <summary>
-        /// If true, the controller loops when it reaches the end of the curves.
-        /// </summary>
-        public bool Loop
-        {
-            get => _loop;
-            set => _loop = value;
-        }
         #endregion
 
         #region Constructors
@@ -88,30 +79,27 @@ namespace GDEngine.Core.Components
         #endregion
 
         #region Methods
-        private float ComputeNormalisedTime(float deltaTime)
+        private double _timeSeconds;
+
+        /// <summary>
+        /// Compute the curve-time value we pass into AnimationCurve.
+        /// Duration is the time (in seconds) for one 0→1 sweep.
+        /// </summary>
+        private double ComputeCurveTime(float deltaTime)
         {
-            if (_duration <= 0f)
-                return 0f;
+            _timeSeconds += deltaTime * PlaybackSpeed;
 
-            _time += deltaTime * _playbackSpeed;
+            if (Duration <= 0f)
+                return _timeSeconds; // use controller time directly
 
-            float t = _time / _duration;
+            // Map controller seconds onto curve domain (0→1 in Duration seconds)
+            double curveTime = _timeSeconds / Duration;
 
-            if (_loop)
-            {
-                // Wrap into [0,1]
-                t = t - (float)Math.Floor(t);
-            }
-            else
-            {
-                if (t < 0f)
-                    t = 0f;
-                if (t > 1f)
-                    t = 1f;
-            }
-
-            return t;
+            // If Loop == true we do NOT wrap; we let AnimationCurve’s CurveLoopType
+            // decide what to do with times outside [start,end].
+            return curveTime;
         }
+
 
         private void OrientTowards(in Vector3 position, in Vector3 target)
         {
@@ -153,25 +141,27 @@ namespace GDEngine.Core.Components
             if (_transform == null)
                 return;
 
-            if (_positionCurve == null && _targetCurve == null)
-                return;
+            if (_positionCurve == null || _targetCurve == null)
+                throw new NullReferenceException("Ensure you set position and look target curves");
 
-            float t = ComputeNormalisedTime(deltaTime);
+            double curveTime = ComputeCurveTime(deltaTime);
 
-            // 1. Evaluate drawn gameobject position
+            // Set position
             Vector3 position = _transform.Position;
-            if (_positionCurve != null)
-                position = _positionCurve.Evaluate(t);
+            if (_positionCurve != null && !_positionCurve.IsEmpty)
+                position = _positionCurve.Evaluate(curveTime);
 
             _transform.TranslateTo(position);
 
-            // 2. Evaluate look target (if we have a target curve)
-            if (_targetCurve != null)
+            // Set target 
+            if (_targetCurve != null && !_targetCurve.IsEmpty)
             {
-                Vector3 target = _targetCurve.Evaluate(t);
+                Vector3 target = _targetCurve.Evaluate(curveTime);
                 OrientTowards(position, target);
             }
         }
+
+
         #endregion
 
         #region Housekeeping Methods

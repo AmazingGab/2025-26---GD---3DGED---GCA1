@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace GDEngine.Core.Components
+namespace GDEngine.Core.Components.Controllers.Physics
 {
     /// <summary>
     /// Simple drive controller:

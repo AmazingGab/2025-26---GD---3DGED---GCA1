@@ -33,9 +33,9 @@ namespace GDGame.Demos.Controllers
                 throw new ArgumentNullException(nameof(Curve));
 
             _totalElapsedTimeSecs += Time.UnscaledDeltaTimeSecs;
-            
-           var delta = _curve.Evaluate(_totalElapsedTimeSecs, 2);
-           Transform?.TranslateTo(_originalLocalPosition + delta * _direction);
+
+            var delta = _curve.Evaluate(_totalElapsedTimeSecs, 2);
+            Transform?.TranslateTo(_originalLocalPosition + delta * _direction);
         }
 
         protected override void Awake()

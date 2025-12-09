@@ -34,7 +34,7 @@ namespace GDGame
         public static readonly string PERF_STATS_FONT_KEY = "perf_stats_font";
         public static readonly string MOUSE_RETICLE_FONT_KEY = "mouse_reticle_font";
 
-        public static readonly string RETICLE_ATLAS_KEY = "Crosshair_21";
+        public static readonly string RETICLE_ATLAS_KEY = "Crosshair";
 
         public static readonly string SKYBOX_BACK_TEXTURE_KEY = "skybox_back";
         public static readonly string SKYBOX_LEFT_TEXTURE_KEY = "skybox_left";
@@ -105,7 +105,7 @@ namespace GDGame
 
         #region Other
 
-        public static readonly string GAME_WINDOW_TITLE = "My Amazing Game";
+        public static readonly string GAME_WINDOW_TITLE = "SQUASH THEM ALL!";
         public static readonly string GAMEPAD_P1_NAME = "Gamepad P1";
 
         public static readonly string ORCHESTRATION_DEMO_CRATE_BOUNCE =
@@ -117,7 +117,7 @@ namespace GDGame
 
 
         #region Level
-        public static readonly string LEVEL_1_NAME = "outdoors - level 1"; 
+        public static readonly string LEVEL_1_NAME = "Indoors Map Prototype"; 
         #endregion
 
     }

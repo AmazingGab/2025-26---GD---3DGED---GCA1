@@ -2,6 +2,16 @@
 
 namespace GDEngine.Core.Timing
 {
+
+    /// <summary>
+    /// Interpolation modes supported by <see cref="AnimationCurve"/>.
+    /// </summary>
+    public enum AnimationCurveInterpolation
+    {
+        Smooth,
+        Linear
+    }
+
     /// <summary>
     /// Scalar animation curve (SECONDS). Wraps MonoGame <see cref="Curve"/> with handy helpers.
     /// </summary>
@@ -23,9 +33,17 @@ namespace GDEngine.Core.Timing
         private double _end;
         private float _minVal;
         private float _maxVal;
+
+        private AnimationCurveInterpolation _interpolationMode = AnimationCurveInterpolation.Linear;
         #endregion
 
         #region Properties
+        public AnimationCurveInterpolation InterpolationMode
+        {
+            get => _interpolationMode;
+            set => _interpolationMode = value;
+        }
+
         public CurveLoopType LoopType => _loop;
         public int KeyCount => _curve.Keys.Count;
         public bool IsEmpty => _curve.Keys.Count == 0;
@@ -58,6 +76,89 @@ namespace GDEngine.Core.Timing
         #endregion
 
         #region Methods
+        private double GetLoopedTime(double timeSeconds)
+        {
+            RefreshRangesIfNeeded();
+
+            if (KeyCount <= 1)
+                return _start;
+
+            double start = _start;
+            double end = _end;
+            double duration = end - start;
+
+            if (duration <= 0.0)
+                return start;
+
+            switch (_loop)
+            {
+                case CurveLoopType.Cycle:
+                case CurveLoopType.CycleOffset:
+                    {
+                        double t = (timeSeconds - start) % duration;
+                        if (t < 0.0)
+                            t += duration;
+                        return start + t;
+                    }
+
+                case CurveLoopType.Oscillate:
+                    {
+                        double doubleDuration = duration * 2.0;
+                        double t = (timeSeconds - start) % doubleDuration;
+                        if (t < 0.0)
+                            t += doubleDuration;
+
+                        if (t <= duration)
+                            return start + t;
+
+                        return end - (t - duration);
+                    }
+
+                default:
+                    {
+                        if (timeSeconds <= start)
+                            return start;
+                        if (timeSeconds >= end)
+                            return end;
+                        return timeSeconds;
+                    }
+            }
+        }
+
+        private float EvaluateLinear(double timeSeconds)
+        {
+            var keys = Keys;
+            int keyCount = keys.Count;
+
+            if (keyCount == 0)
+                return 0f;
+            if (keyCount == 1)
+                return keys[0].Value;
+
+            double t = GetLoopedTime(timeSeconds);
+
+            if (t <= keys[0].Position)
+                return keys[0].Value;
+            if (t >= keys[keyCount - 1].Position)
+                return keys[keyCount - 1].Value;
+
+            int upper = 1;
+            while (upper < keyCount && t > keys[upper].Position)
+                upper++;
+
+            int lower = upper - 1;
+
+            var k0 = keys[lower];
+            var k1 = keys[upper];
+
+            double dt = k1.Position - k0.Position;
+            if (dt <= 0.0)
+                return k0.Value;
+
+            float segmentT = (float)((t - k0.Position) / dt);
+            return MathHelper.Lerp(k0.Value, k1.Value, segmentT);
+        }
+
         /// <summary>
         /// Add a key at <paramref name="timeSeconds"/>. Overwrites value if a key already exists at that time.
         /// </summary>
@@ -124,11 +225,23 @@ namespace GDEngine.Core.Timing
         /// </summary>
         public float Evaluate(double timeSeconds, int decimalPrecision = -1)
         {
-            if (IsEmpty) return 0f;
-            EnsureTangents();
+            if (IsEmpty)
+                return 0f;
 
-            float v = _curve.Evaluate((float)timeSeconds);
-            if (decimalPrecision < 0) return v;
+            float v;
+
+            if (_interpolationMode == AnimationCurveInterpolation.Smooth)
+            {
+                EnsureTangents();
+                v = _curve.Evaluate((float)timeSeconds);
+            }
+            else
+            {
+                v = EvaluateLinear(timeSeconds);
+            }
+
+            if (decimalPrecision < 0)
+                return v;
 
             float dp = MathF.Pow(10f, decimalPrecision);
             return MathF.Round(v * dp) / dp;
@@ -139,11 +252,23 @@ namespace GDEngine.Core.Timing
         /// </summary>
         public float Evaluate(float timeSeconds, int decimalPrecision = -1)
         {
-            if (IsEmpty) return 0f;
-            EnsureTangents();
+            if (IsEmpty)
+                return 0f;
 
-            float v = _curve.Evaluate(timeSeconds);
-            if (decimalPrecision < 0) return v;
+            float v;
+
+            if (_interpolationMode == AnimationCurveInterpolation.Smooth)
+            {
+                EnsureTangents();
+                v = _curve.Evaluate(timeSeconds);
+            }
+            else
+            {
+                v = EvaluateLinear(timeSeconds);
+            }
+
+            if (decimalPrecision < 0)
+                return v;
 
             float dp = MathF.Pow(10f, decimalPrecision);
             return MathF.Round(v * dp) / dp;
@@ -374,6 +499,16 @@ namespace GDEngine.Core.Timing
         #endregion
 
         #region Properties
+        public AnimationCurveInterpolation InterpolationMode
+        {
+            get => _x.InterpolationMode;
+            set
+            {
+                _x.InterpolationMode = value;
+                _y.InterpolationMode = value;
+            }
+        }
+
         public CurveLoopType LoopType => _x.LoopType;
         public int KeyCount => Math.Max(_x.KeyCount, _y.KeyCount);
         public bool IsEmpty => _x.IsEmpty && _y.IsEmpty;
@@ -500,6 +635,17 @@ namespace GDEngine.Core.Timing
 
         public double EndSeconds => Math.Max(_x.EndSeconds, Math.Max(_y.EndSeconds, _z.EndSeconds));
         public double DurationSeconds => IsEmpty ? 0.0 : EndSeconds - StartSeconds;
+
+        public AnimationCurveInterpolation InterpolationMode
+        {
+            get => _x.InterpolationMode;
+            set
+            {
+                _x.InterpolationMode = value;
+                _y.InterpolationMode = value;
+                _z.InterpolationMode = value;
+            }
+        }
         #endregion
 
         #region Constructors

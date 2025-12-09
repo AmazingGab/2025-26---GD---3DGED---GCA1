@@ -942,9 +942,20 @@ namespace GDEngine.Core.Systems
         // Sphere resolution
         private const int SphereSegments = 16;
         private const int SphereRings = 8;
+        private bool _useTransformScaleForDebug = false;
         #endregion
 
         #region Properties
+        /// <summary>
+        /// When true, multiplies collider dimensions by Transform.Scale when drawing.
+        /// This is purely visual and does NOT change physics.
+        /// </summary>
+        public bool UseTransformScaleForDebug
+        {
+            get => _useTransformScaleForDebug;
+            set => _useTransformScaleForDebug = value;
+        }
+
         /// <summary>
         /// Color for static bodies (default: Green).
         /// </summary>
@@ -1090,9 +1101,15 @@ namespace GDEngine.Core.Systems
 
             // Build world matrix: Scale by collider size, then rotate and translate
             // NOTE: box.Size is already in world units, so we don't multiply by transform scale
-            Matrix world = Matrix.CreateScale(box.Size) *
-                          Matrix.CreateFromQuaternion(rotation) *
-                          Matrix.CreateTranslation(worldPosition);
+            //Matrix world = Matrix.CreateScale(box.Size) *
+            //              Matrix.CreateFromQuaternion(rotation) *
+            //              Matrix.CreateTranslation(worldPosition);
+
+            var scale = _useTransformScaleForDebug ? transform.LocalScale : Vector3.One;
+            Matrix world = Matrix.CreateScale(box.Size * scale) *
+                           Matrix.CreateFromQuaternion(rotation) *
+                           Matrix.CreateTranslation(worldPosition);
+
 
             _effect.World = world;
             _effect.DiffuseColor = color.ToVector3();

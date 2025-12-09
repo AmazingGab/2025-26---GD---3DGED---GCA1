@@ -31,12 +31,16 @@ using System.Collections.Generic;
 using System.IO;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 using Color = Microsoft.Xna.Framework.Color;
+using System.Security.AccessControl;
+using GDEngine.Core.Components.Controllers.Physics;
+using GDGame.Demos.Components;
 
 namespace GDGame
 {
     public class Main : Game
     {
-        #region Core Fields (Common to all games)     
+        #region Core Fields (Common to all games)
+
         private GraphicsDeviceManager _graphics;
         private ContentDictionary<Texture2D> _textureDictionary;
         private ContentDictionary<Model> _modelDictionary;
@@ -47,10 +51,13 @@ namespace GDGame
         private Material _matBasicUnlit, _matBasicLit, _matAlphaCutout, _matBasicUnlitGround;
 
         public event Action? PlayAgainRequested;
+
         public event Action? BackToMenuRequested;
-        #endregion
+
+        #endregion Core Fields (Common to all games)
 
         #region Demo Fields (remove in the game)
+
         private AnimationCurve3D _animationPositionCurve, _animationRotationCurve;
         private AnimationCurve _animationCurve;
         private KeyboardState _newKBState, _oldKBState;
@@ -71,6 +78,7 @@ namespace GDGame
 
         // LayerMask used to filter which collisions we care about in debug
         private LayerMask _collisionDebugMask = LayerMask.All;
+
         private UIMenuPanel _mainMenuPanel, _audioMenuPanel;
         private SceneManager _sceneManager;
         private float _currentHealth = 100;
@@ -84,9 +92,12 @@ namespace GDGame
         private GameObject _dialogueGO;
         private UIText _dialogueText;
         private bool _isDialogueOpen = false;
-        #endregion
+        private int dialogueStage = 1;
 
-        #region Core Methods (Common to all games)     
+        #endregion Demo Fields (remove in the game)
+
+        #region Core Methods (Common to all games)
+
         public Main()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -97,7 +108,8 @@ namespace GDGame
         protected override void Initialize()
         {
             #region Core
-            Window.Title = "My Amazing Game";
+
+            Window.Title = AppData.GAME_WINDOW_TITLE;
             InitializeGraphics(ScreenResolution.R_WXGA_16_10_1280x800);
             InitializeMouse();
             InitializeContext();
@@ -122,27 +134,24 @@ namespace GDGame
             InitializeSkyBox(scale);
             InitializeCollidableGround(scale);
             //InitializePlayer();
-            #endregion
+
+            #endregion Core
 
             #region Demos
 
             #region Animation curves
+
             // Camera-demos
             InitializeAnimationCurves();
-            #endregion
+
+            #endregion Animation curves
 
             #region Collidables
+
             // Demo event listeners on collision
             InitializeCollisionEventListener();
 
-            // Collidable game object demos
-            //DemoCollidablePrimitive(new Vector3(0, 20, 5.1f), Vector3.One * 6, new Vector3(15, 45, 45));
-            //DemoCollidablePrimitive(new Vector3(0, 10, 5.2f), Vector3.One * 1, new Vector3(45, 0, 0));
-            //DemoCollidablePrimitive(new Vector3(0, 5, 5.3f), Vector3.One * 1, new Vector3(0, 0, 45));
-            //DemoCollidableModel(new Vector3(0, 50, 10), Vector3.Zero, new Vector3(2, 1.25f, 2));
-            //DemoCollidableModel(new Vector3(0, 40, 11), Vector3.Zero, new Vector3(2, 1.25f, 2));
-            //DemoCollidableModel(new Vector3(0, 25, 12), Vector3.Zero, new Vector3(2, 1.25f, 2));
-            #endregion
+            #endregion Collidables
 
             DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false, "mainRoach");
             for (int i = 0; i < 40; i++)
@@ -154,19 +163,18 @@ namespace GDGame
             DemoCollidableSpatula(new Vector3(8, 0.5f, 12), new Vector3(0, 0, 180), new Vector3(0.3f, 0.3f, .7f));
             DemoCameraParent(new Vector3(0, 0, 0), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
 
-
             DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
             DemoLoadFromJSON();
 
-           
-            #endregion
+            #endregion Demos
 
             #region Loading GameObjects from JSON
-            DemoLoadFromJSON();
-            #endregion
 
-        
-            #endregion
+            DemoLoadFromJSON();
+
+            #endregion Loading GameObjects from JSON
+
+            #endregion Core Methods (Common to all games)
 
             // Mouse reticle
             InitializeUI();
@@ -262,7 +270,6 @@ namespace GDGame
                 _textureDictionary.Get("play_again_button"),
                 _textureDictionary.Get("back_to_menu_button"));
 
-
             _menuManager.PlayRequested += () =>
             {
                 InitializeTaskUI();
@@ -275,7 +282,7 @@ namespace GDGame
                 SetReticleoVisible(false);
 
                 IsMouseVisible = true;
-                ShowDialogue("EW... THERE IS A ROACH! I NEED\nA SPATULA BY PRESSING 'E' AND\nTHEN SQUASH IT!");
+                ShowDialogue("YOU'RE KID WHO WAS LEFT HOME \nALONE AS YOUR PARENTS WENT \nON HOLIDAYS.");
             };
 
             _menuManager.ExitRequested += () =>
@@ -317,13 +324,10 @@ namespace GDGame
             SetTaskBarVisible(false);
             SetMenuLogoVisible(true);
             SetReticleoVisible(false);
-
-
         }
 
         private GameObject CreateImageButton(string textureKey, Vector2 centerPosition, Action onClick)
         {
-
             var go = new GameObject($"Button_{textureKey}");
             _sceneManager.ActiveScene.Add(go);
 
@@ -348,15 +352,12 @@ namespace GDGame
             button.Position = topLeft;
             button.Size = graphic.Size;
 
-
             button.NormalColor = Color.White;
             button.HighlightedColor = Color.LightGray;
             button.PressedColor = Color.Gray;
             button.DisabledColor = Color.DarkGray;
 
-
             button.Clicked += onClick;
-
 
             button.PointerEntered += () => graphic.Tint = Color.White;
             button.PointerExited += () => graphic.Tint = Color.White;
@@ -411,12 +412,13 @@ namespace GDGame
             bodyText.TextProvider = () => "SQUASH THEM ALL!";
             _sceneManager.ActiveScene.Add(_taskBarGO);
         }
+
         private void OnPlayAgainClicked() => PlayAgainRequested?.Invoke();
+
         private void OnBackToMenuFromGameOver() => BackToMenuRequested?.Invoke();
 
         private void InitializeDialogueUI()
         {
-
             _dialogueGO = new GameObject("DialogueWindow");
 
             var bgTex = _textureDictionary.Get("dialugue_ui");
@@ -440,13 +442,13 @@ namespace GDGame
             _dialogueText.Font = _fontDictionary.Get("KidsBus");
             _dialogueText.FallbackColor = new Color(72, 59, 32);
 
-            _dialogueText.PositionProvider = () => textureComp.Position + new Vector2(40, 25);
+            _dialogueText.PositionProvider = () => textureComp.Position + new Vector2(20, 25);
             _dialogueText.LayerDepth = 0.05f;
 
             var btn = _dialogueGO.AddComponent<UIButton>();
             btn.TargetGraphic = textureComp;
             btn.Size = textureComp.Size;
-            btn.Position = textureComp.Position; 
+            btn.Position = textureComp.Position;
 
             btn.Clicked += () =>
             {
@@ -466,10 +468,11 @@ namespace GDGame
                 renderable.Enabled = visible;
                 IsMouseVisible = true;
             }
-            
+
             var btn = _dialogueGO.GetComponent<UIButton>();
             if (btn != null) btn.Enabled = visible;
         }
+
         private void ShowDialogue(string message)
         {
             if (_dialogueText != null)
@@ -487,17 +490,37 @@ namespace GDGame
         private void CloseDialogue()
         {
             SetDialogueVisible(false);
+            if (dialogueStage == 1)
+            {
+                ShowDialogue("YOU DIDN'T DO ANY OF THE \nCHORES AND LEFT THE HOUSE \nUNCLEAN.");
+                dialogueStage++;
+                return;
+            }
+            else if (dialogueStage == 2)
+            {
+                ShowDialogue("NOW THE HOUSE IS INFESTED WITH \nROACHES! YOU NEED TO SQUASH \nTHEM ALL! GAME STARTS AFTER \nTHIS!");
+                dialogueStage++;
+                return;
+            }
+            else if (dialogueStage == 3)
+            {
+                ShowDialogue("EW... THERE IS A ROACH! I NEED \nGET A SPATULA BY PRESSING 'E' \nAND SQUASH ROACH WITH IT!");
+                dialogueStage = 0;
+                return;
+            }
             _isDialogueOpen = false;
             _sceneManager.Paused = false;
             Time.TimeScale = 1;
             IsMouseVisible = false;
             SetReticleoVisible(true);
         }
+
         private void InitializeUISystems()
         {
             var uiEventSystem = new UIEventSystem();
             _sceneManager.ActiveScene.Add(uiEventSystem);
         }
+
         private void SetTaskBarVisible(bool visible)
         {
             if (_taskBarGO == null) return;
@@ -505,6 +528,7 @@ namespace GDGame
             foreach (var ui in _taskBarGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
         }
+
         private void SetMenuLogoVisible(bool visible)
         {
             if (_menuLogoGO == null) return;
@@ -512,6 +536,7 @@ namespace GDGame
             foreach (var ui in _menuLogoGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
         }
+
         private void SetReticleoVisible(bool visible)
         {
             if (uiReticleGO == null) return;
@@ -575,7 +600,6 @@ namespace GDGame
             meshRenderer.Overrides.MainTexture = texture;
             _sceneManager.ActiveScene.Add(go);
 
-
             // Add box collider (1x1x1 cube)
             var collider = go.AddComponent<BoxCollider>();
             collider.Size = scale; // Collider is FULL size
@@ -586,7 +610,6 @@ namespace GDGame
             var rigidBody = go.AddComponent<RigidBody>();
             rigidBody.BodyType = BodyType.Static;
             rigidBody.Mass = 1.0f;
-
         }
 
         private void KillRoach(GameObject roach)
@@ -606,10 +629,9 @@ namespace GDGame
                         r.Enabled = true;
                     }
                     ShowDialogue("THERE ARE SO MANY OF THEM! \nI NEED TO SQUASH THEM ALL!");
-                }    
+                }
                 //foreach (var roach in roaches)
                 //{
-
                 //var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
                 //if (roach != null && distToWaypoint < 10 && isRoach)
                 //{
@@ -617,12 +639,12 @@ namespace GDGame
                 events.Publish(new PlaySfxEvent("roach_death",
             1, false, null));
                 score += 100;
-                if(!roachKilled)
+                if (!roachKilled)
                     spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
                 roachKilled = true;
-
             }
         }
+
         private void AddSpatula(GameObject spatula)
         {
             var events = EngineContext.Instance.Events;
@@ -632,10 +654,8 @@ namespace GDGame
             System.Diagnostics.Debug.WriteLine(togglePressed);
             if (togglePressed)
             {
-
                 //foreach (var roach in roaches)
                 //{
-
                 //var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
                 //if (roach != null && distToWaypoint < 10 && isRoach)
                 //{
@@ -652,7 +672,6 @@ namespace GDGame
                 //break;
                 //}
                 //}
-
             }
         }
 
@@ -779,7 +798,8 @@ namespace GDGame
 
         private void InitializeEffects()
         {
-            #region Unlit Textured BasicEffect 
+            #region Unlit Textured BasicEffect
+
             var unlitBasicEffect = new BasicEffect(_graphics.GraphicsDevice)
             {
                 TextureEnabled = true,
@@ -796,9 +816,10 @@ namespace GDGame
             _matBasicUnlitGround.StateBlock = RenderStates.Opaque3D();      // depth on, cull CCW
             _matBasicUnlitGround.SamplerState = SamplerState.AnisotropicWrap;   // wrap texture based on UV values
 
-            #endregion
+            #endregion Unlit Textured BasicEffect
 
-            #region Lit Textured BasicEffect 
+            #region Lit Textured BasicEffect
+
             var litBasicEffect = new BasicEffect(_graphics.GraphicsDevice)
             {
                 TextureEnabled = true,
@@ -818,16 +839,17 @@ namespace GDGame
             _matBasicLit = new Material(litBasicEffect);
             _matBasicLit.StateBlock = RenderStates.Opaque3D();
 
-            #endregion
+            #endregion Lit Textured BasicEffect
 
             #region Alpha-test for foliage/billboards
+
             var alphaFx = new AlphaTestEffect(GraphicsDevice)
             {
                 VertexColorEnabled = false
             };
             _matAlphaCutout = new Material(alphaFx);
 
-            // Depth test/write on; no blending (cutout happens in the effect). 
+            // Depth test/write on; no blending (cutout happens in the effect).
             // Make it two-sided so the quad is visible from both sides.
             _matAlphaCutout.StateBlock = RenderStates.Cutout3D()
                 .WithRaster(new RasterizerState { CullMode = CullMode.None });
@@ -836,7 +858,7 @@ namespace GDGame
             // (Use LinearWrap if the foliage textures tile.)
             _matAlphaCutout.SamplerState = SamplerState.LinearClamp;
 
-            #endregion
+            #endregion Alpha-test for foliage/billboards
         }
 
         private void InitializeScene()
@@ -855,7 +877,7 @@ namespace GDGame
         {
             InitializePhysicsSystem();
             InitializePhysicsDebugSystem(true);
-            InitializeEventSystem();  //propagate events  
+            InitializeEventSystem();  //propagate events
             InitializeInputSystem();  //input
             InitializeCameraAndRenderSystems(); //update cameras, draw renderable game objects, draw ui and menu
             InitializeAudioSystem();
@@ -928,7 +950,6 @@ namespace GDGame
 
                 _sceneManager.ActiveScene.Add(debugGO);
             }
-
         }
 
         private void InitializeAudioSystem()
@@ -951,7 +972,6 @@ namespace GDGame
                 physicsDebugRenderer.DynamicColor = Color.Yellow;    // Physics-driven objects
                 physicsDebugRenderer.TriggerColor = Color.Red;       // Trigger volumes
             }
-
         }
 
         private void InitializePhysicsSystem()
@@ -991,7 +1011,7 @@ namespace GDGame
             bindings.EnableKeyRepeat = true;    // hold-to-repeat
             bindings.KeyRepeatMs = 300;         // repeat rate in ms
 
-            // Create the input system 
+            // Create the input system
             var inputSystem = new InputSystem();
 
             // Register all the devices, you don't have to, but its for the demo
@@ -1008,7 +1028,9 @@ namespace GDGame
 
             GameObject cameraGO = null;
             Camera camera = null;
+
             #region Static birds-eye camera
+
             cameraGO = new GameObject(AppData.CAMERA_NAME_STATIC_BIRDS_EYE);
             camera = cameraGO.AddComponent<Camera>();
             camera.FieldOfView = MathHelper.ToRadians(80);
@@ -1022,9 +1044,11 @@ namespace GDGame
 
             // _camera.FieldOfView
             //TODO - add camera
-            #endregion
+
+            #endregion Static birds-eye camera
 
             #region Third-person camera
+
             cameraGO = new GameObject(AppData.CAMERA_NAME_THIRD_PERSON);
             camera = cameraGO.AddComponent<Camera>();
 
@@ -1035,15 +1059,17 @@ namespace GDGame
             thirdPersonController.RotationDamping = 20;
             cameraGO.AddComponent(thirdPersonController);
             scene.Add(cameraGO);
-            #endregion
+
+            #endregion Third-person camera
 
             #region First-person camera
+
             var position = new Vector3(0, 5, 25);
 
             //camera GO
             cameraGO = new GameObject(AppData.CAMERA_NAME_FIRST_PERSON);
 
-            //set position 
+            //set position
             cameraGO.Transform.TranslateTo(position);
 
             //add camera component to the GO
@@ -1076,8 +1102,8 @@ namespace GDGame
             // Add it to the scene
             scene.Add(cameraGO);
 
+            #endregion First-person camera
 
-            #endregion
             cameraGO = new GameObject(AppData.CAMERA_NAME_RAIL);
             cameraGO.Transform.TranslateTo(position);
 
@@ -1087,7 +1113,6 @@ namespace GDGame
 
             //feed off whatever screen dimensions you set InitializeGraphics
             camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
-
 
             scene.Add(cameraGO);
             //replace with new SetActiveCamera that searches by string
@@ -1105,7 +1130,7 @@ namespace GDGame
             // Turntable spin around local +Y
             rot._rotationAxisNormalized = Vector3.Up;
 
-            // Dramatised fast drift at 2 deg/sec. 
+            // Dramatised fast drift at 2 deg/sec.
             rot._rotationSpeedInRadiansPerSecond = MathHelper.ToRadians(2f);
             _sceneManager.ActiveScene.Add(_skyParent);
         }
@@ -1148,7 +1173,6 @@ namespace GDGame
 
             //set parent to allow rotation
             gameObject.Transform.SetParent(skyParent.Transform);
-
 
             // right
             gameObject = new GameObject("right");
@@ -1194,7 +1218,6 @@ namespace GDGame
 
             //set parent to allow rotation
             gameObject.Transform.SetParent(skyParent.Transform);
-
         }
 
         private void InitializeUI()
@@ -1216,8 +1239,6 @@ namespace GDGame
             textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width - 100, 0);
             //textRenderer.Anchor = TextAnchor.Center;
             textRenderer.TextProvider = () => "Score: " + score;
-
-
 
             _sceneManager.ActiveScene.Add(scoreBoard);
 
@@ -1258,7 +1279,6 @@ namespace GDGame
             // Optional custom formatting
             picker.Formatter = hit =>
             {
-
                 if (roachKilled)
                 {
                     var spatula = _sceneManager.ActiveScene.Find(go => go.Name.Equals("spatula"));
@@ -1341,10 +1361,13 @@ namespace GDGame
 
             return gameObject;
         }
+
         protected override void Update(GameTime gameTime)
         {
             //call time update
+
             #region Core
+
             Time.Update(gameTime);
 
             //update Scene
@@ -1357,20 +1380,18 @@ namespace GDGame
                 {
                     _lastMenuVisible = menuVisible;
 
-                  //  IsMouseVisible = menuVisible;
+                    //  IsMouseVisible = menuVisible;
 
                     SetTaskBarVisible(!menuVisible);
                     SetReticleoVisible(!menuVisible);
                 }
             }
 
-            #endregion
+            #endregion Core
+
             _newKBState = Keyboard.GetState();
             DemoStuff();
 
-            #region Demo
-
-            #endregion
             _oldKBState = _newKBState;
             base.Update(gameTime);
         }
@@ -1451,10 +1472,10 @@ namespace GDGame
             base.Dispose(disposing);
         }
 
-      
-
         #region Demo Methods (remove in the game)
+
         #region Demo - Game State
+
         private void SetWinConditions()
         {
             var gameStateSystem = _sceneManager.ActiveScene.GetSystem<GameStateSystem>();
@@ -1501,7 +1522,6 @@ namespace GDGame
         {
             System.Diagnostics.Debug.WriteLine($"Old state was {oldState} and new state is {newState}");
 
-
             if (newState == GameOutcomeState.Lost)
             {
                 System.Diagnostics.Debug.WriteLine("You lost!");
@@ -1525,7 +1545,8 @@ namespace GDGame
                 IsMouseVisible = true;
             }
         }
-        #endregion
+
+        #endregion Demo - Game State
 
         private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale, bool isMoving, string name)
         {
@@ -1555,16 +1576,17 @@ namespace GDGame
             var rigidBody = go.AddComponent<RigidBody>();
             rigidBody.BodyType = BodyType.Dynamic;
             rigidBody.Mass = 1.0f;
-            if(isMoving) {
+            if (isMoving)
+            {
                 go.AddComponent<RoachController>();
                 go.Enabled = false;
             }
-                
+
             //go.Enabled = false;
         }
+
         private void DemoCollidableSpatula(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
         {
-
             var go = new GameObject("spatula");
             go.Transform.TranslateTo(position);
             go.Transform.RotateEulerBy(eulerRotationDegrees * MathHelper.Pi / 180f);
@@ -1591,60 +1613,104 @@ namespace GDGame
             var rigidBody = go.AddComponent<RigidBody>();
             rigidBody.BodyType = BodyType.Static;
             rigidBody.Mass = 1.0f;
-
-            
         }
+
         private void DemoCameraParent(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
         {
+            //var cameraGO = new GameObject("Camera");
+            //var curveController = cameraGO.AddComponent<CurveController>();
+            //curveController.PositionCurve = BuildCameraPositionCurve(CurveLoopType.Oscillate);
+            //curveController.TargetCurve = BuildCameraTargetCurve(CurveLoopType.Constant);
+            //curveController.Duration = 10;
+            //_sceneManager.ActiveScene.Add(cameraGO);
 
-            var go = new GameObject("CameraParent");
-            _sceneManager.ActiveScene.Add(go);
-            CurveController curveController = new CurveController();
+            var cameraGO = new GameObject("intro thing");
+            cameraGO.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0));
+            var camera = cameraGO.AddComponent<Camera>();
+            camera.FieldOfView = MathHelper.ToRadians(80);
+
+            var curveController = cameraGO.AddComponent<CurveController>();
             curveController.PositionCurve = _animationPositionCurve;
             curveController.Duration = 10;
-            curveController.TargetCurve = _animationPositionCurve;
-            curveController.Loop = false;
-            
-            go.AddComponent(curveController);
-            GameObject cameraObject = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_RAIL));
-            cameraObject.Transform.SetParent(go);
-            
+            _sceneManager.ActiveScene.Add(cameraGO);
+
+
+            //var go = new GameObject("CameraParent");
+            //_sceneManager.ActiveScene.Add(go);
+            //CurveController curveController = new CurveController();
+            //curveController.PositionCurve = _animationPositionCurve;
+            //curveController.Duration = 10;
+            //curveController.TargetCurve = _animationPositionCurve;
+            ////curveController.Loop = false;
+
+            //go.AddComponent(curveController);
+            //GameObject cameraObject = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_RAIL));
+            //cameraObject.Transform.SetParent(go);
+        }
+
+        private AnimationCurve3D BuildCameraPositionCurve(CurveLoopType curveLoopType)
+        {
+            var curve = new AnimationCurve3D(curveLoopType);
+
+            // start
+            curve.AddKey(new Vector3(-20, 10, 40), 0);
+
+            // moving inward, slight rise
+            curve.AddKey(new Vector3(-10, 10, 30), 0.25f);
+
+            // closest to origin (single “turn”)
+            curve.AddKey(new Vector3(0, 10, 30), 0.5f);
+
+            // heading back out
+            curve.AddKey(new Vector3(10, 10, 40), 0.75f);
+
+            // end
+            curve.AddKey(new Vector3(20, 10, 40), 1);
+
+            return curve;
+        }
+
+        private AnimationCurve3D BuildCameraTargetCurve(CurveLoopType curveLoopType)
+        {
+            var curve = new AnimationCurve3D(curveLoopType);
+
+            // All points “in or around” origin, y ≈ 5 so we look slightly down from y=10–12.
+            curve.AddKey(new Vector3(-5, 0, 0), 0);
+            curve.AddKey(new Vector3(5, 0, 0), 1);
+
+            return curve;
         }
 
         private void DemoStuff()
         {
             // Get new state
             //_newKBState = Keyboard.GetState();
-          
+
             DemoToggleFullscreen();
-            DemoAudioSystem();
-          
+            //DemoAudioSystem();
+
             DemoImpulsePublish();
             //a demo relating to GameStateSystem
             //_currentHealth--;
 
             // Store old state (allows us to do was pressed type checks)
-           // _oldKBState = _newKBState;
+            // _oldKBState = _newKBState;
         }
 
         private void DemoImpulsePublish()
         {
             var impulses = EngineContext.Instance.Impulses;
             bool isSpacePressed = _newKBState.IsKeyDown(Keys.Space) && !_oldKBState.IsKeyDown(Keys.Space);
-            if (isSpacePressed) 
+            if (isSpacePressed)
             {
                 _sceneManager.ActiveScene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
             }
-           
-
         }
-
-       
 
         private void DemoAudioSystem()
         {
             var events = EngineContext.Instance.Events;
-            
+
             //TODO - Exercise
             bool isD3Pressed = _newKBState.IsKeyDown(Keys.D3) && !_oldKBState.IsKeyDown(Keys.D3);
             if (isD3Pressed)
@@ -1691,10 +1757,6 @@ namespace GDGame
                 _graphics.ToggleFullScreen();
         }
 
-      
-
-      
-
         private void DemoLoadFromJSON()
         {
             //var relativeFilePathAndName = "assets/data/single_model_spawn.json";
@@ -1710,9 +1772,6 @@ namespace GDGame
                 InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
         }
 
-       
-
-       
         /// <summary>
         /// Subscribes a simple debug listener for physics collision events.
         /// </summary>
@@ -1747,7 +1806,6 @@ namespace GDGame
             //    $"[Collision] {nameA} (Layer {layerA}) <-> {nameB} (Layer {layerB})");
         }
 
-
-        #endregion
+        #endregion Demo Methods (remove in the game)
     }
 }

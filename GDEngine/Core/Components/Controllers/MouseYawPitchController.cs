@@ -36,6 +36,9 @@ namespace GDEngine.Core.Components
 
         protected override void Update(float deltaTime)
         {
+            if (!GameObject.Name.Equals(GameObject.Scene.ActiveCamera.GameObject.Name))
+                return;
+
             if (Transform == null)
                 return;
 
