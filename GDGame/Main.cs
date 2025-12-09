@@ -613,7 +613,7 @@ namespace GDGame
                 //if (roach != null && distToWaypoint < 10 && isRoach)
                 //{
                 _sceneManager.ActiveScene.Remove(roach);
-                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+                events.Publish(new PlaySfxEvent("roach_death",
             1, false, null));
                 score += 100;
                 if(!roachKilled)
@@ -639,7 +639,7 @@ namespace GDGame
                 //if (roach != null && distToWaypoint < 10 && isRoach)
                 //{
                 _sceneManager.ActiveScene.Remove(spatula);
-                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+                events.Publish(new PlaySfxEvent("ui_click",
             1, false, null));
                 GameObject playerSpatula = InitializeModel(new Vector3(2, -6, 0),
                new Vector3(45, 0, 0),
@@ -1648,8 +1648,8 @@ namespace GDGame
             bool isD3Pressed = _newKBState.IsKeyDown(Keys.D3) && !_oldKBState.IsKeyDown(Keys.D3);
             if (isD3Pressed)
             {
-                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
-                    1, false, null));
+                //events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
+                //    1, false, null));
             }
 
             bool isD4Pressed = _newKBState.IsKeyDown(Keys.D4) && !_oldKBState.IsKeyDown(Keys.D4);
@@ -1678,8 +1678,8 @@ namespace GDGame
                 var go = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.PLAYER_NAME));
                 Transform emitterTransform = go.Transform;
 
-                events.Publish(new PlaySfxEvent("hand_gun1",
-                    1, true, emitterTransform));
+                //events.Publish(new PlaySfxEvent("hand_gun1",
+                //    1, true, emitterTransform));
             }
         }
 
