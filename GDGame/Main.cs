@@ -32,7 +32,7 @@ using System.IO;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 using Color = Microsoft.Xna.Framework.Color;
 using System.Security.AccessControl;
-using GDEngine.Core.Components.Controllers.Physics;
+//using GDEngine.Core.Components.Controllers.Physics;
 using GDGame.Demos.Components;
 
 namespace GDGame
