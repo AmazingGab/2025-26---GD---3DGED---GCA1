@@ -145,10 +145,10 @@ namespace GDGame
             #endregion
 
             DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false, "mainRoach");
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 40; i++)
             {
                 Random rng = new Random();
-                DemoCollidableModel(new Vector3(rng.Next(-50, 60), 1, rng.Next(-50, 60)), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true, "roach");
+                DemoCollidableModel(new Vector3(rng.Next(-20, 170), 1, rng.Next(-60, 50)), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true, "roach");
             }
 
             DemoCollidableSpatula(new Vector3(8, 1, 12), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
@@ -1308,6 +1308,10 @@ namespace GDGame
                     KillRoach(go);
 
                     _oldMouseState = _newMouseState;
+                    if (hasSpatula)
+                        return $"LEFT CLICK TO SQUASH";
+                    return $"YOU NEED A SPATULA";
+                    //return $"{hit.Point}";
                 }
                 if (go.Name.Equals("spatula"))
                 {
@@ -1315,11 +1319,13 @@ namespace GDGame
                     _newKBState2 = Keyboard.GetState();
                     AddSpatula(go);
                     _oldKBState2 = _newKBState2;
+                    return $"E TO PICKUP";
                 }
                 else
                     isRoach = false;
 
-                return $"{go.Name}  d={hit.Distance:F1}";
+                //return $"{go.Name}  d={hit.Distance:F1}";
+                return "";
             };
 
             _sceneManager.ActiveScene.Add(uiReticleGO);
@@ -1506,7 +1512,7 @@ namespace GDGame
             // we could pause the game on a win
             //Time.TimeScale = 0;
 
-            return score >= 1000; ;
+            return score >= 2000; ;
         }
 
         private bool checkEnemiesVisited()

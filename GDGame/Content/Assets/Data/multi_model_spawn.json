@@ -28,7 +28,7 @@
     {
       "position": [
         27.5,
-        6,
+        4,
         20
       ],
       "rotationDegrees": [
@@ -39,7 +39,7 @@
       "scale": [
         15, 
         2.5, 
-        0.5 
+        2 
       ],
       "textureName": "table",
       "modelName": "table",
@@ -143,26 +143,6 @@
       ],
       "textureName": "small_shelf",
       "modelName": "small_shelf",
-      "objectName": "spawn-5"
-    },
-    {
-      "position": [
-        50,
-        5,
-        -5
-      ],
-      "rotationDegrees": [
-        -90,
-        0,
-        0
-      ],
-      "scale": [
-        1.5,
-        0.5,
-        0.2
-      ],
-      "textureName": "spatula",
-      "modelName": "spatula",
       "objectName": "spawn-5"
     },
     {

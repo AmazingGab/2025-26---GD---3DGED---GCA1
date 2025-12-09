@@ -240,10 +240,6 @@
             "contentPath": "assets/models/Toilet2"
         },
         {
-            "name": "cube",
-            "contentPath": "assets/models/TV"
-        },
-        {
             "name": "TV",
             "contentPath": "assets/models/TV"
         },
