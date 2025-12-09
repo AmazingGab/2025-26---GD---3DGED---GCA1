@@ -151,7 +151,7 @@ namespace GDGame
                 DemoCollidableModel(new Vector3(rng.Next(-20, 170), 1, rng.Next(-60, 50)), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), true, "roach");
             }
 
-            DemoCollidableSpatula(new Vector3(8, 1, 12), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
+            DemoCollidableSpatula(new Vector3(8, 0.5f, 12), new Vector3(0, 0, 180), new Vector3(0.3f, 0.3f, .7f));
             DemoCameraParent(new Vector3(0, 0, 0), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
 
 
@@ -182,26 +182,6 @@ namespace GDGame
 
             // Set pause and show menu
             SetPauseShowMenu();
-
-            //GameObject _roachParent = new GameObject("RoachParent");
-            //GameObject gameObject = null;
-            //var roachParts = MeshFilterFactory.CreateAllFromModel(_modelDictionary.Get("roach2"), GraphicsDevice);
-            //_sceneManager.ActiveScene.Add(_roachParent);
-
-            //for (int i = 0; i < roachParts.Count; i++)
-            //{
-            //    gameObject = new GameObject("roach+part" + 1);
-            //    //gameObject.Transform.ScaleTo(new Vector3(scale / 10, scale / 10, scale / 10));
-            //    var meshFilter = roachParts[i];
-            //    gameObject.AddComponent(meshFilter);
-            //    var meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            //    meshRenderer.Material = _matBasicLit;
-            //    meshRenderer.Overrides.MainTexture = _textureDictionary.Get("roach_texture");
-            //    _sceneManager.ActiveScene.Add(gameObject);
-            //    gameObject.Transform.SetParent(_roachParent.Transform);
-            //}
-
-            //_roachParent.Transform.ScaleTo(new Vector3(10f, 10f, 10f));
 
             base.Initialize();
         }
@@ -639,10 +619,6 @@ namespace GDGame
                     spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
                 roachKilled = true;
 
-                //break;
-                //}
-                //}
-
             }
         }
         private void AddSpatula(GameObject spatula)
@@ -666,7 +642,7 @@ namespace GDGame
             1, false, null));
                 GameObject playerSpatula = InitializeModel(new Vector3(2, -6, 0),
                new Vector3(45, 0, 0),
-               new Vector3(0.3f, 1, 1), "spatula", "spatula", "spatula");
+               new Vector3(0.3f, 0.3f, 1), "spatula", "spatula", "spatula");
 
                 playerSpatula.Transform.SetParent(cameraGO);
                 hasSpatula = true;
@@ -1606,8 +1582,8 @@ namespace GDGame
 
             // Add box collider (1x1x1 cube)
             var collider = go.AddComponent<BoxCollider>();
-            collider.Size = new Vector3(3f, 2f, 2f);  // Collider is FULL size
-            collider.Center = new Vector3(0, 0, -0.3f);
+            collider.Size = new Vector3(2f, 2f, 8f);  // Collider is FULL size
+            collider.Center = new Vector3(0, 0, -3);
 
             // Add rigidbody (Dynamic so it falls)
             var rigidBody = go.AddComponent<RigidBody>();
