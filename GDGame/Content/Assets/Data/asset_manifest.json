@@ -217,49 +217,48 @@
             "contentPath": "assets/models/spatula"
         }
     ],
-    "sounds": [
-        
-        {
-          "name": "background_calm",
-          "contentPath": "assets/sounds/sta_mus_background_calm"
-        },
-      {
-        "name": "background_intense",
-        "contentPath": "assets/sounds/sta_mus_background_intense"
-      },
-      {
-        "name": "intro_theme",
-        "contentPath": "assets/sounds/sta_mus_intro_theme"
-      },
-      {
-        "name": "box",
-        "contentPath": "assets/sounds/sta_sfx_box"
-      },
-      {
-        "name": "door",
-        "contentPath": "assets/sounds/sta_sfx_door"
-      },
-      {
-        "name": "roach_death",
-        "contentPath": "assets/sounds/sta_sfx_roach_death"
-      },
-      {
-        "name": "roach_walk",
-        "contentPath": "assets/sounds/sta_sfx_roach_walk"
-      },
-      {
-        "name": "spatula_hit_roach",
-        "contentPath": "assets/sounds/sta_sfx_spatula_hit_roach"
-      }
-    ],
-    "effects": [
-      {
-        "name": "ui_click",
-        "contentPath": "assets/effects/ui/sta_sfx_ui_click"
-      },
-      {
-        "name": "ui_ticking",
-        "contentPath": "assets/effects/ui/sta_sfx_ui_ticking"
-      }
-    ]
+  "sounds": [
+
+    {
+      "name": "background_calm",
+      "contentPath": "assets/sounds/sta_mus_background_calm"
+    },
+    {
+      "name": "background_intense",
+      "contentPath": "assets/sounds/sta_mus_background_intense"
+    },
+    {
+      "name": "intro_theme",
+      "contentPath": "assets/sounds/sta_mus_intro_theme"
+    },
+    {
+      "name": "box",
+      "contentPath": "assets/sounds/sta_sfx_box_hit"
+    },
+    {
+      "name": "door",
+      "contentPath": "assets/sounds/sta_sfx_door"
+    },
+    {
+      "name": "roach_death",
+      "contentPath": "assets/sounds/sta_sfx_roach_death"
+    },
+    {
+      "name": "roach_walk",
+      "contentPath": "assets/sounds/sta_sfx_roach_walk"
+    },
+    {
+      "name": "spatula_hit_roach",
+      "contentPath": "assets/sounds/sta_sfx_spatula_hit_roach"
+    },
+    {
+      "name": "ui_click",
+      "contentPath": "assets/sounds/ui/sta_sfx_ui_click"
+    },
+    {
+      "name": "ui_ticking",
+      "contentPath": "assets/sounds/ui/sta_sfx_ui_ticking"
+    }
+  ]
+   
 }

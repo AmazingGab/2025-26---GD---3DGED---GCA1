@@ -182,7 +182,8 @@ namespace GDGame
 
             // Set pause and show menu
             SetPauseShowMenu();
-
+            var events = EngineContext.Instance.Events;
+            events.Publish(new PlayMusicEvent("background_calm"));
             base.Initialize();
         }
 
