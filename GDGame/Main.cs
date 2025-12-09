@@ -158,18 +158,14 @@ namespace GDGame
             DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
             DemoLoadFromJSON();
 
-            #region Alpha effect
-            DemoAlphaCutoutFoliage(new Vector3(0, 10 /*note Y=heightscale/2*/, 0), 12, 20);
+           
             #endregion
 
             #region Loading GameObjects from JSON
             DemoLoadFromJSON();
             #endregion
 
-            #region Sequencing using Orchestration
-            DemoOrchestrationSystem();
-            #endregion
-
+        
             #endregion
 
             // Mouse reticle
@@ -501,6 +497,7 @@ namespace GDGame
                 SetDialogueVisible(true);
                 _isDialogueOpen = true;
                 _sceneManager.Paused = true;
+               
                 SetReticleoVisible(false);
             }
         }
@@ -1474,7 +1471,7 @@ namespace GDGame
             base.Dispose(disposing);
         }
 
-        #endregion
+      
 
         #region Demo Methods (remove in the game)
         #region Demo - Game State
@@ -1638,11 +1635,10 @@ namespace GDGame
         {
             // Get new state
             //_newKBState = Keyboard.GetState();
-            DemoEventPublish();
-            DemoCameraSwitch();
+          
             DemoToggleFullscreen();
             DemoAudioSystem();
-            DemoOrchestrationSystem();
+          
             DemoImpulsePublish();
             //a demo relating to GameStateSystem
             //_currentHealth--;
@@ -1659,103 +1655,16 @@ namespace GDGame
             {
                 _sceneManager.ActiveScene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
             }
-            // a simple explosion reaction
-            bool isZPressed = _newKBState.IsKeyDown(Keys.Z) && !_oldKBState.IsKeyDown(Keys.Z);
-            if (isZPressed)
-            {
-                float duration = 0.35f;
-                float amplitude = 0.6f;
+           
 
-                impulses.CreateContinuousSource(
-                    (elapsed, totalDuration) =>
-                    {
-                        // Random 2D screen-space-ish direction
-                        Vector3 dir = MathUtility.RandomShakeXY();
-
-                        // Let Eased3DImpulse use its default easing (e.g. Ease.Linear)
-                        return new Eased3DImpulse(
-                            channel: "camera/impulse",
-                            direction: dir,
-                            amplitude: amplitude,
-                            time: elapsed,
-                            duration: totalDuration);
-                    },
-                    duration,
-                    true);
-            }
-
-            // like a locked door try and fail
-            bool isCPressed = _newKBState.IsKeyDown(Keys.X) && !_oldKBState.IsKeyDown(Keys.X);
-            if (isCPressed)
-            {
-                float duration = 0.2f;
-                float amplitude = 0.1f;
-
-                impulses.CreateContinuousSource(
-                    (elapsed, totalDuration) =>
-                    {
-                        float jitter = 0.05f;
-
-                        // Small random left/right component
-                        float z = (float)(Random.Shared.NextDouble() * 2.0 - 1.0) * jitter;
-
-                        // Backward in world-space 
-                        Vector3 dir = new Vector3(0, 0, z);
-
-                        return new Eased3DImpulse(
-                            channel: "camera/impulse",
-                            direction: dir,
-                            amplitude: amplitude,
-                            time: elapsed,
-                            duration: totalDuration,
-                            ease: Ease.EaseOutQuad); // snappier than cubic, but still smooth
-                    },
-                    duration,
-                    true);
-            }
         }
 
-        private void DemoOrchestrationSystem()
-        {
-            var orchestrator = _sceneManager.ActiveScene.GetSystem<OrchestrationSystem>().Orchestrator;
-
-            bool isPressed = _newKBState.IsKeyDown(Keys.O) && !_oldKBState.IsKeyDown(Keys.O);
-            if (isPressed)
-            {
-                //orchestrator.Build("my first sequence")
-                //   .Do(() =>
-                //   {
-                //       var textObj = _sceneManager.ActiveScene.Find("init_texture");
-                //       // var textObj = _scene.Find("init_texture");
-                //       textObj.Enabled = false;
-                //   })
-                //   .WaitSeconds(2)
-                //   .Do()
-                //   .Register();
-
-                orchestrator.Build("my first sequence")
-                    .WaitSeconds(2)
-                    .Publish(new CameraEvent(AppData.CAMERA_NAME_FIRST_PERSON))
-                    .WaitSeconds(2)
-                    .Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1", 1, false, null))
-                    .Register();
-
-                orchestrator.Start("my first sequence", _sceneManager.ActiveScene, EngineContext.Instance);
-            }
-
-            bool isIPressed = _newKBState.IsKeyDown(Keys.I) && !_oldKBState.IsKeyDown(Keys.I);
-            if (isIPressed)
-                orchestrator.Pause("my first sequence");
-
-            bool isPPressed = _newKBState.IsKeyDown(Keys.P) && !_oldKBState.IsKeyDown(Keys.P);
-            if (isPPressed)
-                orchestrator.Resume("my first sequence");
-        }
+       
 
         private void DemoAudioSystem()
         {
             var events = EngineContext.Instance.Events;
-
+            
             //TODO - Exercise
             bool isD3Pressed = _newKBState.IsKeyDown(Keys.D3) && !_oldKBState.IsKeyDown(Keys.D3);
             if (isD3Pressed)
@@ -1802,65 +1711,9 @@ namespace GDGame
                 _graphics.ToggleFullScreen();
         }
 
-        private void DemoCameraSwitch()
-        {
-            var events = EngineContext.Instance.Events;
+      
 
-            bool isFirst = _newKBState.IsKeyDown(Keys.D1) && !_oldKBState.IsKeyDown(Keys.D1);
-            if (isFirst)
-            {
-                events.Post(new CameraEvent(AppData.CAMERA_NAME_FIRST_PERSON));
-                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
-                  1, false, null));
-            }
-
-            bool isThird = _newKBState.IsKeyDown(Keys.D2) && !_oldKBState.IsKeyDown(Keys.D2);
-            if (isThird)
-            {
-                events.Post(new CameraEvent(AppData.CAMERA_NAME_THIRD_PERSON));
-                events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Mallet_Open_1",
-                1, false, null));
-            }
-        }
-
-        private void DemoEventPublish()
-        {
-            // F2: publish a test DamageEvent
-            if (_newKBState.IsKeyDown(Keys.F6) && !_oldKBState.IsKeyDown(Keys.F6))
-            {
-                // Simple “debug” damage example
-                var hitPos = new Vector3(0, 5, 0); //some fake position
-                _damageAmount++;
-
-                var damageEvent = new DamageEvent(_damageAmount, DamageEvent.DamageType.Strength,
-                    "Plasma rifle", AppData.PLAYER_NAME, hitPos, false);
-
-                EngineContext.Instance.Events.Post(damageEvent);
-            }
-
-            // Raise inventory event
-            if (_newKBState.IsKeyDown(Keys.E) && !_oldKBState.IsKeyDown(Keys.E))
-            {
-                var inventoryEvent = new GDEngine.Core.Components.InventoryEvent();
-                inventoryEvent.ItemType = ItemType.Weapon;
-                inventoryEvent.Value = 10;
-                EngineContext.Instance.Events.Publish(inventoryEvent);
-            }
-
-            if (_newKBState.IsKeyDown(Keys.L) && !_oldKBState.IsKeyDown(Keys.L))
-            {
-                var inventoryEvent = new GDEngine.Core.Components.InventoryEvent();
-                inventoryEvent.ItemType = ItemType.Lore;
-                inventoryEvent.Value = 0;
-                EngineContext.Instance.Events.Publish(inventoryEvent);
-            }
-
-            if (_newKBState.IsKeyDown(Keys.M) && !_oldKBState.IsKeyDown(Keys.M))
-            {
-                // EngineContext.Instance.Messages.Post(new PlayerDamageEvent(45, DamageType.Strength));
-                //EngineContext.Instance.Messages.PublishImmediate(new PlayerDamageEvent(45, DamageType.Strength));
-            }
-        }
+      
 
         private void DemoLoadFromJSON()
         {
@@ -1877,63 +1730,9 @@ namespace GDGame
                 InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
         }
 
-        private void DemoCollidablePrimitive(Vector3 position, Vector3 scale, Vector3 rotateDegrees)
-        {
-            GameObject gameObject = null;
-            MeshFilter meshFilter = null;
-            MeshRenderer meshRenderer = null;
+       
 
-            gameObject = new GameObject("test crate textured cube");
-            gameObject.Transform.TranslateTo(position);
-            gameObject.Transform.ScaleTo(scale * 0.5f);
-            gameObject.Transform.RotateEulerBy(rotateDegrees * MathHelper.Pi / 180f);
-
-
-            meshFilter = MeshFilterFactory.CreateCubeTexturedLit(_graphics.GraphicsDevice);
-            gameObject.AddComponent(meshFilter);
-
-            meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            meshRenderer.Material = _matBasicLit; //enable lighting for the crate
-            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("crate1");
-
-            var collider = gameObject.AddComponent<BoxCollider>();
-            collider.Size = scale;  // Collider is FULL size
-            collider.Center = Vector3.Zero;
-
-            var rb = gameObject.AddComponent<RigidBody>();
-            rb.Mass = 1.0f;
-            rb.BodyType = BodyType.Dynamic;
-
-            _sceneManager.ActiveScene.Add(gameObject);
-        }
-
-        private void DemoAlphaCutoutFoliage(Vector3 position, float width, float height)
-        {
-            var go = new GameObject("tree");
-
-            // A unit quad facing +Z (the factory already supplies lit quad with UVs)
-            var mf = MeshFilterFactory.CreateQuadTexturedLit(GraphicsDevice);
-            go.AddComponent(mf);
-
-            var treeRenderer = go.AddComponent<MeshRenderer>();
-            treeRenderer.Material = _matAlphaCutout;
-
-            // Per-object properties via the overrides block
-            treeRenderer.Overrides.MainTexture = _textureDictionary.Get("tree4");
-
-            // AlphaTest: pixels with alpha below ReferenceAlpha are discarded (0–255).
-            // 128–160 is a good starting range for foliage; tweak to taste.
-            treeRenderer.Overrides.SetInt("ReferenceAlpha", 128);
-            treeRenderer.Overrides.Alpha = 1f; // overall alpha multiplier (kept at 1 for cutout)
-
-            // Scale the quad so it looks like a tree (aspect from the PNG)
-            go.Transform.ScaleTo(new Vector3(width, height, 1f));
-
-            go.Transform.TranslateTo(position);
-
-            _sceneManager.ActiveScene.Add(go);
-        }
-
+       
         /// <summary>
         /// Subscribes a simple debug listener for physics collision events.
         /// </summary>
