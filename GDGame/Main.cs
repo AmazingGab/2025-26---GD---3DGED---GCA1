@@ -478,7 +478,7 @@ namespace GDGame
                 SetDialogueVisible(true);
                 _isDialogueOpen = true;
                 _sceneManager.Paused = true;
-               
+                Time.TimeScale = 0;
                 SetReticleoVisible(false);
             }
         }
@@ -488,6 +488,7 @@ namespace GDGame
             SetDialogueVisible(false);
             _isDialogueOpen = false;
             _sceneManager.Paused = false;
+            Time.TimeScale = 1;
             IsMouseVisible = false;
             SetReticleoVisible(true);
         }
