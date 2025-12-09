@@ -24,11 +24,6 @@
     ],
     "textures": [
         {
-            "name": "ground_grass",
-            "contentPath": "assets/textures/foliage/ground/grass1"
-        },
-
-        {
             "name": "skybox_back",
             "contentPath": "assets/textures/skybox/back"
         },
@@ -106,37 +101,11 @@
             "contentPath": "assets/models/textures/Floor"
         },
 
-
         {
-            "name": "checkerboard",
-            "contentPath": "assets/textures/demo/checkerboard"
-        },
-        {
-            "name": "mona lisa",
-            "contentPath": "assets/textures/demo/mona lisa"
+            "name": "Crosshair",
+            "contentPath": "assets/textures/ui/mouse/Crosshair_04"
         },
 
-        {
-            "name": "mouse_reticle",
-            "contentPath": "assets/textures/ui/mouse/reticleClosed"
-        },
-        {
-            "name": "Crosshair_21",
-            "contentPath": "assets/textures/ui/mouse/Crosshair_01"
-        },
-
-        {
-            "name": "mainmenu",
-            "contentPath": "assets/textures/ui/backgrounds/mainmenu"
-        },
-        {
-            "name": "mainmenu_monkey",
-            "contentPath": "assets/textures/ui/backgrounds/mainmenu_monkey"
-        },
-        {
-            "name": "controlsmenu_monkey",
-            "contentPath": "assets/textures/ui/backgrounds/controlsmenu_monkey"
-        },
       {
         "name": "dialugue_ui",
         "contentPath": "assets/textures/ui/interface/dialugue_ui"
@@ -249,38 +218,7 @@
         }
     ],
     "sounds": [
-        {
-            "name": "explosion1",
-            "contentPath": "assets/sounds/Explosion 1"
-        },
-        {
-            "name": "hand_gun1",
-            "contentPath": "assets/sounds/Hand Gun 1"
-        },
-        {
-            "name": "laser_gun_salve",
-            "contentPath": "assets/sounds/Laser Gun Salve"
-        },
-        {
-            "name": "secret_door",
-            "contentPath": "assets/sounds/Secret door"
-        },
-        {
-            "name": "SFX_UI_Click_Designed_Pop_Generic_1",
-            "contentPath": "assets/sounds/ui/SFX_UI_Click_Designed_Pop_Generic_1"
-        },
-        {
-            "name": "SFX_UI_Click_Designed_Pop_Mallet_Open_1",
-            "contentPath": "assets/sounds/ui/SFX_UI_Click_Designed_Pop_Mallet_Open_1"
-        },
-        {
-            "name": "SFX_UI_Click_Designed_Pop_Movement_Open_1",
-            "contentPath": "assets/sounds/ui/SFX_UI_Click_Designed_Pop_Movement_Open_1"
-        },
-        {
-            "name": "SFX_UI_Click_Designed_Pop_Negative_Close_1",
-            "contentPath": "assets/sounds/ui/SFX_UI_Click_Designed_Pop_Negative_Close_1"
-        }
+        
     ],
     "effects": [
         {
