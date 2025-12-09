@@ -483,8 +483,9 @@ namespace GDGame
             foreach (var renderable in _dialogueGO.GetComponents<UIRenderer>())
             {
                 renderable.Enabled = visible;
+                IsMouseVisible = true;
             }
-
+            
             var btn = _dialogueGO.GetComponent<UIButton>();
             if (btn != null) btn.Enabled = visible;
         }
@@ -493,7 +494,7 @@ namespace GDGame
             if (_dialogueText != null)
             {
                 _dialogueText.TextProvider = () => message;
-
+                IsMouseVisible = true;
                 SetDialogueVisible(true);
                 _isDialogueOpen = true;
                 _sceneManager.Paused = true;
@@ -634,7 +635,8 @@ namespace GDGame
                 events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
             1, false, null));
                 score += 100;
-                spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
+                if(!roachKilled)
+                    spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
                 roachKilled = true;
 
                 //break;
@@ -1377,7 +1379,7 @@ namespace GDGame
                 {
                     _lastMenuVisible = menuVisible;
 
-                    IsMouseVisible = menuVisible;
+                  //  IsMouseVisible = menuVisible;
 
                     SetTaskBarVisible(!menuVisible);
                     SetReticleoVisible(!menuVisible);
