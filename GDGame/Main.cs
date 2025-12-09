@@ -290,13 +290,15 @@ namespace GDGame
             {
                 InitializeTaskUI();
                 InitializeUIReticleRenderer();
-                _sceneManager.Paused = false;
+                _sceneManager.Paused = true;
                 _menuManager.HideMenus();
 
                 SetMenuLogoVisible(false);
                 SetTaskBarVisible(true);
+                SetReticleoVisible(false);
 
-                ShowDialogue("EW... There is a roach \n i need get spatula by \n pressing 'E' and kill it");
+                IsMouseVisible = true;
+                ShowDialogue("EW... THERE IS A ROACH! I NEED\nA SPATULA BY PRESSING 'E' AND\nTHEN SQUASH IT!");
             };
 
             _menuManager.ExitRequested += () =>
@@ -498,8 +500,8 @@ namespace GDGame
 
                 SetDialogueVisible(true);
                 _isDialogueOpen = true;
-
-                IsMouseVisible = true; 
+                _sceneManager.Paused = true;
+                SetReticleoVisible(false);
             }
         }
 
@@ -507,8 +509,9 @@ namespace GDGame
         {
             SetDialogueVisible(false);
             _isDialogueOpen = false;
-
-            IsMouseVisible = false; 
+            _sceneManager.Paused = false;
+            IsMouseVisible = false;
+            SetReticleoVisible(true);
         }
         private void InitializeUISystems()
         {
@@ -560,7 +563,7 @@ namespace GDGame
             gameObject.AddComponent(meshFilter);
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.Material = _matBasicUnlitGround;
-            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("grass_texture");
+            meshRenderer.Overrides.MainTexture = _textureDictionary.Get("floor");
 
             // Add a box collider matching the ground size
             var collider = gameObject.AddComponent<BoxCollider>();
@@ -622,7 +625,7 @@ namespace GDGame
                     {
                         r.Enabled = true;
                     }
-                    ShowDialogue("There are so many of them, \nI NEED TO SQUASH THEM ALL!");
+                    ShowDialogue("THERE ARE SO MANY OF THEM! \nI NEED TO SQUASH THEM ALL!");
                 }    
                 //foreach (var roach in roaches)
                 //{
@@ -1503,14 +1506,12 @@ namespace GDGame
             // we could pause the game on a win
             //Time.TimeScale = 0;
 
-            return score == 500; ;
+            return score >= 1000; ;
         }
 
         private bool checkEnemiesVisited()
         {
-            //get inventory and eval using boolean if all enemies visited;
-
-            return Time.RealtimeSinceStartupSecs > 30;
+            return Time.RealtimeSinceStartupSecs > 120;
         }
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
@@ -1638,7 +1639,7 @@ namespace GDGame
             DemoOrchestrationSystem();
             DemoImpulsePublish();
             //a demo relating to GameStateSystem
-            _currentHealth--;
+            //_currentHealth--;
 
             // Store old state (allows us to do was pressed type checks)
            // _oldKBState = _newKBState;
@@ -1857,14 +1858,14 @@ namespace GDGame
 
         private void DemoLoadFromJSON()
         {
-            var relativeFilePathAndName = "assets/data/single_model_spawn.json";
+            //var relativeFilePathAndName = "assets/data/single_model_spawn.json";
             //List<ModelSpawnData> mList = JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName);
 
             ////load a single model
             //foreach (var d in mList)
             //    InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
 
-            relativeFilePathAndName = "assets/data/multi_model_spawn.json";
+            var relativeFilePathAndName = "assets/data/multi_model_spawn.json";
             //load multiple models
             foreach (var d in JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName))
                 InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
