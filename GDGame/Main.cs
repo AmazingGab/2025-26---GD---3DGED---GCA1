@@ -288,7 +288,11 @@ namespace GDGame
                 SetTaskBarVisible(true);
                 if (dialogueStage == 1)
                 {
+                    
                     ShowDialogue("YOU'RE KID WHO WAS LEFT HOME \nALONE AS YOUR PARENTS WENT \nON HOLIDAYS.");
+                    var events = EngineContext.Instance.Events;
+                    events.Publish(new PlayMusicEvent("intro_theme"));
+
                 }
                 else
                 {
@@ -489,6 +493,7 @@ namespace GDGame
         {
             if (_dialogueText != null)
             {
+                
                 Debug.WriteLine("dialogue cuz yeah");
                 _isDialogueOpen = true;
                 _dialogueText.TextProvider = () => message;
@@ -643,6 +648,7 @@ namespace GDGame
                         r.Enabled = true;
                     }
                     ShowDialogue("THERE ARE SO MANY OF THEM! \nI NEED TO SQUASH THEM ALL!");
+                    events.Publish(new PlayMusicEvent("background_intense"));
                 }
                 //foreach (var roach in roaches)
                 //{
@@ -1694,6 +1700,8 @@ namespace GDGame
             if (isSpacePressed)
             {
                 _sceneManager.ActiveScene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
+                var events = EngineContext.Instance.Events;
+                events.Publish(new PlayMusicEvent("background_calm"));
             }
         }
 
