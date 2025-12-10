@@ -94,6 +94,8 @@ namespace GDGame
         private UIText _dialogueText;
         private bool _isDialogueOpen = false;
         private int dialogueStage = 1;
+        private float musicVolume=0.8f;
+        private float sfxVolume=0.8f;
 
         #endregion Demo Fields (remove in the game)
 
@@ -192,7 +194,7 @@ namespace GDGame
             // Set pause and show menu
             //SetPauseShowMenu();
             var events = EngineContext.Instance.Events;
-            events.Publish(new PlayMusicEvent("background_calm"));
+            events.Publish(new PlayMusicEvent("background_calm", musicVolume));
             Time.TimeScale = 0;
             base.Initialize();
         }
@@ -291,7 +293,7 @@ namespace GDGame
                     
                     ShowDialogue("YOU'RE KID WHO WAS LEFT HOME \nALONE AS YOUR PARENTS WENT \nON HOLIDAYS.");
                     var events = EngineContext.Instance.Events;
-                    events.Publish(new PlayMusicEvent("intro_theme"));
+                    events.Publish(new PlayMusicEvent("intro_theme", musicVolume));
 
                 }
                 else
@@ -309,11 +311,18 @@ namespace GDGame
             _menuManager.MusicVolumeChanged += v =>
             {
                 System.Diagnostics.Debug.WriteLine("MusicVolumeChanged: " + v);
+                musicVolume= v;
+                var events = EngineContext.Instance.Events;
+                events.Publish(new PlayMusicEvent("background_calm", musicVolume));
+               
+
             };
 
             _menuManager.SfxVolumeChanged += v =>
             {
                 System.Diagnostics.Debug.WriteLine("SfxVolumeChanged: " + v);
+                sfxVolume= v;
+               
             };
 
             //_menuManager.ShowGameOver();
@@ -648,15 +657,16 @@ namespace GDGame
                         r.Enabled = true;
                     }
                     ShowDialogue("THERE ARE SO MANY OF THEM! \nI NEED TO SQUASH THEM ALL!");
-                    events.Publish(new PlayMusicEvent("background_intense"));
+                    events.Publish(new PlayMusicEvent("background_intense", musicVolume));
                 }
                 //foreach (var roach in roaches)
                 //{
-                
-                
-                    _sceneManager.ActiveScene.Remove(roach);
+
+                events.Publish(new PlaySfxEvent("spatula_hit_roach",
+               sfxVolume, false, null));
+                _sceneManager.ActiveScene.Remove(roach);
                     events.Publish(new PlaySfxEvent("roach_death",
-                1, false, null));
+               sfxVolume, false, null));
                     score += 100;
                     if (!roachKilled)
                         spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
@@ -680,7 +690,7 @@ namespace GDGame
                 //{
                 _sceneManager.ActiveScene.Remove(spatula);
                 events.Publish(new PlaySfxEvent("ui_click",
-            1, false, null));
+            sfxVolume, false, null));
                 GameObject playerSpatula = InitializeModel(new Vector3(2, -6, 0),
                new Vector3(45, 0, 0),
                new Vector3(0.3f, 0.3f, 1), "spatula", "spatula", "spatula");
@@ -1701,7 +1711,7 @@ namespace GDGame
             {
                 _sceneManager.ActiveScene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
                 var events = EngineContext.Instance.Events;
-                events.Publish(new PlayMusicEvent("background_calm"));
+                events.Publish(new PlayMusicEvent("background_calm", musicVolume));
             }
         }
 
