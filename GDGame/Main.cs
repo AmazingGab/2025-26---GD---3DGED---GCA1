@@ -94,6 +94,8 @@ namespace GDGame
         private UIText _dialogueText;
         private bool _isDialogueOpen = false;
         private int dialogueStage = 1;
+        private float musicVolume=0.8f;
+        private float sfxVolume=0.8f;
 
         #endregion Demo Fields (remove in the game)
 
@@ -162,7 +164,7 @@ namespace GDGame
             }
 
             DemoCollidableSpatula(new Vector3(8, 0.5f, 12), new Vector3(0, 0, 180), new Vector3(0.3f, 0.3f, .7f));
-            DemoCameraParent(new Vector3(0, 0, 0), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
+            //DemoCameraParent(new Vector3(0, 0, 0), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
 
             DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
             DemoLoadFromJSON();
@@ -192,7 +194,7 @@ namespace GDGame
             // Set pause and show menu
             //SetPauseShowMenu();
             var events = EngineContext.Instance.Events;
-            events.Publish(new PlayMusicEvent("background_calm"));
+            events.Publish(new PlayMusicEvent("background_calm", musicVolume));
             Time.TimeScale = 0;
             base.Initialize();
         }
@@ -288,6 +290,7 @@ namespace GDGame
                 SetTaskBarVisible(true);
                 if (dialogueStage == 1)
                 {
+                    
                     ShowDialogue("YOU'RE KID WHO WAS LEFT HOME \nALONE AS YOUR PARENTS WENT \nON HOLIDAYS.");
                     SetTaskBarText("READ THE STORY");
                 }
@@ -306,11 +309,18 @@ namespace GDGame
             _menuManager.MusicVolumeChanged += v =>
             {
                 System.Diagnostics.Debug.WriteLine("MusicVolumeChanged: " + v);
+                musicVolume= v;
+                var events = EngineContext.Instance.Events;
+                events.Publish(new PlayMusicEvent("background_calm", musicVolume));
+               
+
             };
 
             _menuManager.SfxVolumeChanged += v =>
             {
                 System.Diagnostics.Debug.WriteLine("SfxVolumeChanged: " + v);
+                sfxVolume= v;
+               
             };
 
             //_menuManager.ShowGameOver();
@@ -640,10 +650,11 @@ namespace GDGame
         {
             var events = EngineContext.Instance.Events;
             // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
-            //var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
+            var cameraObject = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
             var spatula = _sceneManager.ActiveScene.Find(go => go.Name.Equals("spatula"));
+            var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
             bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
-            if (togglePressed && hasSpatula)
+            if (togglePressed && hasSpatula && distToWaypoint < 15)
             {
                 if (roach.Name == "mainRoach")
                 {
@@ -654,20 +665,22 @@ namespace GDGame
                     }
                     SetTaskBarText("SQUASH THEM ALL!");
                     ShowDialogue("THERE ARE SO MANY OF THEM! \nI NEED TO SQUASH THEM ALL!");
+                    events.Publish(new PlayMusicEvent("background_intense", musicVolume));
                 }
                 //foreach (var roach in roaches)
                 //{
-                //var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
-                //if (roach != null && distToWaypoint < 10 && isRoach)
-                //{
+
+                events.Publish(new PlaySfxEvent("spatula_hit_roach",
+               sfxVolume, false, null));
                 _sceneManager.ActiveScene.Remove(roach);
-                events.Publish(new PlaySfxEvent("roach_death",
-            1, false, null));
-                score += 100;
-                if (!roachKilled)
-                    spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
-                roachKilled = true;
-            }
+                    events.Publish(new PlaySfxEvent("roach_death",
+               sfxVolume, false, null));
+                    score += 100;
+                    if (!roachKilled)
+                        spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
+                    roachKilled = true;
+                }
+            
         }
 
         private void AddSpatula(GameObject spatula)
@@ -685,7 +698,7 @@ namespace GDGame
                 //{
                 _sceneManager.ActiveScene.Remove(spatula);
                 events.Publish(new PlaySfxEvent("ui_click",
-            1, false, null));
+            sfxVolume, false, null));
                 GameObject playerSpatula = InitializeModel(new Vector3(2, -6, 0),
                new Vector3(45, 0, 0),
                new Vector3(0.3f, 0.3f, 1), "spatula", "spatula", "spatula");
@@ -1130,15 +1143,14 @@ namespace GDGame
             #endregion First-person camera
 
             cameraGO = new GameObject(AppData.CAMERA_NAME_RAIL);
-            cameraGO.Transform.TranslateTo(position);
-
-            //add camera component to the GO
+            cameraGO.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0));
             camera = cameraGO.AddComponent<Camera>();
-            camera.FarPlane = 1000;
+            camera.FieldOfView = MathHelper.ToRadians(80);
 
-            //feed off whatever screen dimensions you set InitializeGraphics
-            camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
-
+            var curveController = cameraGO.AddComponent<CurveController>();
+            curveController.PositionCurve = BuildCameraPositionCurve(CurveLoopType.Oscillate);
+            curveController.TargetCurve = BuildCameraTargetCurve(CurveLoopType.Constant);
+            curveController.Duration = 10;
             scene.Add(cameraGO);
             //replace with new SetActiveCamera that searches by string
             scene.SetActiveCamera(AppData.CAMERA_NAME_RAIL);
@@ -1649,39 +1661,7 @@ namespace GDGame
             rigidBody.Mass = 1.0f;
         }
 
-        private void DemoCameraParent(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
-        {
-            //var cameraGO = new GameObject("Camera");
-            //var curveController = cameraGO.AddComponent<CurveController>();
-            //curveController.PositionCurve = BuildCameraPositionCurve(CurveLoopType.Oscillate);
-            //curveController.TargetCurve = BuildCameraTargetCurve(CurveLoopType.Constant);
-            //curveController.Duration = 10;
-            //_sceneManager.ActiveScene.Add(cameraGO);
-
-            var cameraGO = new GameObject("intro thing");
-            cameraGO.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0));
-            var camera = cameraGO.AddComponent<Camera>();
-            camera.FieldOfView = MathHelper.ToRadians(80);
-
-            var curveController = cameraGO.AddComponent<CurveController>();
-            curveController.PositionCurve = BuildCameraPositionCurve(CurveLoopType.Oscillate);
-            curveController.TargetCurve = BuildCameraTargetCurve(CurveLoopType.Constant);
-            curveController.Duration = 10;
-            _sceneManager.ActiveScene.Add(cameraGO);
-
-
-            //var go = new GameObject("CameraParent");
-            //_sceneManager.ActiveScene.Add(go);
-            //CurveController curveController = new CurveController();
-            //curveController.PositionCurve = _animationPositionCurve;
-            //curveController.Duration = 10;
-            //curveController.TargetCurve = _animationPositionCurve;
-            ////curveController.Loop = false;
-
-            //go.AddComponent(curveController);
-            //GameObject cameraObject = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_RAIL));
-            //cameraObject.Transform.SetParent(go);
-        }
+        
 
         private AnimationCurve3D BuildCameraPositionCurve(CurveLoopType curveLoopType)
         {
@@ -1739,6 +1719,8 @@ namespace GDGame
             if (isSpacePressed)
             {
                 _sceneManager.ActiveScene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
+                var events = EngineContext.Instance.Events;
+                events.Publish(new PlayMusicEvent("background_calm", musicVolume));
             }
         }
 
