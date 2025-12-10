@@ -5,6 +5,8 @@ using GDEngine.Core.Timing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
 
 namespace GDEngine.Core.Managers
 {
@@ -469,8 +471,8 @@ namespace GDEngine.Core.Managers
                 controlsBg.Position = Vector2.Zero;
                 controlsBg.Tint = Color.White;
                 controlsBg.LayerDepth = UILayer.MenuBack;
-
             }
+
 
             _controlsImage = _controlsMenuPanel.AddImage(
                 _controlsLayout,
@@ -483,6 +485,8 @@ namespace GDEngine.Core.Managers
                 _buttonTexture!,
                 _font!,
                 OnBackToMainFromControls);
+
+            _controlsMenuPanel.RefreshChildren();
             //End screen
 
             GameObject gameOverRoot = new GameObject("UI_GameOverPanel");

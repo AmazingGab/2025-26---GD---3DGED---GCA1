@@ -289,6 +289,7 @@ namespace GDGame
                 if (dialogueStage == 1)
                 {
                     ShowDialogue("YOU'RE KID WHO WAS LEFT HOME \nALONE AS YOUR PARENTS WENT \nON HOLIDAYS.");
+                    SetTaskBarText("READ THE STORY");
                 }
                 else
                 {
@@ -417,11 +418,11 @@ namespace GDGame
             var bodyText = _taskBarGO.AddComponent<UIText>();
             bodyText.Font = kidsBusFont;
             bodyText.Anchor = TextAnchor.TopLeft;
-            bodyText.PositionProvider = () => new Vector2(43f, 82f);
+            bodyText.PositionProvider = () => new Vector2(33f, 82f);
             bodyText.FallbackColor = new Color(72, 59, 32);
             bodyText.LayerDepth = UILayer.MenuBack;
             bodyText.DropShadow = false;
-            bodyText.TextProvider = () => "SQUASH THEM ALL!";
+            bodyText.TextProvider = () => "";
             _sceneManager.ActiveScene.Add(_taskBarGO);
         }
 
@@ -489,7 +490,6 @@ namespace GDGame
         {
             if (_dialogueText != null)
             {
-                Debug.WriteLine("dialogue cuz yeah");
                 _isDialogueOpen = true;
                 _dialogueText.TextProvider = () => message;
                 IsMouseVisible = true;
@@ -518,6 +518,7 @@ namespace GDGame
             else if (dialogueStage == 3)
             {
                 ShowDialogue("EW... THERE IS A ROACH! I NEED \nGET A SPATULA AND SQUASH \nROACHES WITH IT!");
+                SetTaskBarText("FIND THE SPATULA");
                 dialogueStage = 0;
                 return;
             }
@@ -540,6 +541,16 @@ namespace GDGame
 
             foreach (var ui in _taskBarGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
+        }
+
+        private void SetTaskBarText(string text)
+        {
+            if (_taskBarGO == null) return;
+            var uiText = _taskBarGO.GetComponent<UIText>();
+            if (uiText != null)
+            {
+                uiText.TextProvider = () => text;
+            }
         }
 
         private void SetMenuLogoVisible(bool visible)
@@ -641,6 +652,7 @@ namespace GDGame
                     {
                         r.Enabled = true;
                     }
+                    SetTaskBarText("SQUASH THEM ALL!");
                     ShowDialogue("THERE ARE SO MANY OF THEM! \nI NEED TO SQUASH THEM ALL!");
                 }
                 //foreach (var roach in roaches)
@@ -679,6 +691,7 @@ namespace GDGame
                new Vector3(0.3f, 0.3f, 1), "spatula", "spatula", "spatula");
 
                 playerSpatula.Transform.SetParent(cameraGO);
+                SetTaskBarText("SQUASH THE ROACH");
                 hasSpatula = true;
                 //score += 1000;
                 //break;

@@ -195,7 +195,7 @@ namespace GDEngine.Core.Rendering.UI
             label.LayerDepth = UILayer.MenuFront;
 
             label.TextProvider = () => text;
-            label.PositionProvider = () =>
+            label.PositionProvider = () => 
             {
                 return button.Position + (button.Size * 0.5f);
             };
