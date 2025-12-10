@@ -1,6 +1,8 @@
-﻿using GDEngine.Core.Entities;
+﻿using GDEngine.Core.Audio;
+using GDEngine.Core.Entities;
 using GDEngine.Core.Rendering;
 using GDEngine.Core.Rendering.UI;
+using GDEngine.Core.Services;
 using GDEngine.Core.Timing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -193,6 +195,7 @@ namespace GDEngine.Core.Managers
         /// </summary>
         public void ShowMainMenu()
         {
+            
             if (_mainMenuPanel == null ||
               _audioMenuPanel == null ||
               _controlsMenuPanel == null)
@@ -213,7 +216,8 @@ namespace GDEngine.Core.Managers
                 _audioMenuPanel == null ||
                 _controlsMenuPanel == null)
                 return;
-
+            var events = EngineContext.Instance.Events;
+            events.Publish(new PlaySfxEvent("ui_click", 1, false, null));
             SetActivePanel(_audioMenuPanel, _mainMenuPanel, _controlsMenuPanel);
         }
 
@@ -226,7 +230,8 @@ namespace GDEngine.Core.Managers
                 _audioMenuPanel == null ||
                 _controlsMenuPanel == null)
                 return;
-
+            var events = EngineContext.Instance.Events;
+            events.Publish(new PlaySfxEvent("ui_click", 1, false, null));
             SetActivePanel(_controlsMenuPanel, _mainMenuPanel, _audioMenuPanel);
         }
         public void ShowGameOver(bool won)
@@ -743,11 +748,15 @@ namespace GDEngine.Core.Managers
         private void OnBackToMainFromAudio()
         {
             ShowMainMenu();
+            var events = EngineContext.Instance.Events;
+            events.Publish(new PlaySfxEvent("ui_click", 1, false, null));
         }
 
         private void OnBackToMainFromControls()
         {
             ShowMainMenu();
+            var events = EngineContext.Instance.Events;
+            events.Publish(new PlaySfxEvent("ui_click", 1, false, null));
         }
 
         private void OnMusicSliderChanged(float value)

@@ -281,6 +281,8 @@ namespace GDGame
             {
                 //print details
                 Debug.WriteLine("Play clicked!");
+                var events = EngineContext.Instance.Events;
+                events.Publish(new PlaySfxEvent("ui_click", sfxVolume, false, null));
                 InitializeTaskUI();
                 InitializeUIReticleRenderer();
                 _sceneManager.Paused = false;
@@ -304,6 +306,8 @@ namespace GDGame
             _menuManager.ExitRequested += () =>
             {
                 Exit();
+                var events = EngineContext.Instance.Events;
+                events.Publish(new PlaySfxEvent("ui_click", sfxVolume, false, null));
             };
 
             _menuManager.MusicVolumeChanged += v =>
@@ -475,7 +479,10 @@ namespace GDGame
 
             btn.Clicked += () =>
             {
+
                 CloseDialogue();
+                var events = EngineContext.Instance.Events;
+                events.Publish(new PlaySfxEvent("ui_click", sfxVolume, false,null));
             };
 
             _sceneManager.ActiveScene.Add(_dialogueGO);
