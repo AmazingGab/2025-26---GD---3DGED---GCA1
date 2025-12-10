@@ -279,8 +279,6 @@ namespace GDGame
 
             _menuManager.PlayRequested += () =>
             {
-                //print details
-                Debug.WriteLine("Play clicked!");
                 InitializeTaskUI();
                 InitializeUIReticleRenderer();
                 _sceneManager.Paused = false;
@@ -528,7 +526,7 @@ namespace GDGame
             else if (dialogueStage == 3)
             {
                 ShowDialogue("EW... THERE IS A ROACH! I NEED \nGET A SPATULA AND SQUASH \nROACHES WITH IT!");
-                SetTaskBarText("FIND THE SPATULA");
+                SetTaskBarText("PRESS SPACE");
                 dialogueStage = 0;
                 return;
             }
@@ -1345,11 +1343,9 @@ namespace GDGame
                     if (hasSpatula)
                         return $"LEFT CLICK TO SQUASH";
                     return $"YOU NEED A SPATULA";
-                    //return $"{hit.Point}";
                 }
                 if (go.Name.Equals("spatula"))
                 {
-                    //System.Diagnostics.Debug.WriteLine("helloooo");
                     _newKBState2 = Keyboard.GetState();
                     AddSpatula(go);
                     _oldKBState2 = _newKBState2;
@@ -1721,6 +1717,7 @@ namespace GDGame
                 _sceneManager.ActiveScene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
                 var events = EngineContext.Instance.Events;
                 events.Publish(new PlayMusicEvent("background_calm", musicVolume));
+                SetTaskBarText("FIND THE SPATULA");
             }
         }
 
