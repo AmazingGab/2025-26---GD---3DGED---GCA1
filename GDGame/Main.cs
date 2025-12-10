@@ -629,10 +629,11 @@ namespace GDGame
         {
             var events = EngineContext.Instance.Events;
             // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
-            //var cameraObject = _scene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
+            var cameraObject = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
             var spatula = _sceneManager.ActiveScene.Find(go => go.Name.Equals("spatula"));
+            var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
             bool togglePressed = _newMouseState.LeftButton == ButtonState.Pressed && _oldMouseState.LeftButton == ButtonState.Released;
-            if (togglePressed && hasSpatula)
+            if (togglePressed && hasSpatula && distToWaypoint < 10)
             {
                 if (roach.Name == "mainRoach")
                 {
@@ -645,17 +646,17 @@ namespace GDGame
                 }
                 //foreach (var roach in roaches)
                 //{
-                //var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
-                //if (roach != null && distToWaypoint < 10 && isRoach)
-                //{
-                _sceneManager.ActiveScene.Remove(roach);
-                events.Publish(new PlaySfxEvent("roach_death",
-            1, false, null));
-                score += 100;
-                if (!roachKilled)
-                    spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
-                roachKilled = true;
-            }
+                
+                
+                    _sceneManager.ActiveScene.Remove(roach);
+                    events.Publish(new PlaySfxEvent("roach_death",
+                1, false, null));
+                    score += 100;
+                    if (!roachKilled)
+                        spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
+                    roachKilled = true;
+                }
+            
         }
 
         private void AddSpatula(GameObject spatula)
