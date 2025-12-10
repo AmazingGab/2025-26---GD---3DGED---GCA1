@@ -680,10 +680,10 @@ namespace GDGame
                 //{
 
                 events.Publish(new PlaySfxEvent("spatula_hit_roach",
-               sfxVolume, false, null));
+               sfxVolume, true, roach.Transform));
                 _sceneManager.ActiveScene.Remove(roach);
                     events.Publish(new PlaySfxEvent("roach_death",
-               sfxVolume, false, null));
+               sfxVolume, true, roach.Transform));
                     score += 100;
                     if (!roachKilled)
                         spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
