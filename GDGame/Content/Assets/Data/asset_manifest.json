@@ -22,155 +22,160 @@
             "contentPath": "assets/fonts/KidsBus"
         }
     ],
-    "textures": [
-        {
-            "name": "skybox_back",
-            "contentPath": "assets/textures/skybox/back"
-        },
-        {
-            "name": "skybox_front",
-            "contentPath": "assets/textures/skybox/front"
-        },
-        {
-            "name": "skybox_left",
-            "contentPath": "assets/textures/skybox/left"
-        },
-        {
-            "name": "skybox_right",
-            "contentPath": "assets/textures/skybox/right"
-        },
-        {
-            "name": "skybox_sky",
-            "contentPath": "assets/textures/skybox/sky"
-        },
+  "textures": [
+    {
+      "name": "skybox_back",
+      "contentPath": "assets/textures/skybox/back"
+    },
+    {
+      "name": "skybox_front",
+      "contentPath": "assets/textures/skybox/front"
+    },
+    {
+      "name": "skybox_left",
+      "contentPath": "assets/textures/skybox/left"
+    },
+    {
+      "name": "skybox_right",
+      "contentPath": "assets/textures/skybox/right"
+    },
+    {
+      "name": "skybox_sky",
+      "contentPath": "assets/textures/skybox/sky"
+    },
 
-        {
-            "name": "bed",
-            "contentPath": "assets/models/textures/BedBig1"
-        },
-        {
-            "name": "small_bed",
-            "contentPath": "assets/models/textures/BedSmall1"
-        },
-        {
-            "name": "shelf",
-            "contentPath": "assets/models/textures/BigShelf"
-        },
-        {
-            "name": "small_shelf",
-            "contentPath": "assets/models/textures/SmallShelf"
-        },
-        {
-            "name": "table",
-            "contentPath": "assets/models/textures/LongTableKitchen"
-        },
-        {
-            "name": "roach",
-            "contentPath": "assets/models/textures/Roach_Texture"
-        },
-        {
-            "name": "sink",
-            "contentPath": "assets/models/textures/SinkTable"
-        },
-        {
-            "name": "spatula",
-            "contentPath": "assets/models/textures/Spatula Texture"
-        },
-        {
-            "name": "toilet",
-            "contentPath": "assets/models/textures/Toilet"
-        },
-        {
-            "name": "wallpaper",
-            "contentPath": "assets/models/textures/Wallpaper"
-        },
-        {
-            "name": "tv",
-            "contentPath": "assets/models/textures/TV_Texture"
-        },
-        {
-            "name": "wallpaper",
-            "contentPath": "assets/models/textures/Wallpaper"
-        },
-        {
-            "name": "microwave",
-            "contentPath": "assets/models/textures/Microwave"
-        },
-        {
-            "name": "floor",
-            "contentPath": "assets/models/textures/Floor"
-        },
+    {
+      "name": "bed",
+      "contentPath": "assets/models/textures/BedBig1"
+    },
+    {
+      "name": "small_bed",
+      "contentPath": "assets/models/textures/BedSmall1"
+    },
+    {
+      "name": "shelf",
+      "contentPath": "assets/models/textures/BigShelf"
+    },
+    {
+      "name": "small_shelf",
+      "contentPath": "assets/models/textures/SmallShelf"
+    },
+    {
+      "name": "table",
+      "contentPath": "assets/models/textures/LongTableKitchen"
+    },
+    {
+      "name": "roach",
+      "contentPath": "assets/models/textures/Roach_Texture"
+    },
+    {
+      "name": "sink",
+      "contentPath": "assets/models/textures/SinkTable"
+    },
+    {
+      "name": "spatula",
+      "contentPath": "assets/models/textures/Spatula Texture"
+    },
+    {
+      "name": "toilet",
+      "contentPath": "assets/models/textures/Toilet"
+    },
+    {
+      "name": "wallpaper",
+      "contentPath": "assets/models/textures/Wallpaper"
+    },
+    {
+      "name": "tv",
+      "contentPath": "assets/models/textures/TV_Texture"
+    },
+    {
+      "name": "wallpaper",
+      "contentPath": "assets/models/textures/Wallpaper"
+    },
+    {
+      "name": "microwave",
+      "contentPath": "assets/models/textures/Microwave"
+    },
+    {
+      "name": "floor",
+      "contentPath": "assets/models/textures/Floor"
+    },
 
-        {
-            "name": "Crosshair",
-            "contentPath": "assets/textures/ui/mouse/Crosshair_04"
-        },
+    {
+      "name": "Crosshair",
+      "contentPath": "assets/textures/ui/mouse/Crosshair_04"
+    },
 
-      {
-        "name": "dialugue_ui",
-        "contentPath": "assets/textures/ui/interface/dialugue_ui"
-      },
-        {
-            "name": "task_bar",
-            "contentPath": "assets/textures/ui/interface/task_bar"
-        },
-        {
-            "name": "play_button",
-            "contentPath": "assets/textures/ui/interface/play_button"
-        },
-        {
-            "name": "options_button",
-            "contentPath": "assets/textures/ui/interface/options_button"
-        },
-        {
-            "name": "credits_button",
-            "contentPath": "assets/textures/ui/interface/credits_button"
-        },
-        {
-            "name": "exit_button",
-            "contentPath": "assets/textures/ui/interface/exit_button"
-        },
-        {
-            "name": "main_menu_background",
-            "contentPath": "assets/textures/ui/interface/main_menu_background"
-        },
-        {
-            "name": "slider_track",
-            "contentPath": "assets/textures/ui/interface/slider_track"
-        },
-        {
-            "name": "slider_handle",
-            "contentPath": "assets/textures/ui/interface/slider_handle"
-        },
-        {
-            "name": "Logo",
-            "contentPath": "assets/textures/ui/interface/Logo"
-        },
-        {
-            "name": "back_button",
-            "contentPath": "assets/textures/ui/interface/back_button"
-        },
-        {
-            "name": "back_to_menu_button",
-            "contentPath": "assets/textures/ui/interface/back_to_menu_button"
-        },
-        {
-            "name": "win_screen_logo",
-            "contentPath": "assets/textures/ui/interface/win_screen_logo"
-        },
-        {
-            "name": "lose_screen_logo",
-            "contentPath": "assets/textures/ui/interface/lose_screen_logo"
-        },
-        {
-            "name": "play_again_button",
-            "contentPath": "assets/textures/ui/interface/play_again_button"
-        },
-        {
-            "name": "controls",
-            "contentPath": "assets/textures/ui/interface/controls"
-        }
-    ],
+    {
+      "name": "dialugue_ui",
+      "contentPath": "assets/textures/ui/interface/dialugue_ui"
+    },
+    {
+      "name": "task_bar",
+      "contentPath": "assets/textures/ui/interface/task_bar"
+    },
+
+    {
+      "name": "roach_counter",
+      "contentPath": "assets/textures/ui/interface/roach_counter"
+    },
+    {
+      "name": "play_button",
+      "contentPath": "assets/textures/ui/interface/play_button"
+    },
+    {
+      "name": "options_button",
+      "contentPath": "assets/textures/ui/interface/options_button"
+    },
+    {
+      "name": "credits_button",
+      "contentPath": "assets/textures/ui/interface/credits_button"
+    },
+    {
+      "name": "exit_button",
+      "contentPath": "assets/textures/ui/interface/exit_button"
+    },
+    {
+      "name": "main_menu_background",
+      "contentPath": "assets/textures/ui/interface/main_menu_background"
+    },
+    {
+      "name": "slider_track",
+      "contentPath": "assets/textures/ui/interface/slider_track"
+    },
+    {
+      "name": "slider_handle",
+      "contentPath": "assets/textures/ui/interface/slider_handle"
+    },
+    {
+      "name": "Logo",
+      "contentPath": "assets/textures/ui/interface/Logo"
+    },
+    {
+      "name": "back_button",
+      "contentPath": "assets/textures/ui/interface/back_button"
+    },
+    {
+      "name": "back_to_menu_button",
+      "contentPath": "assets/textures/ui/interface/back_to_menu_button"
+    },
+    {
+      "name": "win_screen_logo",
+      "contentPath": "assets/textures/ui/interface/win_screen_logo"
+    },
+    {
+      "name": "lose_screen_logo",
+      "contentPath": "assets/textures/ui/interface/lose_screen_logo"
+    },
+    {
+      "name": "play_again_button",
+      "contentPath": "assets/textures/ui/interface/play_again_button"
+    },
+    {
+      "name": "controls",
+      "contentPath": "assets/textures/ui/interface/controls"
+    }
+  ],
     "models": [
         {
             "name": "bed",

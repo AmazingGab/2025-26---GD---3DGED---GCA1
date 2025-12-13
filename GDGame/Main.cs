@@ -73,6 +73,8 @@ namespace GDGame
         private GameObject _menuLogoGO;
         private GameObject _taskBarGO;
         private GameObject uiReticleGO;
+        private GameObject _roachCounterGO;
+        private int _roachesSquashed = 0;
 
         // Simple debug subscription for collision events
         private IDisposable _collisionSubscription;
@@ -285,11 +287,14 @@ namespace GDGame
                 events.Publish(new PlaySfxEvent("ui_click", sfxVolume, false, null));
                 InitializeTaskUI();
                 InitializeUIReticleRenderer();
+                InitializeRoachCounterUI();
                 _sceneManager.Paused = false;
                 _menuManager.HideMenus();
 
                 SetMenuLogoVisible(false);
                 SetTaskBarVisible(true);
+                SetRoachCounterVisible(true);
+
                 if (dialogueStage == 1)
                 {
                     
@@ -441,7 +446,31 @@ namespace GDGame
             bodyText.TextProvider = () => "";
             _sceneManager.ActiveScene.Add(_taskBarGO);
         }
+        private void InitializeRoachCounterUI()
+        {
+            _roachCounterGO = new GameObject("RoachCounter");
 
+            var counterTexture = _textureDictionary.Get("roach_counter");
+            var bg = _roachCounterGO.AddComponent<UITexture>();
+            bg.Texture = counterTexture;
+            bg.Anchor = TextAnchor.TopLeft;
+
+            bg.Position = new Vector2(20f, 140f);
+            bg.Scale = Vector2.One;
+            bg.LayerDepth = UILayer.HUD;
+
+            var countText = _roachCounterGO.AddComponent<UIText>();
+            countText.Font = _fontDictionary.Get("KidsBus");
+            countText.FallbackColor = new Color(72, 59, 32); 
+            countText.LayerDepth = UILayer.MenuBack;
+            countText.Scale = new Vector2(3f, 3f);
+
+            countText.PositionProvider = () => bg.Position + new Vector2(59f, 7f);
+
+            countText.TextProvider = () => $"{_roachesSquashed}/20";
+
+            _sceneManager.ActiveScene.Add(_roachCounterGO);
+        }
         private void OnPlayAgainClicked() => PlayAgainRequested?.Invoke();
 
         private void OnBackToMenuFromGameOver() => BackToMenuRequested?.Invoke();
@@ -504,7 +533,13 @@ namespace GDGame
             var btn = _dialogueGO.GetComponent<UIButton>();
             if (btn != null) btn.Enabled = visible;
         }
+        private void SetRoachCounterVisible(bool visible)
+        {
+            if (_roachCounterGO == null) return;
 
+            foreach (var ui in _roachCounterGO.GetComponents<UIRenderer>())
+                ui.Enabled = visible;
+        }
         private void ShowDialogue(string message)
         {
             if (_dialogueText != null)
@@ -685,6 +720,7 @@ namespace GDGame
                     events.Publish(new PlaySfxEvent("roach_death",
                sfxVolume, true, roach.Transform));
                     score += 100;
+                   _roachesSquashed++;
                     if (!roachKilled)
                         spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
                     roachKilled = true;
@@ -1436,7 +1472,8 @@ namespace GDGame
 
 
                     SetTaskBarVisible(!menuVisible);
-                    
+                    SetRoachCounterVisible(!menuVisible);
+
                 }
             }
 
