@@ -75,6 +75,9 @@ namespace GDGame
         private GameObject uiReticleGO;
         private GameObject _roachCounterGO;
         private int _roachesSquashed = 0;
+        private GameObject _timerGO;
+        private float _timeRemaining = 120f;
+        private bool _timerActive = false;
 
         // Simple debug subscription for collision events
         private IDisposable _collisionSubscription;
@@ -288,12 +291,14 @@ namespace GDGame
                 InitializeTaskUI();
                 InitializeUIReticleRenderer();
                 InitializeRoachCounterUI();
+                InitializeTimerUI();
                 _sceneManager.Paused = false;
                 _menuManager.HideMenus();
 
                 SetMenuLogoVisible(false);
                 SetTaskBarVisible(true);
                 SetRoachCounterVisible(true);
+                SetTimerVisible(true);
 
                 if (dialogueStage == 1)
                 {
@@ -419,7 +424,33 @@ namespace GDGame
 
             _sceneManager.ActiveScene.Add(_menuLogoGO);
         }
+        private void InitializeTimerUI()
+        {
+            _timerGO = new GameObject("TimerUI");
 
+            var timerTex = _textureDictionary.Get("timer_ui");
+            var bg = _timerGO.AddComponent<UITexture>();
+            bg.Texture = timerTex;
+            bg.Anchor = TextAnchor.TopLeft; 
+            bg.Position = new Vector2(195f, 140f);
+            bg.LayerDepth = UILayer.HUD;
+
+            var timeText = _timerGO.AddComponent<UIText>();
+            timeText.Font = _fontDictionary.Get("KidsBus");
+            timeText.FallbackColor = new Color(72, 59, 32); 
+            timeText.LayerDepth = UILayer.MenuBack;
+            timeText.Scale = new Vector2(1.2f, 1.2f); 
+
+            timeText.PositionProvider = () => bg.Position + new Vector2(17f, 7f);
+
+            timeText.TextProvider = () =>
+            {
+                TimeSpan span = TimeSpan.FromSeconds(_timeRemaining);
+                return span.ToString(@"mm\:ss");
+            };
+
+            _sceneManager.ActiveScene.Add(_timerGO);
+        }
         private void InitializeTaskUI()
         {
             if (_taskUiCreated)
@@ -433,7 +464,6 @@ namespace GDGame
             bg.Texture = taskBarTexture;
             bg.Anchor = TextAnchor.TopLeft;
             bg.Position = new Vector2(20f, 20f);
-            bg.Scale = Vector2.One;
             bg.LayerDepth = UILayer.HUD;
             var kidsBusFont = _fontDictionary.Get("KidsBus");
             var bodyText = _taskBarGO.AddComponent<UIText>();
@@ -456,7 +486,6 @@ namespace GDGame
             bg.Anchor = TextAnchor.TopLeft;
 
             bg.Position = new Vector2(20f, 140f);
-            bg.Scale = Vector2.One;
             bg.LayerDepth = UILayer.HUD;
 
             var countText = _roachCounterGO.AddComponent<UIText>();
@@ -553,7 +582,13 @@ namespace GDGame
                 SetReticleoVisible(false);
             }
         }
+        private void SetTimerVisible(bool visible)
+        {
+            if (_timerGO == null) return;
 
+            foreach (var ui in _timerGO.GetComponents<UIRenderer>())
+                ui.Enabled = visible;
+        }
         private void CloseDialogue()
         {
             SetDialogueVisible(false);
@@ -710,6 +745,7 @@ namespace GDGame
                     SetTaskBarText("SQUASH THEM ALL!");
                     ShowDialogue("THERE ARE SO MANY OF THEM! \nI NEED TO SQUASH THEM ALL!");
                     events.Publish(new PlayMusicEvent("background_intense", musicVolume));
+                    _timerActive = true;
                 }
                 //foreach (var roach in roaches)
                 //{
@@ -1320,7 +1356,7 @@ namespace GDGame
             textRenderer.Color = Color.White;
             textRenderer.PositionProvider = () => new Vector2(_graphics.GraphicsDevice.Viewport.Width - 100, 0);
             //textRenderer.Anchor = TextAnchor.Center;
-            textRenderer.TextProvider = () => "Score: " + score;
+            //textRenderer.TextProvider = () => "Score: " + score;
 
             _sceneManager.ActiveScene.Add(scoreBoard);
 
@@ -1449,7 +1485,14 @@ namespace GDGame
             #region Core
 
             Time.Update(gameTime);
-
+            if (!_sceneManager.Paused && _timerActive)
+            {
+                _timeRemaining -= Time.DeltaTimeSecs;
+                if (_timeRemaining < 0) 
+                { 
+                    _timeRemaining = 0; 
+                }
+            }
             //update Scene
             _sceneManager.ActiveScene.Update(Time.DeltaTimeSecs);
             if (_menuManager != null)
@@ -1473,6 +1516,7 @@ namespace GDGame
 
                     SetTaskBarVisible(!menuVisible);
                     SetRoachCounterVisible(!menuVisible);
+                    SetTimerVisible(!menuVisible);
 
                 }
             }
@@ -1607,7 +1651,7 @@ namespace GDGame
 
         private bool checkEnemiesVisited()
         {
-            return Time.RealtimeSinceStartupSecs > 120;
+            return _timeRemaining <= 0;
         }
 
         private void HandleGameStateChange(GameOutcomeState oldState, GameOutcomeState newState)
