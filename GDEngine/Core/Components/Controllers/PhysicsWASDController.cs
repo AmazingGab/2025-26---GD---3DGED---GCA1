@@ -40,7 +40,7 @@ namespace GDEngine.Core.Components
         public float MoveSpeed
         {
             get => _moveSpeed;
-            set => _moveSpeed = value > 0f ? value : 0f;
+            set => _moveSpeed = value > 0f ? value : 0.001f;
         }
 
         /// <summary>
@@ -198,8 +198,8 @@ namespace GDEngine.Core.Components
             else
             {
                 // No movement input: stop horizontal motion, let damping & gravity handle the rest.
-                velocity.X = 0f;
-                velocity.Z = 0f;
+                velocity.X = 0.0001f;
+                velocity.Z = 0.0001f;
             }
 
             _rigidBody.LinearVelocity = velocity;

@@ -618,12 +618,7 @@ namespace GDGame
             _isDialogueOpen = false;
         }
 
-        private void InitializeUISystems()
-        {
-            var uiEventSystem = new UIEventSystem();
-            _sceneManager.ActiveScene.Add(uiEventSystem);
-        }
-
+      
         private void SetTaskBarVisible(bool visible)
         {
             if (_taskBarGO == null) return;
@@ -794,44 +789,8 @@ namespace GDGame
             }
         }
 
-        private void InitializePlayer()
-        {
-            GameObject player = InitializeModel(new Vector3(0, 5, 10),
-                new Vector3(0, 0, 0),
-                2 * Vector3.One, "crate1", "monkey1", AppData.PLAYER_NAME);
-
-            var simpleDriveController = new SimpleDriveController();
-            player.AddComponent(simpleDriveController);
-
-            // Listen for damage events on the player
-            player.AddComponent<DamageEventListener>();
-
-            // Adds an inventory to the player
-            player.AddComponent<InventoryComponent>();
-        }
-
-        private void InitializePIPCamera(Vector3 position,
-      Viewport viewport, int depth, int index = 0)
-        {
-            var pipCameraGO = new GameObject("PIP camera");
-            pipCameraGO.Transform.TranslateTo(position);
-            pipCameraGO.Transform.RotateEulerBy(new Vector3(0, MathHelper.ToRadians(-90), 0));
-
-            //if (index == 0)
-            //{
-            //    pipCameraGO.AddComponent<KeyboardWASDController>();
-            //    pipCameraGO.AddComponent<MouseYawPitchController>();
-            //}
-
-            var camera = pipCameraGO.AddComponent<Camera>();
-            camera.StackRole = Camera.StackType.Overlay;
-            camera.ClearFlags = Camera.ClearFlagsType.DepthOnly;
-            camera.Depth = depth; //-100
-
-            camera.Viewport = viewport; // new Viewport(0, 0, 400, 300);
-
-            _sceneManager.ActiveScene.Add(pipCameraGO);
-        }
+       
+       
 
         private void InitializeAnimationCurves()
         {
@@ -1007,16 +966,7 @@ namespace GDGame
                                            //  InitializeNavMeshSystem();
         }
 
-        private void InitializeNavMeshSystem()
-        {
-            var scene = _sceneManager.ActiveScene;
-
-            // Core navmesh system (implements INavigationService)
-            var navMeshSystem = scene.AddSystem(new NavMeshSystem());
-
-            // Debug overlay (F2 toggle)
-            scene.Add(new NavMeshDebugSystem());
-        }
+      
 
         private void InitializeGameStateSystem()
         {
@@ -1148,38 +1098,9 @@ namespace GDGame
             GameObject cameraGO = null;
             Camera camera = null;
 
-            #region Static birds-eye camera
+           
 
-            cameraGO = new GameObject(AppData.CAMERA_NAME_STATIC_BIRDS_EYE);
-            camera = cameraGO.AddComponent<Camera>();
-            camera.FieldOfView = MathHelper.ToRadians(80);
-            //ISRoT
-            cameraGO.Transform.RotateEulerBy(new Vector3(MathHelper.ToRadians(-90), 0, 0));
-            cameraGO.Transform.TranslateTo(Vector3.UnitY * 50);
-
-            // _cameraGO.AddComponent<MouseYawPitchController>();
-
-            scene.Add(cameraGO);
-
-            // _camera.FieldOfView
-            //TODO - add camera
-
-            #endregion Static birds-eye camera
-
-            #region Third-person camera
-
-            cameraGO = new GameObject(AppData.CAMERA_NAME_THIRD_PERSON);
-            camera = cameraGO.AddComponent<Camera>();
-
-            var thirdPersonController = new ThirdPersonController();
-            thirdPersonController.TargetName = AppData.PLAYER_NAME;
-            thirdPersonController.ShoulderOffset = 0;
-            thirdPersonController.FollowDistance = 50;
-            thirdPersonController.RotationDamping = 20;
-            cameraGO.AddComponent(thirdPersonController);
-            scene.Add(cameraGO);
-
-            #endregion Third-person camera
+           
 
             #region First-person camera
 
@@ -1813,49 +1734,7 @@ namespace GDGame
             }
         }
 
-        private void DemoAudioSystem()
-        {
-            var events = EngineContext.Instance.Events;
-
-            //TODO - Exercise
-            bool isD3Pressed = _newKBState.IsKeyDown(Keys.D3) && !_oldKBState.IsKeyDown(Keys.D3);
-            if (isD3Pressed)
-            {
-                //events.Publish(new PlaySfxEvent("SFX_UI_Click_Designed_Pop_Generic_1",
-                //    1, false, null));
-            }
-
-            bool isD4Pressed = _newKBState.IsKeyDown(Keys.D4) && !_oldKBState.IsKeyDown(Keys.D4);
-            if (isD4Pressed)
-            {
-                events.Publish(new PlayMusicEvent("secret_door", 1, 8));
-            }
-
-            bool isD5Pressed = _newKBState.IsKeyDown(Keys.D5) && !_oldKBState.IsKeyDown(Keys.D5);
-            if (isD5Pressed)
-            {
-                events.Publish(new StopMusicEvent(4));
-            }
-
-            bool isD6Pressed = _newKBState.IsKeyDown(Keys.D6) && !_oldKBState.IsKeyDown(Keys.D6);
-            if (isD6Pressed)
-            {
-                events.Publish(new FadeChannelEvent(AudioMixer.AudioChannel.Master,
-                    0.1f, 4));
-            }
-
-            bool isD7Pressed = _newKBState.IsKeyDown(Keys.D7) && !_oldKBState.IsKeyDown(Keys.D7);
-            if (isD7Pressed)
-            {
-                //expensive and crude => move to Component::Start()
-                var go = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.PLAYER_NAME));
-                Transform emitterTransform = go.Transform;
-
-                //events.Publish(new PlaySfxEvent("hand_gun1",
-                //    1, true, emitterTransform));
-            }
-        }
-
+     
         private void DemoToggleFullscreen()
         {
             bool togglePressed = _newKBState.IsKeyDown(Keys.F5) && !_oldKBState.IsKeyDown(Keys.F5);
