@@ -306,6 +306,9 @@ namespace GDEngine.Core.Managers
         {
             _winLogoTexture = tex;
         }
+        /// <summary>
+        /// Updates the main menu buttons to use specific sprite images 
+        /// </summary>
         public void ApplyMainButtonImages(
          Texture2D playImage,
          Texture2D audioImage,
@@ -320,15 +323,17 @@ namespace GDEngine.Core.Managers
 
                 var graphic = go?.GetComponent<UITexture>();
 
+                //Assign the specific texture 
                 graphic.Texture = image;
+                //Resize the to match the textures native dimensions
                 graphic.Size = new Vector2(image.Width, image.Height);
                 button.Size = graphic.Size;
 
-
+                //Disable the text component because we are using image.
                 var label = go.GetComponent<UIText>();
                 label.Enabled = false;
             }
-
+            //Apply textures to their buttons
             SwapButtonImage(_playButton, playImage);
             SwapButtonImage(_audioButton, audioImage);
             SwapButtonImage(_controlsButton, controlsImage);
@@ -478,7 +483,7 @@ namespace GDEngine.Core.Managers
                 controlsBg.LayerDepth = UILayer.MenuBack;
             }
 
-
+            //Add the image that explains controls
             _controlsImage = _controlsMenuPanel.AddImage(
                 _controlsLayout,
                 viewportSize / 2,
@@ -492,12 +497,13 @@ namespace GDEngine.Core.Managers
                 OnBackToMainFromControls);
 
             _controlsMenuPanel.RefreshChildren();
-            //End screen
 
+            // -----------------------------------------------------------------
+            // Game over panel
+            // -----------------------------------------------------------------
             GameObject gameOverRoot = new GameObject("UI_GameOverPanel");
             scene.Add(gameOverRoot);
 
-            _gameOverPanel = gameOverRoot.AddComponent<UIMenuPanel>();
             _gameOverPanel = gameOverRoot.AddComponent<UIMenuPanel>();
 
             _gameOverPanel.PanelPosition = new Vector2(
@@ -509,7 +515,7 @@ namespace GDEngine.Core.Managers
             _gameOverPanel.VerticalSpacing = 12f;
             _gameOverPanel.IsVisible = false;
 
-
+            //Add background for game Over screen (reusing main menu background)
             if (_mainPanelBackground != null)
             {
                 GameObject bgRoot = new GameObject("UI_GameOverBackground");
@@ -523,7 +529,7 @@ namespace GDEngine.Core.Managers
             }
 
 
-
+            //Determine which Logo to show (Win or Lose)
             Texture2D logoToUse = null;
 
             if (_isWin)
@@ -540,7 +546,7 @@ namespace GDEngine.Core.Managers
                     logoToUse = _loseLogoTexture;
                 }
             }
-
+            //If a logo texture was found, create the UI element for it
             if (logoToUse != null)
             {
                 var logoGO = new GameObject("GameOverLogo");
@@ -561,6 +567,7 @@ namespace GDEngine.Core.Managers
             // Already present, keep it
             _gameOverPanel.RefreshChildren();
 
+            //Add action buttons for the Game Over screen
             _playAgainButton = _gameOverPanel.AddButton(
                 "",
                _buttonTexture!,
@@ -621,11 +628,10 @@ namespace GDEngine.Core.Managers
             Swap(_playAgainButton, playAgainImage);
             Swap(_backToMenuButton, backImage);
         }
+
         /// <summary>
-        /// Show the full menu (background + main menu).
-        /// Use this when opening the menu from the game (e.g. Esc or on startup).
+        /// Called when the game over screen is shown and updates (Win or Lose) to ensure the correct image and layout.
         /// </summary>
-        /// 
         private void UpdateGameOverLogo()
         {
             int backBufferWidth = Game.GraphicsDevice.PresentationParameters.BackBufferWidth;

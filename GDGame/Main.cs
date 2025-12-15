@@ -74,8 +74,8 @@ namespace GDGame
         private GameObject _taskBarGO;
         private GameObject uiReticleGO;
         private GameObject _roachCounterGO;
-        private int _roachesSquashed = 0;
         private GameObject _timerGO;
+        private int _roachesSquashed = 0;
         private float _timeRemaining = 120f;
         private bool _timerActive = false;
 
@@ -240,6 +240,7 @@ namespace GDGame
         {
             _menuManager = new MenuManager(this, _sceneManager);
             Components.Add(_menuManager);
+            //Getting assets like textures and fonts from the content dictionaries.
             Texture2D logoTex = _textureDictionary.Get("Logo");
             Texture2D buttonTex = _textureDictionary.Get("play_button");
             Texture2D sliderTrackTex = _textureDictionary.Get("slider_track");
@@ -253,9 +254,12 @@ namespace GDGame
 
             Texture2D winLogo = _textureDictionary.Get("win_screen_logo");
             Texture2D loseLogo = _textureDictionary.Get("lose_screen_logo");
+
+            //Adjust the MenuManager with the win/lose logos
             _menuManager.SetLoseLogo(loseLogo);
             _menuManager.SetWinLogo(winLogo);
 
+            //Initializin the internal UI panels (Main, Audio, Controls) using the retrieved assets
             _menuManager.Initialize(
                 _sceneManager.ActiveScene,
                 buttonTex,
@@ -268,8 +272,10 @@ namespace GDGame
                 controlsBg,
                 controlsLayout
             );
+            //Setting up the menu logo separately
             InitializeMenuLogo();
 
+            //Applying specific textures to buttons by replacing generic texture
             _menuManager.ApplyMainButtonImages(
                 _textureDictionary.Get("play_button"),
                 _textureDictionary.Get("options_button"),
@@ -282,24 +288,31 @@ namespace GDGame
                 _textureDictionary.Get("play_again_button"),
                 _textureDictionary.Get("back_to_menu_button"));
 
+            //Subscribe to the "Play" Event
             _menuManager.PlayRequested += () =>
             {
                 //print details
                 Debug.WriteLine("Play clicked!");
                 var events = EngineContext.Instance.Events;
                 events.Publish(new PlaySfxEvent("ui_click", sfxVolume, false, null));
+                //Initialize HUD elements
+                //They are created here so they don't appear in the main menu initially.
                 InitializeTaskUI();
                 InitializeUIReticleRenderer();
                 InitializeRoachCounterUI();
                 InitializeTimerUI();
+
+                //Unpause the SceneManager and hide the Menu UI
                 _sceneManager.Paused = false;
                 _menuManager.HideMenus();
 
+                //Change visibility hide Logo, show HUD
                 SetMenuLogoVisible(false);
                 SetTaskBarVisible(true);
                 SetRoachCounterVisible(true);
                 SetTimerVisible(true);
 
+                //Start of the game with narrative intro
                 if (dialogueStage == 1)
                 {
                     
@@ -315,6 +328,7 @@ namespace GDGame
                 }
             };
 
+            //Subscribe to the "Exit" Event
             _menuManager.ExitRequested += () =>
             {
                 Exit();
@@ -322,10 +336,12 @@ namespace GDGame
                 events.Publish(new PlaySfxEvent("ui_click", sfxVolume, false, null));
             };
 
+            //Subscribe to the "VolumeChanged" Event
             _menuManager.MusicVolumeChanged += v =>
             {
                 System.Diagnostics.Debug.WriteLine("MusicVolumeChanged: " + v);
                 musicVolume= v;
+                //Update currently playing music volume instantly
                 var events = EngineContext.Instance.Events;
                 events.Publish(new PlayMusicEvent("background_calm", musicVolume));
                
@@ -365,47 +381,9 @@ namespace GDGame
             SetReticleoVisible(false);
         }
 
-        private GameObject CreateImageButton(string textureKey, Vector2 centerPosition, Action onClick)
-        {
-            var go = new GameObject($"Button_{textureKey}");
-            _sceneManager.ActiveScene.Add(go);
-
-            Texture2D tex = _textureDictionary.Get(textureKey);
-
-            var graphic = go.AddComponent<UITexture>();
-            graphic.Texture = tex;
-
-            graphic.Size = new Vector2(tex.Width, tex.Height);
-
-            Vector2 topLeft = centerPosition - (graphic.Size * 0.5f);
-            graphic.Position = topLeft;
-
-            graphic.Tint = Color.White;
-            graphic.LayerDepth = UILayer.Menu;
-
-            var button = go.AddComponent<UIButton>();
-
-            button.TargetGraphic = graphic;
-            button.AutoSizeFromTargetGraphic = false;
-
-            button.Position = topLeft;
-            button.Size = graphic.Size;
-
-            button.NormalColor = Color.White;
-            button.HighlightedColor = Color.LightGray;
-            button.PressedColor = Color.Gray;
-            button.DisabledColor = Color.DarkGray;
-
-            button.Clicked += onClick;
-
-            button.PointerEntered += () => graphic.Tint = Color.White;
-            button.PointerExited += () => graphic.Tint = Color.White;
-            button.PointerDown += () => graphic.Tint = Color.LightGray;
-            button.PointerUp += () => graphic.Tint = Color.White;
-
-            return go;
-        }
-
+        /// <summary>
+        /// Initializes and positions the main game logo on the menu screen.
+        /// </summary>
         private void InitializeMenuLogo()
         {
             var logoTex = _textureDictionary.Get("Logo");
@@ -415,19 +393,24 @@ namespace GDGame
             logoUI.Texture = logoTex;
 
             var nativeSize = new Vector2(logoTex.Width, logoTex.Height);
-            var size = nativeSize * 1f;
+            var size = nativeSize;
             logoUI.Size = size;
 
             int screenW = _graphics.PreferredBackBufferWidth;
             logoUI.Position = new Vector2(screenW - size.X - 45f, 10f);
             logoUI.LayerDepth = UILayer.Menu;
 
+            //Register object with the scene
             _sceneManager.ActiveScene.Add(_menuLogoGO);
         }
+        /// <summary>
+        /// Creates the countdown timer UI element which consists of background and dynamic text.
+        /// </summary>
         private void InitializeTimerUI()
         {
             _timerGO = new GameObject("TimerUI");
 
+            //Background setup
             var timerTex = _textureDictionary.Get("timer_ui");
             var bg = _timerGO.AddComponent<UITexture>();
             bg.Texture = timerTex;
@@ -435,6 +418,7 @@ namespace GDGame
             bg.Position = new Vector2(195f, 140f);
             bg.LayerDepth = UILayer.HUD;
 
+            //Text setup
             var timeText = _timerGO.AddComponent<UIText>();
             timeText.Font = _fontDictionary.Get("KidsBus");
             timeText.FallbackColor = new Color(72, 59, 32); 
@@ -443,6 +427,7 @@ namespace GDGame
 
             timeText.PositionProvider = () => bg.Position + new Vector2(17f, 7f);
 
+            //Converts the float time remaining into "mm:ss" format every frame
             timeText.TextProvider = () =>
             {
                 TimeSpan span = TimeSpan.FromSeconds(_timeRemaining);
@@ -451,8 +436,13 @@ namespace GDGame
 
             _sceneManager.ActiveScene.Add(_timerGO);
         }
+        /// <summary>
+        /// Initializes the Task Bar (Top-left HUD) that displays current objectives.
+        /// Includes a check to prevent duplicate creation.
+        /// </summary>
         private void InitializeTaskUI()
         {
+            //Ensure the UI is only created once
             if (_taskUiCreated)
                 return;
 
@@ -465,17 +455,26 @@ namespace GDGame
             bg.Anchor = TextAnchor.TopLeft;
             bg.Position = new Vector2(20f, 20f);
             bg.LayerDepth = UILayer.HUD;
+
+
             var kidsBusFont = _fontDictionary.Get("KidsBus");
             var bodyText = _taskBarGO.AddComponent<UIText>();
             bodyText.Font = kidsBusFont;
             bodyText.Anchor = TextAnchor.TopLeft;
+
+            //Hardcoded position
             bodyText.PositionProvider = () => new Vector2(33f, 82f);
             bodyText.FallbackColor = new Color(72, 59, 32);
             bodyText.LayerDepth = UILayer.MenuBack;
             bodyText.DropShadow = false;
+
+            //Initialize with empty text; this will be updated via SetTaskBarText() later
             bodyText.TextProvider = () => "";
             _sceneManager.ActiveScene.Add(_taskBarGO);
         }
+        /// <summary>
+        /// Creates the Roach Counter HUD element showing progress (e.g., "5/20").
+        /// </summary>
         private void InitializeRoachCounterUI()
         {
             _roachCounterGO = new GameObject("RoachCounter");
@@ -496,6 +495,8 @@ namespace GDGame
 
             countText.PositionProvider = () => bg.Position + new Vector2(59f, 7f);
 
+
+            //Dynamic Text Provider, updates the score display 
             countText.TextProvider = () => $"{_roachesSquashed}/20";
 
             _sceneManager.ActiveScene.Add(_roachCounterGO);
@@ -504,6 +505,9 @@ namespace GDGame
 
         private void OnBackToMenuFromGameOver() => BackToMenuRequested?.Invoke();
 
+        /// <summary>
+        /// Initializes the Dialogue UI window.
+        /// </summary>
         private void InitializeDialogueUI()
         {
             _dialogueGO = new GameObject("DialogueWindow");
@@ -537,6 +541,7 @@ namespace GDGame
             btn.Size = textureComp.Size;
             btn.Position = textureComp.Position;
 
+            //Define Click Behavior (Close dialog/Advance story)
             btn.Clicked += () =>
             {
 
@@ -549,16 +554,22 @@ namespace GDGame
             SetDialogueVisible(false);
         }
 
+        /// <summary>
+        /// Toggles the rendering and interaction of the different UI elements.
+        /// </summary>
         private void SetDialogueVisible(bool visible)
         {
             if (_dialogueGO == null) return;
 
+            //Toggle Visuals (Texture and Text)
             foreach (var renderable in _dialogueGO.GetComponents<UIRenderer>())
             {
                 renderable.Enabled = visible;
+                // Ensure mouse is visible whenever we are interacting with UI
                 IsMouseVisible = true;
             }
 
+            // Enable/Disable the button component so clicks aren't registered when hidden
             var btn = _dialogueGO.GetComponent<UIButton>();
             if (btn != null) btn.Enabled = visible;
         }
@@ -569,56 +580,6 @@ namespace GDGame
             foreach (var ui in _roachCounterGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
         }
-        private void ShowDialogue(string message)
-        {
-            if (_dialogueText != null)
-            {
-                _isDialogueOpen = true;
-                _dialogueText.TextProvider = () => message;
-                IsMouseVisible = true;
-                SetDialogueVisible(true);
-                _sceneManager.Paused = true;
-                Time.TimeScale = 0;
-                SetReticleoVisible(false);
-            }
-        }
-        private void SetTimerVisible(bool visible)
-        {
-            if (_timerGO == null) return;
-
-            foreach (var ui in _timerGO.GetComponents<UIRenderer>())
-                ui.Enabled = visible;
-        }
-        private void CloseDialogue()
-        {
-            SetDialogueVisible(false);
-            if (dialogueStage == 1)
-            {
-                ShowDialogue("YOU DIDN'T DO ANY OF THE \nCHORES AND LEFT THE HOUSE \nUNCLEAN.");
-                dialogueStage++;
-                return;
-            }
-            else if (dialogueStage == 2)
-            {
-                ShowDialogue("NOW THE HOUSE IS INFESTED WITH \nROACHES! YOU NEED TO SQUASH \nTHEM ALL! GAME STARTS AFTER \nTHIS!");
-                dialogueStage++;
-                return;
-            }
-            else if (dialogueStage == 3)
-            {
-                ShowDialogue("EW... THERE IS A ROACH! I NEED \nGET A SPATULA AND SQUASH \nROACHES WITH IT!");
-                SetTaskBarText("PRESS SPACE");
-                dialogueStage = 0;
-                return;
-            }
-            _sceneManager.Paused = false;
-            Time.TimeScale = 1;
-            IsMouseVisible = false;
-            SetReticleoVisible(true);
-            _isDialogueOpen = false;
-        }
-
-      
         private void SetTaskBarVisible(bool visible)
         {
             if (_taskBarGO == null) return;
@@ -652,7 +613,61 @@ namespace GDGame
             foreach (var ui in uiReticleGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
         }
+        private void SetTimerVisible(bool visible)
+        {
+            if (_timerGO == null) return;
 
+            foreach (var ui in _timerGO.GetComponents<UIRenderer>())
+                ui.Enabled = visible;
+        }
+        private void ShowDialogue(string message)
+        {
+            if (_dialogueText != null)
+            {
+                _isDialogueOpen = true;
+                _dialogueText.TextProvider = () => message;
+                IsMouseVisible = true;
+                SetDialogueVisible(true);
+                _sceneManager.Paused = true;
+                Time.TimeScale = 0;
+                SetReticleoVisible(false);
+            }
+        }
+        
+        /// <summary>
+        /// Handles the "Next" or "Close" action for the dialogue window.
+        /// </summary>
+        private void CloseDialogue()
+        {
+            SetDialogueVisible(false);
+            if (dialogueStage == 1)
+            {
+                ShowDialogue("YOU DIDN'T DO ANY OF THE \nCHORES AND LEFT THE HOUSE \nUNCLEAN.");
+                dialogueStage++;
+                return;
+            }
+            else if (dialogueStage == 2)
+            {
+                ShowDialogue("NOW THE HOUSE IS INFESTED WITH \nROACHES! YOU NEED TO SQUASH \nTHEM ALL! GAME STARTS AFTER \nTHIS!");
+                dialogueStage++;
+                return;
+            }
+            else if (dialogueStage == 3)
+            {
+                ShowDialogue("EW... THERE IS A ROACH! I NEED \nGET A SPATULA AND SQUASH \nROACHES WITH IT!");
+                SetTaskBarText("PRESS SPACE");
+                dialogueStage = 0;
+                return;
+            }
+            _sceneManager.Paused = false;
+            Time.TimeScale = 1;
+            IsMouseVisible = false;
+            SetReticleoVisible(true);
+            _isDialogueOpen = false;
+        }
+
+      
+        
         private void InitializeCollidableGround(int scale = 500)
         {
             GameObject gameObject = null;
