@@ -39,6 +39,7 @@ youtube link here
 - Everything can walk through walls.
 - Roaches sometimes tend to flip over on their side or upside down, some tend to fly up a bit.
 - Invisible textures on models.
+- Roaches tend to just clip through the ground and fall. (We increased the amount of roaches to still have enough roaches for the player to squash)
 
 ## 👥 Contributions
 
