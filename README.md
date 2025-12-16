@@ -77,7 +77,6 @@ youtube link here
 |                | -   | Added task UI                                                      |
 |                | -   | Added dialogue system                                              |
 |                | -   | Uploaded UI components                                             |
-|                | -   | Trigger-able colliders                                             |
 |                | -   | Created Main Menu, Control Menu, Pause, Win/Lose Menu              |
 | ###            | -   | ###                                                                |
 
@@ -91,9 +90,10 @@ pagancow. (2006). dorm door opening.wav [online]. Freesound [online]. Available 
 
 ### 🏗️ Tools
 
-| Tool      | -   | Why                    |
-| --------- | --- | ---------------------- |
-| Figma     | -   | UI Development         |
-| Paint.net | -   | Creating visual assets |
-| Reaper    | -   | Sound editing          |
-| Blender   | -   | 3D modelling           |
+| Tool                | -   | Why                    |
+| ------------------- | --- | ---------------------- |
+| Figma               | -   | UI Development         |
+| Paint.net           | -   | Creating visual assets |
+| Reaper              | -   | Sound editing          |
+| OnlineSequencer.net | -   | Creating music         |
+| Blender             | -   | 3D modelling           |

@@ -1267,7 +1267,6 @@ namespace GDGame
                     return string.Empty;
                 if (go.Name.Equals("roach") || go.Name.Equals("mainRoach"))
                 {
-                    isRoach = true;
                     //_scene.Remove(go);
                     _newMouseState = Mouse.GetState();
                     KillRoach(go);
@@ -1284,8 +1283,6 @@ namespace GDGame
                     _oldKBState2 = _newKBState2;
                     return $"E TO PICKUP";
                 }
-                else
-                    isRoach = false;
 
                 //return $"{go.Name}  d={hit.Distance:F1}";
                 return "";
