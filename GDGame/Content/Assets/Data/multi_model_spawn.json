@@ -9,7 +9,7 @@
       "position": [
         150,
         0,
-        40 
+        40
       ],
       "rotationDegrees": [
         -90,
@@ -37,9 +37,9 @@
         0
       ],
       "scale": [
-        15, 
-        2.5, 
-        2 
+        15,
+        2.5,
+        2
       ],
       "textureName": "table",
       "modelName": "table",
@@ -204,6 +204,106 @@
       "textureName": "TV",
       "modelName": "TV",
       "objectName": "spawn-6"
+    },
+    {
+      "position": [
+        50.5, //X
+        -1, //Z
+        -23.5 //Y
+      ],
+      "rotationDegrees": [
+        -90,
+        0,
+        0
+      ],
+      "scale": [
+        0.2,
+        9.3,
+        10
+      ],
+      "textureName": "door",
+      "modelName": "door",
+      "objectName": "spawn-5"
+    },
+    {
+      "position": [
+        80, //X
+        -1, //Z
+        27.5 //Y
+      ],
+      "rotationDegrees": [
+        -90,
+        0,
+        0
+      ],
+      "scale": [
+        0.2,
+        9.3,
+        10
+      ],
+      "textureName": "door",
+      "modelName": "door",
+      "objectName": "spawn-5"
+    },
+    {
+      "position": [
+        110, //X
+        -1, //Z
+        27.5 //Y
+      ],
+      "rotationDegrees": [
+        -90,
+        0,
+        0
+      ],
+      "scale": [
+        0.2,
+        9.3,
+        10
+      ],
+      "textureName": "door",
+      "modelName": "door",
+      "objectName": "spawn-5"
+    },
+    {
+      "position": [
+        110, //X
+        -1, //Z
+        -23.5 //Y
+      ],
+      "rotationDegrees": [
+        -90,
+        0,
+        0
+      ],
+      "scale": [
+        0.2,
+        9.3,
+        10
+      ],
+      "textureName": "door",
+      "modelName": "door",
+      "objectName": "spawn-5"
+    },
+    {
+      "position": [
+        55, //X
+        10, //Z
+        50 //Y
+      ],
+      "rotationDegrees": [
+        270,
+        90,
+        180
+      ],
+      "scale": [
+        4,
+        4,
+        10
+      ],
+      "textureName": "shower",
+      "modelName": "shower",
+      "objectName": "spawn-5"
     }
   ]
 }
