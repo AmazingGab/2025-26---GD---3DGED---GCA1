@@ -87,6 +87,9 @@ namespace GDEngine.Core.Managers
 
         private GameObject? _studioImage;
         private Texture2D? _madeby;
+
+        private GameObject? _gameLogo;
+        private Texture2D? _logoText;
         #endregion
 
         #region Properties
@@ -153,7 +156,8 @@ namespace GDEngine.Core.Managers
          Texture2D audioPanelBackground,
          Texture2D controlsPanelBackground,
          Texture2D controlsLayout,
-         Texture2D dtomstudioImage)
+         Texture2D dtomstudioImage,
+         Texture2D logoImage)
         {
             if (menuScene == null)
                 throw new ArgumentNullException(nameof(menuScene));
@@ -177,6 +181,8 @@ namespace GDEngine.Core.Managers
                 throw new ArgumentNullException(nameof(controlsLayout));
             if (dtomstudioImage == null)
                 throw new ArgumentNullException(nameof(dtomstudioImage));
+            if (logoImage == null)
+                throw new ArgumentNullException(nameof(logoImage));
 
             _menuScene = menuScene;
             _buttonTexture = buttonTexture;
@@ -190,6 +196,7 @@ namespace GDEngine.Core.Managers
             _controlsPanelBackground = controlsPanelBackground;
             _controlsLayout = controlsLayout;
             _madeby = dtomstudioImage;
+            _logoText = logoImage;
 
             _configured = true;
 
@@ -385,6 +392,12 @@ namespace GDEngine.Core.Managers
                 _madeby,
                 viewportSize / 4,
                 viewportSize / 2 + new Vector2(300, 200)
+                );
+
+            _gameLogo = _mainMenuPanel.AddImage(
+                _logoText,
+                new Vector2((backBufferWidth)/1.5f, (backBufferHeight - 120)/1.5f),
+                new Vector2(backBufferWidth / 2 - 200, backBufferHeight / 4 - 220)
                 );
 
             _playButton = _mainMenuPanel.AddButton(

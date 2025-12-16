@@ -93,6 +93,8 @@ namespace GDGame
         private KeyboardState _newKBState2;
         private KeyboardState _oldKBState2;
         private float timeLeft;
+        private float timeSinceLastSpawn;
+        private bool spawningRoaches = false;
         private bool roachKilled = false;
 
         private GameObject _dialogueGO;
@@ -162,7 +164,7 @@ namespace GDGame
             #endregion Collidables
 
             DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false, "mainRoach");
-            for (int i = 0; i < 40; i++)
+            for (int i = 0; i < 50; i++)
             {
                 Random rng = new Random();
                 DemoCollidableModel(new Vector3(rng.Next(-20, 170), 1, rng.Next(-60, 50)), new Vector3(-90, rng.Next(-360, 360), 0), new Vector3(1.5f, 0.5f, 0.2f), true, "roach");
@@ -272,10 +274,9 @@ namespace GDGame
                 audioBg,
                 controlsBg,
                 controlsLayout,
-                gameStudioImage
+                gameStudioImage,
+                logoTex
             );
-            //Setting up the menu logo separately
-            InitializeMenuLogo();
 
             //Applying specific textures to buttons by replacing generic texture
             _menuManager.ApplyMainButtonImages(
@@ -382,29 +383,7 @@ namespace GDGame
             SetMenuLogoVisible(true);
             SetReticleoVisible(false);
         }
-
-        /// <summary>
-        /// Initializes and positions the main game logo on the menu screen.
-        /// </summary>
-        private void InitializeMenuLogo()
-        {
-            var logoTex = _textureDictionary.Get("Logo");
-
-            _menuLogoGO = new GameObject("MenuLogo");
-            var logoUI = _menuLogoGO.AddComponent<UITexture>();
-            logoUI.Texture = logoTex;
-
-            var nativeSize = new Vector2(logoTex.Width, logoTex.Height);
-            var size = nativeSize;
-            logoUI.Size = size;
-
-            int screenW = _graphics.PreferredBackBufferWidth;
-            logoUI.Position = new Vector2(screenW - size.X - 45f, 10f);
-            logoUI.LayerDepth = UILayer.Menu;
-
-            //Register object with the scene
-            _sceneManager.ActiveScene.Add(_menuLogoGO);
-        }
+        
         /// <summary>
         /// Creates the countdown timer UI element which consists of background and dynamic text.
         /// </summary>
@@ -749,11 +728,10 @@ namespace GDGame
             {
                 if (roach.Name == "mainRoach")
                 {
-                    List<GameObject> roaches = _sceneManager.ActiveScene.FindAll((GameObject go) => go.Name.Equals("roach"));
-                    foreach (var r in roaches)
-                    {
-                        r.Enabled = true;
-                    }
+                    beginSpawningRoaches();
+                    spawningRoaches = true;
+
+
                     SetTaskBarText("SQUASH THEM ALL!");
                     ShowDialogue("THERE ARE SO MANY OF THEM! \nI NEED TO SQUASH THEM ALL!");
                     events.Publish(new PlayMusicEvent("background_intense", musicVolume));
@@ -774,6 +752,29 @@ namespace GDGame
                     roachKilled = true;
                 }
             
+        }
+
+        private void beginSpawningRoaches()
+        {
+            List<GameObject> roaches = _sceneManager.ActiveScene.FindAll((GameObject go) => go.Name.Equals("roach"));
+            Random rng = new Random();
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (roaches.Count <= 0)
+                    break;
+
+                var r = roaches[rng.Next(0, roaches.Count)];
+                if (!r.Enabled)
+                {
+                    r.Enabled = true;
+                }
+                else
+                {
+                    i--;
+                }
+            }
+            timeSinceLastSpawn = 0f;
         }
 
         private void AddSpatula(GameObject spatula)
@@ -1461,6 +1462,16 @@ namespace GDGame
 
             #endregion Core
 
+            // spawning roaches in intervals
+            if (spawningRoaches)
+            {
+                timeSinceLastSpawn += Time.DeltaTimeSecs;
+                if (timeSinceLastSpawn >= 8)
+                {
+                    beginSpawningRoaches();
+                }
+            }
+
             //Debug.WriteLine(Time.TimeScale);
 
             _newKBState = Keyboard.GetState();
@@ -1596,11 +1607,13 @@ namespace GDGame
         {
             if (newState == GameOutcomeState.Lost)
             {
+                spawningRoaches = false;
                 System.Diagnostics.Debug.WriteLine("You lost!");
                 _menuManager.ShowGameOver(false);
             }
             else if (newState == GameOutcomeState.Won)
             {
+                spawningRoaches = false;
                 System.Diagnostics.Debug.WriteLine("You win!");
 
                 // Pause gameplay
@@ -1694,7 +1707,7 @@ namespace GDGame
             var curve = new AnimationCurve3D(curveLoopType);
 
             // start
-            curve.AddKey(new Vector3(-20, 10, 40), 0);
+            curve.AddKey(new Vector3(-15, 10, 40), 0);
 
             // moving inward, slight rise
             curve.AddKey(new Vector3(-10, 10, 30), 0.25f);
