@@ -87,15 +87,17 @@ namespace GDGame
 
         private UIMenuPanel _mainMenuPanel, _audioMenuPanel;
         private SceneManager _sceneManager;
-        private float _currentHealth = 100;
         private MenuManager _menuManager;
         private bool hasSpatula;
         private KeyboardState _newKBState2;
         private KeyboardState _oldKBState2;
         private float timeLeft;
         private float timeSinceLastSpawn;
+        private bool isInGame = false;
+        private bool clickedStart = false;
         private bool spawningRoaches = false;
         private bool roachKilled = false;
+        private bool playingCountdownSound = false;
 
         private GameObject _dialogueGO;
         private UIText _dialogueText;
@@ -143,7 +145,6 @@ namespace GDGame
             InitializeSkyParent();
             InitializeSkyBox(scale);
             InitializeCollidableGround(scale);
-            //InitializePlayer();
 
             #endregion Core
 
@@ -163,15 +164,17 @@ namespace GDGame
 
             #endregion Collidables
 
-            DemoCollidableModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false, "mainRoach");
+
+            // spawning main roach
+            spawnRoachModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false, "mainRoach");
+            // spawning multiple disabled roaches
             for (int i = 0; i < 50; i++)
             {
                 Random rng = new Random();
-                DemoCollidableModel(new Vector3(rng.Next(-20, 170), 1, rng.Next(-60, 50)), new Vector3(-90, rng.Next(-360, 360), 0), new Vector3(1.5f, 0.5f, 0.2f), true, "roach");
+                spawnRoachModel(new Vector3(rng.Next(-10, 170), 1, rng.Next(-40, 50)), new Vector3(-90, rng.Next(-360, 360), 0), new Vector3(1.5f, 0.5f, 0.2f), true, "roach");
             }
 
             DemoCollidableSpatula(new Vector3(8, 0.5f, 12), new Vector3(0, 0, 180), new Vector3(0.3f, 0.3f, .7f));
-            //DemoCameraParent(new Vector3(0, 0, 0), new Vector3(90, 0, 0), new Vector3(0.3f, 1f, 1f));
 
             DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
             DemoLoadFromJSON();
@@ -204,24 +207,6 @@ namespace GDGame
             events.Publish(new PlayMusicEvent("background_calm", musicVolume));
             Time.TimeScale = 0;
             base.Initialize();
-        }
-
-        private void SetPauseShowMenu()
-        {
-            // Give scenemanager the events reference so that it can publish the pause event
-            _sceneManager.EventBus = EngineContext.Instance.Events;
-            // Set paused and publish pause event
-            _sceneManager.Paused = true;
-
-            // Put all components that should be paused to sleep
-            EngineContext.Instance.Events.Subscribe<GamePauseChangedEvent>(e =>
-            {
-                bool paused = e.IsPaused;
-
-                _sceneManager.ActiveScene.GetSystem<PhysicsSystem>()?.SetPaused(paused);
-                _sceneManager.ActiveScene.GetSystem<PhysicsDebugSystem>()?.SetPaused(paused);
-                _sceneManager.ActiveScene.GetSystem<GameStateSystem>()?.SetPaused(paused);
-            });
         }
 
         private void InitializeSceneManager()
@@ -358,23 +343,6 @@ namespace GDGame
                
             };
 
-            //_menuManager.ShowGameOver();
-            //_sceneManager.Paused = true;
-            //IsMouseVisible = true;
-
-            //_menuManager.PlayAgainRequested += () =>
-            //{
-            //    RestartLevel();
-            //    _menuManager.HideGameOver();
-            //    _sceneManager.Paused = false;
-            //};
-
-            //_menuManager.BackToMenuRequested += () =>
-            //{
-            //    _menuManager.HideGameOver();
-            //    _menuManager.ShowMainMenu();
-            //};
-
             _sceneManager.Paused = true;
             _menuManager.ShowMainMenu();
 
@@ -482,9 +450,6 @@ namespace GDGame
 
             _sceneManager.ActiveScene.Add(_roachCounterGO);
         }
-        private void OnPlayAgainClicked() => PlayAgainRequested?.Invoke();
-
-        private void OnBackToMenuFromGameOver() => BackToMenuRequested?.Invoke();
 
         /// <summary>
         /// Initializes the Dialogue UI window.
@@ -637,6 +602,7 @@ namespace GDGame
             {
                 ShowDialogue("EW... THERE IS A ROACH! I NEED \nGET A SPATULA AND SQUASH \nROACHES WITH IT!");
                 SetTaskBarText("PRESS SPACE");
+                clickedStart = true;
                 dialogueStage = 0;
                 return;
             }
@@ -780,16 +746,10 @@ namespace GDGame
         private void AddSpatula(GameObject spatula)
         {
             var events = EngineContext.Instance.Events;
-            // List<GameObject> roaches = _scene.FindAll((GameObject go) => go.Name.Equals("test crate textured cube"));
             var cameraGO = _sceneManager.ActiveScene.Find(go => go.Name.Equals(AppData.CAMERA_NAME_FIRST_PERSON));
             bool togglePressed = _newKBState2.IsKeyDown(Keys.E) && !_oldKBState2.IsKeyDown(Keys.E);
             if (togglePressed)
             {
-                //foreach (var roach in roaches)
-                //{
-                //var distToWaypoint = Vector3.Distance(cameraObject.Transform.Position, roach.Transform.Position);
-                //if (roach != null && distToWaypoint < 10 && isRoach)
-                //{
                 _sceneManager.ActiveScene.Remove(spatula);
                 events.Publish(new PlaySfxEvent("ui_click",
             sfxVolume, false, null));
@@ -800,15 +760,8 @@ namespace GDGame
                 playerSpatula.Transform.SetParent(cameraGO);
                 SetTaskBarText("SQUASH THE ROACH");
                 hasSpatula = true;
-                //score += 1000;
-                //break;
-                //}
-                //}
             }
         }
-
-       
-       
 
         private void InitializeAnimationCurves()
         {
@@ -875,8 +828,8 @@ namespace GDGame
             _fontDictionary = new ContentDictionary<SpriteFont>();
             _soundDictionary = new ContentDictionary<SoundEffect>();
             _effectsDictionary = new ContentDictionary<Effect>();
-            //TODO - Add dictionary loading for other assets - song, other?
 
+            // Load asset manifest(s) from JSON file
             var manifests = JSONSerializationUtility.LoadData<AssetManifest>(Content, relativeFilePathAndName); // single or array
             if (manifests.Count > 0)
             {
@@ -887,7 +840,6 @@ namespace GDGame
                     _fontDictionary.LoadFromManifest(m.Fonts, e => e.Name, e => e.ContentPath, overwrite: true);
                     _soundDictionary.LoadFromManifest(m.Sounds, e => e.Name, e => e.ContentPath, overwrite: true);
                     _effectsDictionary.LoadFromManifest(m.Effects, e => e.Name, e => e.ContentPath, overwrite: true);
-                    //TODO - Add dictionary loading for other assets - song, other?
                 }
             }
         }
@@ -924,14 +876,6 @@ namespace GDGame
                 VertexColorEnabled = false
             };
             litBasicEffect.EnableDefaultLighting();
-            //litBasicEffect.AmbientLightColor = Color.Red.ToVector3();
-            //litBasicEffect.EmissiveColor = Color.Green.ToVector3();
-            //litBasicEffect.FogEnabled = true;
-            //litBasicEffect.FogColor = Color.LightGray.ToVector3();
-            //litBasicEffect.FogStart = 1;
-            //litBasicEffect.FogEnd = 100;
-            //litBasicEffect.SpecularPower = 8;  //int, power of 2, 1, 2, 4, 8
-            //litBasicEffect.SpecularColor = Color.Yellow.ToVector3();
             _matBasicLit = new Material(litBasicEffect);
             _matBasicLit.StateBlock = RenderStates.Opaque3D();
 
@@ -972,7 +916,7 @@ namespace GDGame
         private void InitializeSystems()
         {
             InitializePhysicsSystem();
-            InitializePhysicsDebugSystem(false);
+            InitializePhysicsDebugSystem(true);
             InitializeEventSystem();  //propagate events
             InitializeInputSystem();  //input
             InitializeCameraAndRenderSystems(); //update cameras, draw renderable game objects, draw ui and menu
@@ -1116,10 +1060,6 @@ namespace GDGame
             GameObject cameraGO = null;
             Camera camera = null;
 
-           
-
-           
-
             #region First-person camera
 
             var position = new Vector3(0, 5, 25);
@@ -1133,29 +1073,13 @@ namespace GDGame
             //add camera component to the GO
             camera = cameraGO.AddComponent<Camera>();
             camera.FarPlane = 1000;
+            camera.FieldOfView = MathHelper.ToRadians(60);
 
             //feed off whatever screen dimensions you set InitializeGraphics
             camera.AspectRatio = (float)_graphics.PreferredBackBufferWidth / _graphics.PreferredBackBufferHeight;
             cameraGO.AddComponent<SimpleDriveController>();
             cameraGO.AddComponent<MouseYawPitchController>();
             cameraGO.AddComponent<CameraImpulseListener>();
-
-            //var collider = cameraGO.AddComponent<CapsuleCollider>();
-            //collider.Height = 5f;
-            //collider.Radius = 0.25f;
-
-            //var rb = cameraGO.AddComponent<RigidBody>();
-            //rb.BodyType = BodyType.Dynamic;
-            //rb.Mass = 80f;       // “human-ish”
-            //rb.UseGravity = true;
-            //rb.LinearDamping = 0.0f;      // or a little drag if you prefer
-            //rb.AngularDamping = 0.0f;
-
-            //var physicsWASDController = cameraGO.AddComponent<PhysicsWASDController>();
-            //physicsWASDController.MoveSpeed = 25f;                     // walk speed
-
-            //var interComp = cameraGO.AddComponent<InteractionComponent>();
-            //interComp.HitMask = LayerMask.Interactables;
 
             // Add it to the scene
             scene.Add(cameraGO);
@@ -1431,6 +1355,12 @@ namespace GDGame
                 { 
                     _timeRemaining = 0; 
                 }
+                if (_timeRemaining < 11 && !playingCountdownSound)
+                {
+                    playingCountdownSound = true;
+                    var events = EngineContext.Instance.Events;
+                    events.Publish(new PlaySfxEvent("ui_ticking", sfxVolume, false, null));
+                }
             }
             //update Scene
             _sceneManager.ActiveScene.Update(Time.DeltaTimeSecs);
@@ -1471,8 +1401,6 @@ namespace GDGame
                     beginSpawningRoaches();
                 }
             }
-
-            //Debug.WriteLine(Time.TimeScale);
 
             _newKBState = Keyboard.GetState();
             DemoStuff();
@@ -1566,11 +1494,6 @@ namespace GDGame
             var gameStateSystem = _sceneManager.ActiveScene.GetSystem<GameStateSystem>();
 
             // Value providers (Strategy pattern via delegates)
-            Func<float> healthProvider = () =>
-            {
-                //get the player and access the player's health/speed/other variable
-                return _currentHealth;
-            };
 
             // Delegate for time
             Func<float> timeProvider = () =>
@@ -1633,7 +1556,7 @@ namespace GDGame
 
         #endregion Demo - Game State
 
-        private void DemoCollidableModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale, bool isMoving, string name)
+        private void spawnRoachModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale, bool isMoving, string name)
         {
             var go = new GameObject(name);
             go.Transform.TranslateTo(position);
@@ -1700,8 +1623,6 @@ namespace GDGame
             rigidBody.Mass = 1.0f;
         }
 
-        
-
         private AnimationCurve3D BuildCameraPositionCurve(CurveLoopType curveLoopType)
         {
             var curve = new AnimationCurve3D(curveLoopType);
@@ -1716,10 +1637,10 @@ namespace GDGame
             curve.AddKey(new Vector3(0, 10, 30), 0.5f);
 
             // heading back out
-            curve.AddKey(new Vector3(10, 10, 40), 0.75f);
+            curve.AddKey(new Vector3(10, 10, 20), 0.75f);
 
             // end
-            curve.AddKey(new Vector3(20, 10, 40), 1);
+            curve.AddKey(new Vector3(20, 10, 10), 1);
 
             return curve;
         }
@@ -1737,26 +1658,18 @@ namespace GDGame
 
         private void DemoStuff()
         {
-            // Get new state
-            //_newKBState = Keyboard.GetState();
-
             DemoToggleFullscreen();
-            //DemoAudioSystem();
-
             DemoImpulsePublish();
-            //a demo relating to GameStateSystem
-            //_currentHealth--;
-
-            // Store old state (allows us to do was pressed type checks)
-            // _oldKBState = _newKBState;
         }
 
         private void DemoImpulsePublish()
         {
             var impulses = EngineContext.Instance.Impulses;
             bool isSpacePressed = _newKBState.IsKeyDown(Keys.Space) && !_oldKBState.IsKeyDown(Keys.Space);
-            if (isSpacePressed)
+            if (isSpacePressed && !isInGame && clickedStart)
             {
+                isInGame = true;
+                _menuManager.setInGame(true);
                 _sceneManager.ActiveScene.SetActiveCamera(AppData.CAMERA_NAME_FIRST_PERSON);
                 var events = EngineContext.Instance.Events;
                 events.Publish(new PlayMusicEvent("background_calm", musicVolume));
@@ -1774,13 +1687,6 @@ namespace GDGame
 
         private void DemoLoadFromJSON()
         {
-            //var relativeFilePathAndName = "assets/data/single_model_spawn.json";
-            //List<ModelSpawnData> mList = JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName);
-
-            ////load a single model
-            //foreach (var d in mList)
-            //    InitializeModel(d.Position, d.RotationDegrees, d.Scale, d.TextureName, d.ModelName, d.ObjectName);
-
             var relativeFilePathAndName = "assets/data/multi_model_spawn.json";
             //load multiple models
             foreach (var d in JSONSerializationUtility.LoadData<ModelSpawnData>(Content, relativeFilePathAndName))

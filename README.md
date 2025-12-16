@@ -40,6 +40,9 @@ youtube link here
 - Roaches sometimes tend to flip over on their side or upside down, some tend to fly up a bit.
 - Invisible textures on models.
 - Roaches tend to just clip through the ground and fall. (We increased the amount of roaches to still have enough roaches for the player to squash)
+- No collision on the map.
+- Player can phase through objects.
+- Play again button doesn't actually reload the game.
 
 ## 👥 Contributions
 
@@ -49,7 +52,6 @@ youtube link here
 |                | -   | Updating project to the newest engine code                         |
 |                | -   | Merging members code to main and fix merge conflicts               |
 |                | -   | Fixing bugs (UI image not showing up for controls) & making tweaks |
-|                | -   | Uploaded sounds                                                    |
 |                | -   | Fixed up the dialogue showing up and text displayed                |
 |                | -   | Roach spawning                                                     |
 |                | -   | Made the README.md file                                            |
@@ -72,6 +74,7 @@ youtube link here
 | ###            | -   | ###                                                                |
 | **Mykhailo**   | -   | Added timer UI                                                     |
 |                | -   | Added roach counter                                                |
+|                | -   | Added task UI                                                      |
 |                | -   | Added dialogue system                                              |
 |                | -   | Uploaded UI components                                             |
 |                | -   | Trigger-able colliders                                             |

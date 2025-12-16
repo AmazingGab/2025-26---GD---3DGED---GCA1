@@ -90,6 +90,8 @@ namespace GDEngine.Core.Managers
 
         private GameObject? _gameLogo;
         private Texture2D? _logoText;
+
+        private bool isInGame = false;
         #endregion
 
         #region Properties
@@ -219,6 +221,11 @@ namespace GDEngine.Core.Managers
                 _gameOverPanel.IsVisible = false;
 
             SetActivePanel(_mainMenuPanel, _audioMenuPanel, _controlsMenuPanel);
+        }
+
+        public void setInGame(bool inGame)
+        {
+            isInGame = inGame;
         }
 
         /// <summary>
@@ -825,6 +832,9 @@ namespace GDEngine.Core.Managers
 
         private void ShowHideMenu()
         {
+            if (!isInGame)
+                return;
+
             if (_newKBState.IsKeyDown(Keys.Escape) && !_oldKBState.IsKeyDown(Keys.Escape))
             {
                 if (IsMenuVisible)
