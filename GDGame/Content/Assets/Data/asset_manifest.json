@@ -176,8 +176,12 @@
       "contentPath": "assets/textures/ui/interface/controls"
     },
     {
-      "name": "timer_ui",
-      "contentPath": "assets/textures/ui/interface/timer_ui"
+        "name": "timer_ui",
+        "contentPath": "assets/textures/ui/interface/timer_ui"
+    },
+    {
+        "name": "studio_image",
+        "contentPath": "assets/textures/ui/dtomstudioslogo"
     }
   ],
     "models": [

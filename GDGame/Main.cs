@@ -254,6 +254,7 @@ namespace GDGame
 
             Texture2D winLogo = _textureDictionary.Get("win_screen_logo");
             Texture2D loseLogo = _textureDictionary.Get("lose_screen_logo");
+            Texture2D gameStudioImage = _textureDictionary.Get("studio_image");
 
             //Adjust the MenuManager with the win/lose logos
             _menuManager.SetLoseLogo(loseLogo);
@@ -270,7 +271,8 @@ namespace GDGame
                 mainBg,
                 audioBg,
                 controlsBg,
-                controlsLayout
+                controlsLayout,
+                gameStudioImage
             );
             //Setting up the menu logo separately
             InitializeMenuLogo();

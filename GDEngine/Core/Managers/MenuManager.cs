@@ -84,6 +84,9 @@ namespace GDEngine.Core.Managers
         private Texture2D? _controlsPanelBackground;
         private Texture2D? _loseLogoTexture;
         private UITexture? _gameOverLogo;
+
+        private GameObject? _studioImage;
+        private Texture2D? _madeby;
         #endregion
 
         #region Properties
@@ -149,7 +152,8 @@ namespace GDEngine.Core.Managers
          Texture2D mainPanelBackground,
          Texture2D audioPanelBackground,
          Texture2D controlsPanelBackground,
-         Texture2D controlsLayout)
+         Texture2D controlsLayout,
+         Texture2D dtomstudioImage)
         {
             if (menuScene == null)
                 throw new ArgumentNullException(nameof(menuScene));
@@ -171,6 +175,8 @@ namespace GDEngine.Core.Managers
                 throw new ArgumentNullException(nameof(controlsPanelBackground));
             if (controlsLayout == null)
                 throw new ArgumentNullException(nameof(controlsLayout));
+            if (dtomstudioImage == null)
+                throw new ArgumentNullException(nameof(dtomstudioImage));
 
             _menuScene = menuScene;
             _buttonTexture = buttonTexture;
@@ -183,6 +189,7 @@ namespace GDEngine.Core.Managers
             _audioPanelBackground = audioPanelBackground;
             _controlsPanelBackground = controlsPanelBackground;
             _controlsLayout = controlsLayout;
+            _madeby = dtomstudioImage;
 
             _configured = true;
 
@@ -373,6 +380,12 @@ namespace GDEngine.Core.Managers
                 mainBg.Tint = Color.White;
                 mainBg.LayerDepth = UILayer.MenuBack;  // above global dim, below buttons
             }
+
+            _studioImage = _mainMenuPanel.AddImage(
+                _madeby,
+                viewportSize / 4,
+                viewportSize / 2 + new Vector2(300, 200)
+                );
 
             _playButton = _mainMenuPanel.AddButton(
                 "",

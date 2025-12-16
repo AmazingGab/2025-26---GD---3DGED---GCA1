@@ -499,7 +499,7 @@
 /build:Assets/Sounds/sta_sfx_spatula_hit_roach.wav
 
 #begin Assets/Sounds/UI/sta_sfx_ui_click.wav
-/importer:Mp3Importer
+/importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Assets/Sounds/UI/sta_sfx_ui_click.wav
@@ -581,6 +581,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/UI/chat.png
+
+#begin Assets/Textures/UI/dtomstudioslogo.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UI/dtomstudioslogo.png
 
 #begin Assets/Textures/UI/Interface/back_button.png
 /importer:TextureImporter

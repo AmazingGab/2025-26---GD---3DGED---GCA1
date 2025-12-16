@@ -208,6 +208,10 @@ namespace GDEngine.Core.Rendering.UI
             return button;
         }
 
+        /// <summary>
+        /// Creates an image UI element for displaying a texture
+        /// as a child of this panel.
+        /// </summary>
         public GameObject AddImage(Texture2D imageTexture, Vector2 size, Vector2 pos)
         {
             var scene = GameObject?.Scene;
