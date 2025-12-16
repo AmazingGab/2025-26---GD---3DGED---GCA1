@@ -291,7 +291,7 @@ namespace GDGame
                     ShowDialogue("YOU'RE KID WHO WAS LEFT HOME \nALONE AS YOUR PARENTS WENT \nON HOLIDAYS.");
                     SetTaskBarText("READ THE STORY");
 
-                    events.Publish(new PlayMusicEvent("intro_theme"));
+                    events.Publish(new PlayMusicEvent("intro_theme", musicVolume));
                 }
                 else
                 {
