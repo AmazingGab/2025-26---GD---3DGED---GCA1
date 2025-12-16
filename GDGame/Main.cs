@@ -28,12 +28,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 using Color = Microsoft.Xna.Framework.Color;
-using System.Security.AccessControl;
-//using GDEngine.Core.Components.Controllers.Physics;
-using GDGame.Demos.Components;
 using System.Diagnostics;
 
 namespace GDGame
@@ -51,10 +46,6 @@ namespace GDGame
         private bool _disposed = false;
         private Material _matBasicUnlit, _matBasicLit, _matAlphaCutout, _matBasicUnlitGround;
 
-        public event Action? PlayAgainRequested;
-
-        public event Action? BackToMenuRequested;
-
         #endregion Core Fields (Common to all games)
 
         #region Demo Fields (remove in the game)
@@ -62,15 +53,11 @@ namespace GDGame
         private AnimationCurve3D _animationPositionCurve, _animationRotationCurve;
         private AnimationCurve _animationCurve;
         private KeyboardState _newKBState, _oldKBState;
-        private int _damageAmount;
         private MouseState _oldMouseState;
         private MouseState _newMouseState;
         public int score;
-        private bool isRoach;
-        private bool _menuVisible = true;
         private bool _taskUiCreated = false;
         private bool _lastMenuVisible = false;
-        private GameObject _menuLogoGO;
         private GameObject _taskBarGO;
         private GameObject uiReticleGO;
         private GameObject _roachCounterGO;
@@ -103,8 +90,8 @@ namespace GDGame
         private UIText _dialogueText;
         private bool _isDialogueOpen = false;
         private int dialogueStage = 1;
-        private float musicVolume=0.8f;
-        private float sfxVolume=0.8f;
+        private float musicVolume = 0.8f;
+        private float sfxVolume = 0.8f;
 
         #endregion Demo Fields (remove in the game)
 
@@ -164,7 +151,6 @@ namespace GDGame
 
             #endregion Collidables
 
-
             // spawning main roach
             spawnRoachModel(new Vector3(0, 1, 10), new Vector3(-90, 0, 0), new Vector3(1.5f, 0.5f, 0.2f), false, "mainRoach");
             // spawning multiple disabled roaches
@@ -176,7 +162,7 @@ namespace GDGame
 
             DemoCollidableSpatula(new Vector3(8, 0.5f, 12), new Vector3(0, 0, 180), new Vector3(0.3f, 0.3f, .7f));
 
-            DemoCollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
+            CollidableMap(new Vector3(80, 0, 0), new Vector3(-90, 0, 0), new Vector3(100, 55, 5));
             DemoLoadFromJSON();
 
             #endregion Demos
@@ -295,7 +281,6 @@ namespace GDGame
                 _menuManager.HideMenus();
 
                 //Change visibility hide Logo, show HUD
-                SetMenuLogoVisible(false);
                 SetTaskBarVisible(true);
                 SetRoachCounterVisible(true);
                 SetTimerVisible(true);
@@ -303,10 +288,9 @@ namespace GDGame
                 //Start of the game with narrative intro
                 if (dialogueStage == 1)
                 {
-                    
                     ShowDialogue("YOU'RE KID WHO WAS LEFT HOME \nALONE AS YOUR PARENTS WENT \nON HOLIDAYS.");
                     SetTaskBarText("READ THE STORY");
-                    
+
                     events.Publish(new PlayMusicEvent("intro_theme"));
                 }
                 else
@@ -328,19 +312,16 @@ namespace GDGame
             _menuManager.MusicVolumeChanged += v =>
             {
                 System.Diagnostics.Debug.WriteLine("MusicVolumeChanged: " + v);
-                musicVolume= v;
+                musicVolume = v;
                 //Update currently playing music volume instantly
                 var events = EngineContext.Instance.Events;
                 events.Publish(new PlayMusicEvent("background_calm", musicVolume));
-               
-
             };
 
             _menuManager.SfxVolumeChanged += v =>
             {
                 System.Diagnostics.Debug.WriteLine("SfxVolumeChanged: " + v);
-                sfxVolume= v;
-               
+                sfxVolume = v;
             };
 
             _sceneManager.Paused = true;
@@ -348,10 +329,9 @@ namespace GDGame
 
             IsMouseVisible = true;
             SetTaskBarVisible(false);
-            SetMenuLogoVisible(true);
             SetReticleoVisible(false);
         }
-        
+
         /// <summary>
         /// Creates the countdown timer UI element which consists of background and dynamic text.
         /// </summary>
@@ -363,16 +343,16 @@ namespace GDGame
             var timerTex = _textureDictionary.Get("timer_ui");
             var bg = _timerGO.AddComponent<UITexture>();
             bg.Texture = timerTex;
-            bg.Anchor = TextAnchor.TopLeft; 
+            bg.Anchor = TextAnchor.TopLeft;
             bg.Position = new Vector2(195f, 140f);
             bg.LayerDepth = UILayer.HUD;
 
             //Text setup
             var timeText = _timerGO.AddComponent<UIText>();
             timeText.Font = _fontDictionary.Get("KidsBus");
-            timeText.FallbackColor = new Color(72, 59, 32); 
+            timeText.FallbackColor = new Color(72, 59, 32);
             timeText.LayerDepth = UILayer.MenuBack;
-            timeText.Scale = new Vector2(1.2f, 1.2f); 
+            timeText.Scale = new Vector2(1.2f, 1.2f);
 
             timeText.PositionProvider = () => bg.Position + new Vector2(17f, 7f);
 
@@ -385,6 +365,7 @@ namespace GDGame
 
             _sceneManager.ActiveScene.Add(_timerGO);
         }
+
         /// <summary>
         /// Initializes the Task Bar (Top-left HUD) that displays current objectives.
         /// Includes a check to prevent duplicate creation.
@@ -405,7 +386,6 @@ namespace GDGame
             bg.Position = new Vector2(20f, 20f);
             bg.LayerDepth = UILayer.HUD;
 
-
             var kidsBusFont = _fontDictionary.Get("KidsBus");
             var bodyText = _taskBarGO.AddComponent<UIText>();
             bodyText.Font = kidsBusFont;
@@ -421,6 +401,7 @@ namespace GDGame
             bodyText.TextProvider = () => "";
             _sceneManager.ActiveScene.Add(_taskBarGO);
         }
+
         /// <summary>
         /// Creates the Roach Counter HUD element showing progress (e.g., "5/20").
         /// </summary>
@@ -438,14 +419,13 @@ namespace GDGame
 
             var countText = _roachCounterGO.AddComponent<UIText>();
             countText.Font = _fontDictionary.Get("KidsBus");
-            countText.FallbackColor = new Color(72, 59, 32); 
+            countText.FallbackColor = new Color(72, 59, 32);
             countText.LayerDepth = UILayer.MenuBack;
             countText.Scale = new Vector2(3f, 3f);
 
             countText.PositionProvider = () => bg.Position + new Vector2(59f, 7f);
 
-
-            //Dynamic Text Provider, updates the score display 
+            //Dynamic Text Provider, updates the score display
             countText.TextProvider = () => $"{_roachesSquashed}/20";
 
             _sceneManager.ActiveScene.Add(_roachCounterGO);
@@ -490,10 +470,9 @@ namespace GDGame
             //Define Click Behavior (Close dialog/Advance story)
             btn.Clicked += () =>
             {
-
                 CloseDialogue();
                 var events = EngineContext.Instance.Events;
-                events.Publish(new PlaySfxEvent("ui_click", sfxVolume, false,null));
+                events.Publish(new PlaySfxEvent("ui_click", sfxVolume, false, null));
             };
 
             _sceneManager.ActiveScene.Add(_dialogueGO);
@@ -501,7 +480,7 @@ namespace GDGame
         }
 
         /// <summary>
-        /// Toggles the rendering and interaction of the different UI elements.
+        /// Toggles the the visibility of dialogue UI element.
         /// </summary>
         private void SetDialogueVisible(bool visible)
         {
@@ -519,6 +498,10 @@ namespace GDGame
             var btn = _dialogueGO.GetComponent<UIButton>();
             if (btn != null) btn.Enabled = visible;
         }
+
+        /// <summary>
+        /// Toggles the the visibility of counter UI element.
+        /// </summary>
         private void SetRoachCounterVisible(bool visible)
         {
             if (_roachCounterGO == null) return;
@@ -526,6 +509,10 @@ namespace GDGame
             foreach (var ui in _roachCounterGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
         }
+
+        /// <summary>
+        /// Toggles the the visibility of taskbar UI element.
+        /// </summary>
         private void SetTaskBarVisible(bool visible)
         {
             if (_taskBarGO == null) return;
@@ -534,6 +521,9 @@ namespace GDGame
                 ui.Enabled = visible;
         }
 
+        /// <summary>
+        /// Sets the text to be displayed on the task bar
+        /// </summary>
         private void SetTaskBarText(string text)
         {
             if (_taskBarGO == null) return;
@@ -544,14 +534,9 @@ namespace GDGame
             }
         }
 
-        private void SetMenuLogoVisible(bool visible)
-        {
-            if (_menuLogoGO == null) return;
-
-            foreach (var ui in _menuLogoGO.GetComponents<UIRenderer>())
-                ui.Enabled = visible;
-        }
-
+        /// <summary>
+        /// Toggles the the visibility of reticle UI element.
+        /// </summary>
         private void SetReticleoVisible(bool visible)
         {
             if (uiReticleGO == null) return;
@@ -559,6 +544,11 @@ namespace GDGame
             foreach (var ui in uiReticleGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
         }
+
+        /// <summary>
+        /// Toggles the the visibility of timer UI element.
+        /// </summary>
+        /// 
         private void SetTimerVisible(bool visible)
         {
             if (_timerGO == null) return;
@@ -566,6 +556,10 @@ namespace GDGame
             foreach (var ui in _timerGO.GetComponents<UIRenderer>())
                 ui.Enabled = visible;
         }
+
+        /// <summary>
+        /// Shows the dialogue window with the specified message.
+        /// </summary>
         private void ShowDialogue(string message)
         {
             if (_dialogueText != null)
@@ -579,7 +573,7 @@ namespace GDGame
                 SetReticleoVisible(false);
             }
         }
-        
+
         /// <summary>
         /// Handles the "Next" or "Close" action for the dialogue window.
         /// </summary>
@@ -613,8 +607,9 @@ namespace GDGame
             _isDialogueOpen = false;
         }
 
-      
-        
+        /// <summary>
+        /// initializes a large collidable ground plane with collider
+        /// </summary>
         private void InitializeCollidableGround(int scale = 500)
         {
             GameObject gameObject = null;
@@ -653,7 +648,10 @@ namespace GDGame
             _sceneManager.ActiveScene.Add(gameObject);
         }
 
-        private void DemoCollidableMap(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
+        /// <summary>
+        /// Creates a collidable map structure with walls.
+        /// </summary>
+        private void CollidableMap(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale)
         {
             var go = new GameObject("map");
             go.Transform.TranslateTo(position);
@@ -669,19 +667,11 @@ namespace GDGame
             meshRenderer.Material = _matBasicLit;
             meshRenderer.Overrides.MainTexture = texture;
             _sceneManager.ActiveScene.Add(go);
-
-            // Add box collider (1x1x1 cube)
-            var collider = go.AddComponent<BoxCollider>();
-            collider.Size = scale; // Collider is FULL size
-            collider.Center = new Vector3(0, 0, 0);
-
-            // Add rigidbody (Dynamic so it falls)
-
-            var rigidBody = go.AddComponent<RigidBody>();
-            rigidBody.BodyType = BodyType.Static;
-            rigidBody.Mass = 1.0f;
         }
 
+        /// <summary>
+        /// Gets called when player clicks on a roach to squash it.
+        /// </summary>
         private void KillRoach(GameObject roach)
         {
             var events = EngineContext.Instance.Events;
@@ -694,9 +684,8 @@ namespace GDGame
             {
                 if (roach.Name == "mainRoach")
                 {
-                    beginSpawningRoaches();
+                    BeginSpawningRoaches();
                     spawningRoaches = true;
-
 
                     SetTaskBarText("SQUASH THEM ALL!");
                     ShowDialogue("THERE ARE SO MANY OF THEM! \nI NEED TO SQUASH THEM ALL!");
@@ -705,22 +694,23 @@ namespace GDGame
                 }
                 //foreach (var roach in roaches)
                 //{
-
                 events.Publish(new PlaySfxEvent("spatula_hit_roach",
                sfxVolume, true, roach.Transform));
                 _sceneManager.ActiveScene.Remove(roach);
-                    events.Publish(new PlaySfxEvent("roach_death",
-               sfxVolume, true, roach.Transform));
-                    score += 100;
-                   _roachesSquashed++;
-                    if (!roachKilled)
-                        spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
-                    roachKilled = true;
-                }
-            
+                events.Publish(new PlaySfxEvent("roach_death",
+           sfxVolume, true, roach.Transform));
+                score += 100;
+                _roachesSquashed++;
+                if (!roachKilled)
+                    spatula.Transform.RotateBy(Quaternion.CreateFromAxisAngle(Vector3.Right, MathHelper.ToRadians(-10)), worldSpace: false);
+                roachKilled = true;
+            }
         }
 
-        private void beginSpawningRoaches()
+        /// <summary>
+        /// S
+
+        private void BeginSpawningRoaches()
         {
             List<GameObject> roaches = _sceneManager.ActiveScene.FindAll((GameObject go) => go.Name.Equals("roach"));
             Random rng = new Random();
@@ -925,10 +915,7 @@ namespace GDGame
             InitializeImpulseSystem();    //camera shake, audio duck volumes etc
             InitializeUIEventSystem();
             InitializeGameStateSystem();   //manage and track game state
-                                           //  InitializeNavMeshSystem();
         }
-
-      
 
         private void InitializeGameStateSystem()
         {
@@ -1351,9 +1338,9 @@ namespace GDGame
             if (!_sceneManager.Paused && _timerActive)
             {
                 _timeRemaining -= Time.DeltaTimeSecs;
-                if (_timeRemaining < 0) 
-                { 
-                    _timeRemaining = 0; 
+                if (_timeRemaining < 0)
+                {
+                    _timeRemaining = 0;
                 }
                 if (_timeRemaining < 11 && !playingCountdownSound)
                 {
@@ -1382,11 +1369,9 @@ namespace GDGame
                         SetReticleoVisible(false);
                     }
 
-
                     SetTaskBarVisible(!menuVisible);
                     SetRoachCounterVisible(!menuVisible);
                     SetTimerVisible(!menuVisible);
-
                 }
             }
 
@@ -1398,7 +1383,7 @@ namespace GDGame
                 timeSinceLastSpawn += Time.DeltaTimeSecs;
                 if (timeSinceLastSpawn >= 8)
                 {
-                    beginSpawningRoaches();
+                    BeginSpawningRoaches();
                 }
             }
 
@@ -1485,10 +1470,6 @@ namespace GDGame
             base.Dispose(disposing);
         }
 
-        #region Demo Methods (remove in the game)
-
-        #region Demo - Game State
-
         private void SetWinConditions()
         {
             var gameStateSystem = _sceneManager.ActiveScene.GetSystem<GameStateSystem>();
@@ -1553,8 +1534,6 @@ namespace GDGame
                 IsMouseVisible = true;
             }
         }
-
-        #endregion Demo - Game State
 
         private void spawnRoachModel(Vector3 position, Vector3 eulerRotationDegrees, Vector3 scale, bool isMoving, string name)
         {
@@ -1658,11 +1637,11 @@ namespace GDGame
 
         private void DemoStuff()
         {
-            DemoToggleFullscreen();
-            DemoImpulsePublish();
+            ToggleFullscreen();
+            SkipCutScene();
         }
 
-        private void DemoImpulsePublish()
+        private void SkipCutScene()
         {
             var impulses = EngineContext.Instance.Impulses;
             bool isSpacePressed = _newKBState.IsKeyDown(Keys.Space) && !_oldKBState.IsKeyDown(Keys.Space);
@@ -1677,8 +1656,7 @@ namespace GDGame
             }
         }
 
-     
-        private void DemoToggleFullscreen()
+        private void ToggleFullscreen()
         {
             bool togglePressed = _newKBState.IsKeyDown(Keys.F5) && !_oldKBState.IsKeyDown(Keys.F5);
             if (togglePressed)
@@ -1727,6 +1705,5 @@ namespace GDGame
             //    $"[Collision] {nameA} (Layer {layerA}) <-> {nameB} (Layer {layerB})");
         }
 
-        #endregion Demo Methods (remove in the game)
     }
 }
