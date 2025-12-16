@@ -61,6 +61,14 @@
       "contentPath": "assets/models/textures/SmallShelf"
     },
     {
+      "name": "door",
+      "contentPath": "assets/models/textures/Doors_texture"
+    },
+    {
+      "name": "shower",
+      "contentPath": "assets/models/textures/Shower_Texture"
+    },
+    {
       "name": "table",
       "contentPath": "assets/models/textures/LongTableKitchen"
     },
@@ -180,56 +188,64 @@
       "contentPath": "assets/textures/ui/interface/timer_ui"
     }
   ],
-    "models": [
-        {
-            "name": "bed",
-            "contentPath": "assets/models/Bed"
-        },
-        {
-            "name": "walls",
-            "contentPath": "assets/models/House_Walls"
-        },
-        {
-            "name": "table",
-            "contentPath": "assets/models/Long_Table"
-        },
-        {
-            "name": "microwave",
-            "contentPath": "assets/models/Microwave"
-        },
-        {
-            "name": "roach",
-            "contentPath": "assets/models/Roaches1"
-        },
-        {
-            "name": "shelf",
-            "contentPath": "assets/models/Shelf"
-        },
-        {
-            "name": "sink",
-            "contentPath": "assets/models/Sink"
-        },
-        {
-            "name": "small_bed",
-            "contentPath": "assets/models/Small_Bed"
-        },
-        {
-            "name": "small_shelf",
-            "contentPath": "assets/models/Small_Shelf"
-        },
-        {
-            "name": "toilet",
-            "contentPath": "assets/models/Toilet2"
-        },
-        {
-            "name": "TV",
-            "contentPath": "assets/models/TV"
-        },
-        {
-            "name": "spatula",
-            "contentPath": "assets/models/spatula"
-        }
-    ],
+  "models": [
+    {
+      "name": "bed",
+      "contentPath": "assets/models/Bed"
+    },
+    {
+      "name": "door",
+      "contentPath": "assets/models/Doors"
+    },
+    {
+      "name": "shower",
+      "contentPath": "assets/models/Shower"
+    },
+    {
+      "name": "walls",
+      "contentPath": "assets/models/House_Walls"
+    },
+    {
+      "name": "table",
+      "contentPath": "assets/models/Long_Table"
+    },
+    {
+      "name": "microwave",
+      "contentPath": "assets/models/Microwave"
+    },
+    {
+      "name": "roach",
+      "contentPath": "assets/models/Roaches1"
+    },
+    {
+      "name": "shelf",
+      "contentPath": "assets/models/Shelf"
+    },
+    {
+      "name": "sink",
+      "contentPath": "assets/models/Sink"
+    },
+    {
+      "name": "small_bed",
+      "contentPath": "assets/models/Small_Bed"
+    },
+    {
+      "name": "small_shelf",
+      "contentPath": "assets/models/Small_Shelf"
+    },
+    {
+      "name": "toilet",
+      "contentPath": "assets/models/Toilet2"
+    },
+    {
+      "name": "TV",
+      "contentPath": "assets/models/TV"
+    },
+    {
+      "name": "spatula",
+      "contentPath": "assets/models/spatula"
+    }
+  ],
   "sounds": [
 
     {
