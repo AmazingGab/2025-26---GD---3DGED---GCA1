@@ -1,8 +1,8 @@
 # 3DGED — Squash Them All!
 
-|                                                                |     |                                                                |
-| -------------------------------------------------------------- | --- | -------------------------------------------------------------- |
-| ![Squash Them All!](GDGame/Content/Assets/Textures/UI/STA.png) | BY  | ![Squash Them All!](GDGame/Content/Assets/Textures/UI/STA.png) |
+|                                                                |     |                                                                            |
+| -------------------------------------------------------------- | --- | -------------------------------------------------------------------------- |
+| ![Squash Them All!](GDGame/Content/Assets/Textures/UI/STA.png) | BY  | ![Squash Them All!](GDGame/Content/Assets/Textures/UI/dtomstudioslogo.png) |
 
 Game Engine on MonoGame
 
