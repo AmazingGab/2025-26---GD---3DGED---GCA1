@@ -12,7 +12,11 @@ Squash Them All is a game where a child (you) has been left home alone for a goo
 
 ## 🔗 Screencast link
 
-youtube link here
+Youtube Link
+
+## 🔗 Windows Build link
+
+[Squash Them All Zip File](https://studentdkit-my.sharepoint.com/:u:/g/personal/d00265365_student_dkit_ie/IQDGl660jYqqQozYM4mP5Mu5AZghemxSpfVxdkqMG0Vh3lI?e=mreVIp)
 
 ## 🎮 Controls
 
